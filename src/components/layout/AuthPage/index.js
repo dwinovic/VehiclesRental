@@ -37,6 +37,7 @@ export default AuthPage;
 
 const StyledAuthPage = styled.div`
   position: relative;
+  background: rgba(0, 0, 0, 0.4);
   .bg-image {
     position: absolute;
     height: 758px;

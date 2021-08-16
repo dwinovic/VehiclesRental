@@ -1,3 +1,5 @@
 import LogoBrand from './LogoBrand';
+import Button from './Button';
+import Input from './Input';
 
-export { LogoBrand };
+export { LogoBrand, Button, Input };

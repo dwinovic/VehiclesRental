@@ -285,7 +285,7 @@ const StyledFooter = styled.div`
   padding: 70px 30px;
   padding-bottom: 0;
   .container {
-    width: 1750px;
+    width: max-content;
     margin: 0 auto;
     ${breakpoints.lessThan('2xl')`
       width: 95%;
@@ -363,7 +363,7 @@ const StyledFooter = styled.div`
       /* background-color: blue; */
       flex: 1;
       display: flex;
-      gap: 150px;
+      gap: 250px;
       ${breakpoints.lessThan('xl')`
         gap: 50px;
       `}
