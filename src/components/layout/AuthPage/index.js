@@ -2,17 +2,24 @@ import styled from 'styled-components';
 import Image from 'next/image';
 import { IMGBgLogin } from '../../../assets';
 import PropTypes from 'prop-types';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 
-const AuthPage = ({ children, imageBg }) => {
+const AuthPage = ({ children, imageBg, title }) => {
   return (
-    <StyledAuthPage>
-      <div className="bg-image">
-        <div className="image-wrapper">
-          <Image src={IMGBgLogin} layout="fill" alt="jeep" />
+    <>
+      <Head>
+        <title>Vehicles Rent | {title}</title>
+      </Head>
+      <StyledAuthPage>
+        <div className="bg-image">
+          <div className="image-wrapper">
+            <Image src={IMGBgLogin} layout="fill" alt="jeep" />
+          </div>
         </div>
-      </div>
-      {children}
-    </StyledAuthPage>
+        <div className="content">{children}</div>
+      </StyledAuthPage>
+    </>
   );
 };
 
@@ -23,11 +30,13 @@ AuthPage.propTypes = {
 
 AuthPage.defaultProps = {
   imageBg: IMGBgLogin,
+  title: 'Type Title',
 };
 
 export default AuthPage;
 
 const StyledAuthPage = styled.div`
+  position: relative;
   .bg-image {
     position: absolute;
     height: 758px;
@@ -40,5 +49,9 @@ const StyledAuthPage = styled.div`
         object-fit: cover;
       }
     }
+  }
+  .content {
+    height: 758px;
+    width: 100vw;
   }
 `;

@@ -1,10 +1,12 @@
 import styled from 'styled-components';
 import { AuthPage } from '../../src/components';
+import Footer from '../../src/components/molecules/Footer';
 
 const LoginPage = () => {
   return (
     <StyledLogin>
-      <AuthPage></AuthPage>
+      <AuthPage title="Login"></AuthPage>
+      <Footer />
     </StyledLogin>
   );
 };
@@ -12,5 +14,5 @@ const LoginPage = () => {
 export default LoginPage;
 
 const StyledLogin = styled.div`
-  background-color: pink;
+  /* background-color: pink; */
 `;

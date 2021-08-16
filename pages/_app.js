@@ -16,6 +16,11 @@ function MyApp({ Component, pageProps }) {
           href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&display=swap"
           rel="stylesheet"
         />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&display=swap"
+          rel="stylesheet"
+        ></link>
       </Head>
       <Component {...pageProps} />
     </>
