@@ -3,8 +3,10 @@ import { AuthPage, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
 import Link from 'next/link';
 import { breakpoints } from '../../src/utils';
+import { useRouter } from 'next/router';
 
 const LoginPage = () => {
+  const router = useRouter();
   return (
     <>
       <AuthPage title="Login">
@@ -13,7 +15,13 @@ const LoginPage = () => {
             <div className="left">
               <h1 className="heading">Le’ts Explore The World</h1>
               <p className="sign-up">Don’t have account?</p>
-              <Button type="light" className="btn">
+              <Button
+                type="light"
+                className="btn"
+                onClick={() => {
+                  return router.push('/register');
+                }}
+              >
                 Sign Up
               </Button>
             </div>
@@ -90,7 +98,6 @@ const LoginPage = () => {
           </div>
         </StyledContent>
       </AuthPage>
-      <Footer />
     </>
   );
 };

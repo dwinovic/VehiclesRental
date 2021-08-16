@@ -4,6 +4,7 @@ import { IMGBgLogin } from '../../../assets';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Footer from '../../molecules/Footer';
 
 const AuthPage = ({ children, imageBg, title }) => {
   return (
@@ -19,6 +20,7 @@ const AuthPage = ({ children, imageBg, title }) => {
         </div>
         <div className="content">{children}</div>
       </StyledAuthPage>
+      <Footer />
     </>
   );
 };
