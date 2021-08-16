@@ -7,14 +7,14 @@ import { breakpoints } from '../../src/utils';
 const LoginPage = () => {
   return (
     <>
-      <AuthPage title="Login">
+      <AuthPage title="Register">
         <StyledContent>
           <div className="content">
             <div className="left">
               <h1 className="heading">Le’ts Explore The World</h1>
-              <p className="sign-up">Don’t have account?</p>
-              <Button type="light" className="btn">
-                Sign Up
+              <p className="sign-up">Have account?</p>
+              <Button type="dark" className="btn">
+                Login
               </Button>
             </div>
             <div className="center">
@@ -73,10 +73,28 @@ const LoginPage = () => {
             </div>
             <form className="right">
               <div className="form-input">
-                <Input name="email" type="text" placeholder="Email" />
+                <Input
+                  name="name"
+                  type="text"
+                  placeholder="Name"
+                  className="input"
+                />
               </div>
               <div className="form-input">
-                <Input name="password" type="password" placeholder="Password" />
+                <Input
+                  name="email"
+                  type="text"
+                  placeholder="Email"
+                  className="input"
+                />
+              </div>
+              <div className="form-input">
+                <Input
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  className="input"
+                />
               </div>
               <div className="form-input forgot-password-wrapper">
                 <Link href="#">
@@ -84,7 +102,9 @@ const LoginPage = () => {
                 </Link>
               </div>
               <div className="btn-wrapper">
-                <Button type="light">Login</Button>
+                <Button type="light" className="btn">
+                  Sign Up
+                </Button>
               </div>
             </form>
           </div>
@@ -106,7 +126,6 @@ const StyledContent = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     ${breakpoints.lessThan('lg')`
       flex-direction: column;
       justify-content: center;
@@ -143,6 +162,10 @@ const StyledContent = styled.div`
         margin-bottom: 25px;
       }
       .btn {
+        ${breakpoints.lessThan('lg')`
+          height: 60px;
+          font-size: 22px;
+          `}
       }
     }
     .center {
@@ -165,13 +188,20 @@ const StyledContent = styled.div`
     .right {
       ${breakpoints.lessThan('lg')`
       width: 100%;
-    `}
+      `}
       .form-input {
         margin-bottom: 34px;
         width: 447px;
+        .input {
+          ${breakpoints.lessThan('lg')`
+          height: 60px;
+          font-size: 22px;
+        `}
+        }
+
         ${breakpoints.lessThan('lg')`
-      width: 100%;
-    `}
+          width: 100%;
+        `}
         &.forgot-password-wrapper {
           margin-top: -25px;
           .forgot-password {
@@ -183,6 +213,14 @@ const StyledContent = styled.div`
             text-decoration-line: underline;
             color: #ffffff;
           }
+        }
+      }
+      .btn-wrapper {
+        .btn {
+          ${breakpoints.lessThan('lg')`
+          height: 60px;
+          font-size: 22px;
+          `}
         }
       }
     }

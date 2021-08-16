@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-const Input = ({ placeholder, name, onChange, value, type }) => {
+const Input = ({ placeholder, name, onChange, value, type, className }) => {
   return (
     <StyledInput
+      className={className}
       placeholder={placeholder}
       type={type}
       name={name}
@@ -28,8 +29,10 @@ Input.defaultProps = {
 export default Input;
 
 const StyledInput = styled.input`
-  padding: 23px 0 23px 40px;
+  /* padding: 23px 0 23px 40px; */
   width: 100%;
+  height: 79px;
+  padding-left: 23px;
   background: rgba(255, 255, 255, 0.26);
   border-radius: 10px;
   font: inherit;
