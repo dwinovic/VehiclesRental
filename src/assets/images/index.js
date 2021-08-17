@@ -6,8 +6,10 @@ import IMGKalimantan from './IMGKalimantan.png';
 import IMGMalang from './IMGMalang.png';
 import IMGMerapi from './IMGMerapi.png';
 import IMGDMUser from './DMUser.png';
+import IMGBgAdmin from './IMGAdmin.png';
 
 export {
+  IMGBgAdmin,
   IMGDMUser,
   IMGBgLogin,
   AVADefault,
