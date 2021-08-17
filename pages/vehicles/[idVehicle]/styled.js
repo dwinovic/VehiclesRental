@@ -3,22 +3,6 @@ import { breakpoints } from '../../../src/utils';
 
 export const StyledDetailVehicle = styled.div`
   padding-top: 40px;
-  /* START = NAVIGATION HEADER */
-  .navigation {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 50px;
-    .detail-nav {
-      font-family: Nunito;
-      font-style: normal;
-      font-weight: bold;
-      font-size: 36px;
-      line-height: 24px;
-      color: #000000;
-    }
-  }
-  /* END = NAVIGATION HEADER */
 
   /* START = DETAIL VEHICLES  */
   .detail-vehicle {

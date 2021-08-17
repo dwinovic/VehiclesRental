@@ -1,30 +1,14 @@
 import { IMGJogja } from '../../../src/assets';
-import { Button, MainLayout } from '../../../src/components';
+import { Button, GoBackPage, MainLayout } from '../../../src/components';
 import { StyledDetailVehicle } from './styled';
 import Image from 'next/image';
 
 const DetailVehicle = () => {
   return (
     <MainLayout bgFooter="gray" title="Fixie - Gray Only">
-      <StyledDetailVehicle>
-        <section className="container navigation">
-          <div className="back-controll">
-            <svg
-              width="28"
-              height="44"
-              viewBox="0 0 28 44"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M26.7273 37.3014L13.1515 25.0167C11.4545 23.4811 11.4545 21.1777 13.1515 19.6421L26.7273 7.35741C28.4242 5.82182 28.4242 3.51844 26.7273 1.98285C25.0303 0.447266 22.4848 0.447266 20.7879 1.98285L1.27273 19.6421C-0.424242 21.1777 -0.424242 23.4811 1.27273 25.0167L20.7879 42.6759C22.4848 44.2115 25.0303 44.2115 26.7273 42.6759C28.4242 41.1404 28.4242 38.837 26.7273 37.3014Z"
-                fill="#4A4C53"
-              />
-            </svg>
-          </div>
-          <p className="detail-nav">Detail</p>
-        </section>
-        <section className="container detail-vehicle">
+      <StyledDetailVehicle className="container">
+        <GoBackPage titleBack="Detail" />
+        <section className=" detail-vehicle">
           <div className="galery-wrapper">
             <div className="image-main">
               <Image src={IMGJogja} alt="vehicle" layout="fill" />
@@ -131,7 +115,7 @@ const DetailVehicle = () => {
             </div>
           </div>
         </section>
-        <section className="container button-action-wrapper">
+        <section className=" button-action-wrapper">
           <Button type="dark" className="btn">
             Chat Admin
           </Button>

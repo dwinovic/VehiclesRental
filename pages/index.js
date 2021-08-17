@@ -1,17 +1,7 @@
 import { Select } from '@chakra-ui/react';
 import Image from 'next/image';
-import Link from 'next/link';
 import styled from 'styled-components';
-import {
-  ILCircle,
-  ILPlus,
-  IMGBGhome,
-  IMGDMUser,
-  IMGJogja,
-  IMGKalimantan,
-  IMGMalang,
-  IMGMerapi,
-} from '../src/assets';
+import { ILCircle, ILPlus, IMGBGhome, IMGDMUser } from '../src/assets';
 import { SectionCard } from '../src/components';
 import { Button } from '../src/components/atoms';
 import { BgImageLayout, MainLayout } from '../src/components/layout';
