@@ -1,11 +1,8 @@
 import styled from 'styled-components';
+import { MainLayout } from '../src/components/layout';
 
 export default function Home() {
-  return (
-    <StyledHomepage>
-      <h1>Home</h1>
-    </StyledHomepage>
-  );
+  return <MainLayout></MainLayout>;
 }
 
 // STYLING = HOMEPAGE

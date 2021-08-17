@@ -26,15 +26,43 @@ const StyledButton = styled.button`
     switch (type) {
       case 'light':
         return '#FFCD61';
+      case 'light-outline':
+        return 'transparent';
       case 'dark':
         return '#393939';
       default:
         return '#FFFFFF';
     }
   }};
+  border-color: ${({ type }) => {
+    switch (type) {
+      case 'light':
+        return '#FFCD61';
+      case 'light-outline':
+        return 'transparent';
+      case 'dark':
+        return '#393939';
+      default:
+        return '#FFFFFF';
+    }
+  }};
+  border: ${({ type }) => {
+    switch (type) {
+      case 'light':
+        return 0;
+      case 'light-outline':
+        return '2px';
+      case 'dark':
+        return 0;
+      default:
+        return 1;
+    }
+  }}px;
   color: ${({ type }) => {
     switch (type) {
       case 'light':
+        return '#393939';
+      case 'light-outline':
         return '#393939';
       case 'dark':
         return '#FFCD61';
@@ -58,7 +86,6 @@ const StyledButton = styled.button`
   width: 100%;
   font: inherit;
   font-family: Nunito;
-  border: 0;
   font-style: normal;
   font-weight: 900;
   font-size: 24px;
