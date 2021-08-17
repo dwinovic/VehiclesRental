@@ -34,4 +34,32 @@ const StyledMainLayout = styled.div`
     `}
   }
   /* END = CONTAINER */
+
+  /* START = TYPHOGRAPHY */
+  .heading-page {
+    font-family: Nunito;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 36px;
+    line-height: 24px;
+    color: #000000;
+  }
+  .heading-playfair {
+    font-family: Playfair Display;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 48px;
+    line-height: 24px;
+    color: #000000;
+  }
+  .text-nunito-bold {
+    font-family: Nunito;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 24px;
+
+    color: #b8becd;
+  }
+  /* END = TYPHOGRAPHY */
 `;

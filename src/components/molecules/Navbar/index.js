@@ -157,7 +157,7 @@ Navbar.propTypes = {
 };
 
 Navbar.defaultProps = {
-  session: '',
+  session: 'login',
 };
 
 export default Navbar;
@@ -306,7 +306,7 @@ const StyledNavbarCollapse = styled.nav`
   display: none;
   z-index: -9;
   ${breakpoints.lessThan('md')`
-      display: ${({ show }) => (show ? 'flex' : 'nonde')};
+      display: ${({ show }) => (show ? 'flex' : 'none')};
   `}
   /* width: 768px; */
   .content {
