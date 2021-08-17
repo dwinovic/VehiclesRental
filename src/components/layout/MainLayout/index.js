@@ -58,8 +58,65 @@ const StyledMainLayout = styled.div`
     font-weight: bold;
     font-size: 24px;
     line-height: 24px;
-
     color: #b8becd;
+    &.dark {
+      color: #393939;
+    }
+    &.light {
+      color: #b8becd;
+    }
+  }
+  .text-nunito-regular {
+    font-family: Nunito;
+    font-style: normal;
+    font-weight: 300;
+    font-size: 24px;
+    line-height: 24px;
+
+    color: #393939;
+  }
+  .title-vehicle {
+    font-family: Playfair Display;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 48px;
+    color: #042521;
+    margin-bottom: 1rem;
+  }
+  .location {
+    font-family: Playfair Display;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 36px;
+    line-height: 24px;
+    color: #393939;
+    mix-blend-mode: normal;
+    margin-bottom: 2rem;
+  }
+  .status {
+    font-family: Nunito;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 25px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    &.green {
+      color: #087e0d;
+    }
+    &.default {
+      color: #b8becd;
+    }
+  }
+  .price {
+    font-family: Playfair Display;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 36px;
+    line-height: 25px;
+    text-align: right;
+    color: #000000;
   }
   /* END = TYPHOGRAPHY */
 `;

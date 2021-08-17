@@ -77,7 +77,7 @@ export const StyledDetailVehicle = styled.div`
     .detail-info {
       flex: 1;
       position: relative;
-      .title-vehicle {
+      /* .title-vehicle {
         font-family: Playfair Display;
         font-style: normal;
         font-weight: 900;
@@ -94,8 +94,8 @@ export const StyledDetailVehicle = styled.div`
         color: #393939;
         mix-blend-mode: normal;
         margin-bottom: 2rem;
-      }
-      .status {
+      } */
+      /* .status {
         font-family: Nunito;
         font-style: normal;
         font-weight: bold;
@@ -107,7 +107,7 @@ export const StyledDetailVehicle = styled.div`
         &.green {
           color: #087e0d;
         }
-      }
+      } */
       .paymentOption {
         font-family: Nunito;
         font-style: normal;
@@ -128,7 +128,7 @@ export const StyledDetailVehicle = styled.div`
         color: #393939;
         margin-bottom: 1rem;
       }
-      .price {
+      /* .price {
         font-family: Playfair Display;
         font-style: normal;
         font-weight: 900;
@@ -136,7 +136,7 @@ export const StyledDetailVehicle = styled.div`
         line-height: 25px;
         text-align: right;
         color: #000000;
-      }
+      } */
       .amount-wrapper {
         display: flex;
         justify-content: space-around;
