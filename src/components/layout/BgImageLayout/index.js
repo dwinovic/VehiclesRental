@@ -1,17 +1,11 @@
-import styled from 'styled-components';
 import Image from 'next/image';
-import { IMGBgLogin } from '../../../assets';
 import PropTypes from 'prop-types';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import Footer from '../../molecules/Footer';
+import styled from 'styled-components';
+import { IMGBgLogin } from '../../../assets';
 
-const BgImageLayout = ({ children, imageBg, title }) => {
+const BgImageLayout = ({ children, imageBg }) => {
   return (
     <>
-      <Head>
-        <title>Vehicles Rent | {title}</title>
-      </Head>
       <StyledBgImageLayout>
         <div className="bg-image">
           <div className="image-wrapper">

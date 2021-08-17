@@ -4,12 +4,16 @@ import Footer from '../../src/components/molecules/Footer';
 import Link from 'next/link';
 import { breakpoints } from '../../src/utils';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 const LoginPage = () => {
   const router = useRouter();
   return (
     <>
-      <BgImageLayout title="Login">
+      <Head>
+        <title>Vehicles Rental | Login</title>
+      </Head>
+      <BgImageLayout>
         <StyledContent>
           <div className="content">
             <div className="left">

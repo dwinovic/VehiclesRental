@@ -12,16 +12,17 @@ import {
   IMGMalang,
   IMGMerapi,
 } from '../src/assets';
+import { SectionCard } from '../src/components';
 import { Button } from '../src/components/atoms';
 import { BgImageLayout, MainLayout } from '../src/components/layout';
 import { breakpoints } from '../src/utils';
 
 export default function Home() {
   return (
-    <MainLayout bgFooter="gray">
+    <MainLayout bgFooter="gray" title="Home">
       <StyledHomepage>
         <header>
-          <BgImageLayout imageBg={IMGBGhome} title="Home">
+          <BgImageLayout imageBg={IMGBGhome}>
             <div className="container header">
               <h1 className="heading">Explore and Travel</h1>
               <div className="sub-heading-wrapper">
@@ -76,52 +77,7 @@ export default function Home() {
         </header>
 
         <main>
-          <section className="container popular-section">
-            <div className="heading-section">
-              <h2>Popular in town</h2>
-              <Link href="#">
-                <a className="anchor">Viewe all</a>
-              </Link>
-            </div>
-
-            <div className="content">
-              <div className="card">
-                <Image src={IMGMerapi} alt="image" layout="fill" />
-                <div className="description">
-                  <h5>Merapi</h5>
-                  <p className="text-regular">Yogyakarta</p>
-                </div>
-              </div>
-              <div className="card">
-                <Image src={IMGKalimantan} alt="image" layout="fill" />
-                <div className="description">
-                  <h5>Teluk Bogam</h5>
-                  <p className="text-regular">Kalimantan</p>
-                </div>
-              </div>
-              <div className="card">
-                <Image src={IMGMalang} alt="image" layout="fill" />
-                <div className="description">
-                  <h5>Bromo</h5>
-                  <p className="text-regular">Malang</p>
-                </div>
-              </div>
-              <div className="card">
-                <Image src={IMGJogja} alt="image" layout="fill" />
-                <div className="description">
-                  <h5>Malioboro</h5>
-                  <p className="text-regular">Yogyakarta</p>
-                </div>
-              </div>
-              <div className="card">
-                <Image src={IMGJogja} alt="image" layout="fill" />
-                <div className="description">
-                  <h5>Malioboro</h5>
-                  <p className="text-regular">Yogyakarta</p>
-                </div>
-              </div>
-            </div>
-          </section>
+          <SectionCard heading="Popular in town" />
           <section className="container testimonials-sections">
             <div className="heading-section">
               <h2>Testimonials</h2>
@@ -496,58 +452,6 @@ const StyledHomepage = styled.div`
         }
       }
     }
-    /* START = SECTION POPULAR */
-    section.popular-section {
-      .content {
-        display: grid;
-        grid-template-columns: 280px 280px 280px 280px 280px;
-        justify-content: space-between;
-        gap: 2rem;
-        ${breakpoints.lessThan('2xl')`
-          grid-template-columns: 280px 280px 280px 280px; 
-        `}
-        ${breakpoints.lessThan('xl')`
-          grid-template-columns: 33% 33% 33% ; 
-        `}
-        ${breakpoints.lessThan('lg')`
-         grid-template-columns: 33% 33% 33% ; 
-          justify-content: flex-start;
-        `}
-        ${breakpoints.lessThan('md')`
-          grid-template-columns: 45% 45%  ; 
-          justify-content: center;
-        `}
-        ${breakpoints.lessThan('xsm')`
-          grid-template-columns: 95%  ; 
-          justify-content: center;
-        `}
-
-        .card {
-          position: relative;
-          height: 337px;
-          filter: drop-shadow(0px 7px 15px rgba(0, 0, 0, 0.05));
-          ${breakpoints.lessThan('lg')`
-          height: 250px;
-
-        `}
-          img {
-            border-radius: 20px;
-          }
-          .description {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            background: #ffffff;
-            border-radius: 0px 6px 0px 0px;
-            width: 120px;
-            box-sizing: content-box;
-            padding-top: 1rem;
-            padding-left: 10px;
-          }
-        }
-      }
-    }
-    /* END = SECTION POPULAR */
 
     /* START = SECTION TESTIMONIALS */
     section.testimonials-sections {

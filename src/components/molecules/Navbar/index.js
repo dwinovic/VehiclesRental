@@ -12,6 +12,8 @@ import { useRouter } from 'next/router';
 const Navbar = ({ session }) => {
   const [collapse, setCollapse] = useState(false);
   const router = useRouter();
+  const pathActive = router.pathname.split('/')[1];
+  console.log(pathActive);
 
   return (
     <>
@@ -23,16 +25,20 @@ const Navbar = ({ session }) => {
           <div className="navigation-wrapper">
             <div className="navbar-items-wrapper">
               <Link href="/">
-                <a className="active">Home</a>
+                <a className={pathActive === '' ? 'active' : ''}>Home</a>
               </Link>
               <Link href="/vehicles-type">
-                <a className="">Vehicle Type</a>
+                <a className={pathActive === 'vehicles-type' ? 'active' : ''}>
+                  Vehicle Type
+                </a>
               </Link>
               <Link href="/history">
-                <a className="">History</a>
+                <a className={pathActive === 'history' ? 'active' : ''}>
+                  History
+                </a>
               </Link>
               <Link href="/about">
-                <a className="">About</a>
+                <a className={pathActive === 'about' ? 'active' : ''}>About</a>
               </Link>
             </div>
             {session !== 'login' && (
