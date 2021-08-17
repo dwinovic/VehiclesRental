@@ -6,38 +6,37 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Footer from '../../molecules/Footer';
 
-const AuthPage = ({ children, imageBg, title }) => {
+const BgImageLayout = ({ children, imageBg, title }) => {
   return (
     <>
       <Head>
         <title>Vehicles Rent | {title}</title>
       </Head>
-      <StyledAuthPage>
+      <StyledBgImageLayout>
         <div className="bg-image">
           <div className="image-wrapper">
-            <Image src={IMGBgLogin} layout="fill" alt="jeep" />
+            <Image src={imageBg} layout="fill" alt="jeep" />
           </div>
         </div>
         <div className="content">{children}</div>
-      </StyledAuthPage>
-      <Footer />
+      </StyledBgImageLayout>
     </>
   );
 };
 
-AuthPage.propTypes = {
+BgImageLayout.propTypes = {
   children: PropTypes.element.isRequired,
   imageBg: PropTypes.object.isRequired,
 };
 
-AuthPage.defaultProps = {
+BgImageLayout.defaultProps = {
   imageBg: IMGBgLogin,
   title: 'Type Title',
 };
 
-export default AuthPage;
+export default BgImageLayout;
 
-const StyledAuthPage = styled.div`
+const StyledBgImageLayout = styled.div`
   position: relative;
   background: rgba(0, 0, 0, 0.4);
   .bg-image {

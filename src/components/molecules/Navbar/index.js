@@ -7,9 +7,11 @@ import { AVADefault } from '../../../assets';
 import { ICEmail } from '../../../assets/icons';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 const Navbar = ({ session }) => {
   const [collapse, setCollapse] = useState(false);
+  const router = useRouter();
 
   return (
     <>
@@ -35,8 +37,22 @@ const Navbar = ({ session }) => {
             </div>
             {session !== 'login' && (
               <div className="button-wrapper">
-                <button className="btn outline">Login</button>
-                <button className="btn primary">Register</button>
+                <button
+                  className="btn outline"
+                  onClick={() => {
+                    return router.push('/login');
+                  }}
+                >
+                  Login
+                </button>
+                <button
+                  className="btn primary"
+                  onClick={() => {
+                    return router.push('/register');
+                  }}
+                >
+                  Register
+                </button>
               </div>
             )}
             {session === 'login' && (
@@ -105,8 +121,22 @@ const Navbar = ({ session }) => {
           <div className="footer">
             {session === 'login' && (
               <>
-                <button className="btn outline">Login</button>
-                <button className="btn primary">Register</button>
+                <button
+                  className="btn outline"
+                  onClick={() => {
+                    return router.push('/login');
+                  }}
+                >
+                  Login
+                </button>
+                <button
+                  className="btn primary"
+                  onClick={() => {
+                    return router.push('/register');
+                  }}
+                >
+                  Register
+                </button>
               </>
             )}
           </div>

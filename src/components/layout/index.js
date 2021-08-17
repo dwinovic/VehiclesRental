@@ -1,4 +1,4 @@
-import AuthPage from './AuthPage';
+import BgImageLayout from './BgImageLayout';
 import MainLayout from './MainLayout';
 
-export { AuthPage, MainLayout };
+export { BgImageLayout, MainLayout };

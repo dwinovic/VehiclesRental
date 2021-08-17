@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { AuthPage, Button, Input } from '../../src/components';
+import { BgImageLayout, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
 import Link from 'next/link';
 import { breakpoints } from '../../src/utils';
@@ -10,7 +10,7 @@ const LoginPage = () => {
 
   return (
     <>
-      <AuthPage title="Register">
+      <BgImageLayout title="Register">
         <StyledContent>
           <div className="content">
             <div className="left">
@@ -118,7 +118,8 @@ const LoginPage = () => {
             </form>
           </div>
         </StyledContent>
-      </AuthPage>
+      </BgImageLayout>
+      <Footer />
     </>
   );
 };
