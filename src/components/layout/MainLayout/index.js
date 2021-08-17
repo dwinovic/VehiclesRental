@@ -8,7 +8,7 @@ const MainLayout = ({ title, children, bgFooter }) => {
   return (
     <StyledMainLayout>
       <Head>
-        <title>{title} | Vehicles Rental</title>
+        <title>{title}</title>
       </Head>
       <Navbar />
       {children}
