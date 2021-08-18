@@ -1,14 +1,14 @@
 import styled from 'styled-components';
-import { BgImageLayout, Button, Input } from '../../src/components';
-import Footer from '../../src/components/molecules/Footer';
+import { BgImageLayout, Button, Input } from '../../../src/components';
+import Footer from '../../../src/components/molecules/Footer';
 import Link from 'next/link';
-import { breakpoints, toastify } from '../../src/utils';
+import { breakpoints, toastify } from '../../../src/utils';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useForm } from 'react-hook-form';
-import Axios from '../../src/config/Axios';
+import Axios from '../../../src/config/Axios';
 
-const RegisterCustomerPage = () => {
+const RegisterAdminPage = () => {
   const router = useRouter();
   const {
     register,
@@ -22,8 +22,9 @@ const RegisterCustomerPage = () => {
       email: data.email,
       password: data.password,
       name: data.name,
-      role: 'customer',
+      role: 'admin',
     };
+    console.log(data);
     Axios.post('/users/register', dataSend)
       .then((result) => {
         const idUser = result.data.data.idUser;
@@ -52,7 +53,7 @@ const RegisterCustomerPage = () => {
         <StyledContent>
           <div className="content">
             <div className="left">
-              <h1 className="heading">Le’ts Explore The World</h1>
+              <h1 className="heading">Make Money with your vehicles</h1>
               <p className="sign-up">Have account?</p>
               <Button
                 type="dark"
@@ -63,9 +64,9 @@ const RegisterCustomerPage = () => {
               >
                 Login
               </Button>
-              <Link href="/admin/register">
+              <Link href="/register">
                 <a>
-                  <p className="admin-register">Admin register</p>
+                  <p className="admin-register">Customer</p>
                 </a>
               </Link>
             </div>
@@ -170,7 +171,7 @@ const RegisterCustomerPage = () => {
   );
 };
 
-export default RegisterCustomerPage;
+export default RegisterAdminPage;
 
 const StyledContent = styled.div`
   width: 100%;

@@ -26,8 +26,10 @@ const LoginPage = () => {
       .then((result) => {
         const idUser = result.data.data.idUser;
         const token = result.data.data.token;
+        const role = result.data.data.role;
         localStorage.setItem('token', token);
         localStorage.setItem('idUser', idUser);
+        localStorage.setItem('role', role);
         router.push('/');
       })
       .catch((err) => {

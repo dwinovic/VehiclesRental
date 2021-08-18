@@ -1,13 +1,36 @@
 import { Select } from '@chakra-ui/react';
 import Image from 'next/image';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { ILCircle, ILPlus, IMGBGhome, IMGDMUser } from '../src/assets';
 import { SectionCard } from '../src/components';
 import { Button } from '../src/components/atoms';
 import { BgImageLayout, MainLayout } from '../src/components/layout';
 import { breakpoints } from '../src/utils';
+import useSWR from 'swr';
+import { fetcher } from '../src/config/fetcher';
+import { useRouter } from 'next/router';
+import Axios from '../src/config/Axios';
 
-export default function Home() {
+function Home(props) {
+  console.log('PROPS', props);
+  const [dataUser, setDataUser] = useState();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
+
+  const { data, error } = useSWR('/vehicles?limit=5', fetcher);
+  const dataVehicles = data?.data;
+
+  useEffect(() => {
+    const roleLocal = localStorage.getItem('role');
+    if (roleLocal === 'admin') {
+      setIsAdmin(true);
+    }
+  }, []);
+
+  console.log(dataUser);
+
   return (
     <MainLayout bgFooter="gray" title="Home">
       <StyledHomepage>
@@ -65,9 +88,21 @@ export default function Home() {
             </div>
           </BgImageLayout>
         </header>
-
         <main>
-          <SectionCard heading="Popular in town" />
+          <SectionCard heading="Popular in town" data={dataVehicles} />
+          {isAdmin && (
+            <div className="container add-new-item">
+              <Button
+                type="dark"
+                onClick={() => {
+                  return router.push('/admin/vehicles');
+                }}
+              >
+                Add new item
+              </Button>
+            </div>
+          )}
+
           <section className="container testimonials-sections">
             <div className="heading-section">
               <h2>Testimonials</h2>
@@ -275,6 +310,14 @@ export default function Home() {
   );
 }
 
+// export async function getServerSideProps() {
+//   const res = Axios.get('/vehicles');
+//   const data = res.data;
+
+//   // Pass data to the page via props
+//   return { props: { data } };
+// }
+export default Home;
 // STYLING = HOMEPAGE
 
 const StyledHomepage = styled.div`
@@ -441,6 +484,10 @@ const StyledHomepage = styled.div`
           }
         }
       }
+    }
+
+    .add-new-item {
+      margin-top: 2rem;
     }
 
     /* START = SECTION TESTIMONIALS */

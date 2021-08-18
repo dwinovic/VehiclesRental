@@ -15,13 +15,6 @@ const MainLayout = ({ title, children, bgFooter }) => {
     idUser: '',
   });
 
-  useEffect(() => {
-    setLocalStrg({
-      token: localStorage.getItem('token'),
-      idUser: localStorage.getItem('idUser'),
-    });
-  }, []);
-
   const { data, error } = useSWR(
     [`/users/${localStrg.idUser}`, localStrg.token],
     fetcher
@@ -29,15 +22,20 @@ const MainLayout = ({ title, children, bgFooter }) => {
 
   const dataUser = data?.data[0];
   const session = dataUser ? 'login' : false;
-  // console.log('session', session);
-  // console.log('datauser', dataUser);
+
+  useEffect(() => {
+    setLocalStrg({
+      token: localStorage.getItem('token'),
+      idUser: localStorage.getItem('idUser'),
+    });
+  }, []);
 
   return (
     <StyledMainLayout>
       <Head>
         <title>{title}</title>
       </Head>
-      <Navbar session={session} />
+      <Navbar session={session} data={dataUser} />
       {children}
       <Footer bgFooter={bgFooter} />
     </StyledMainLayout>

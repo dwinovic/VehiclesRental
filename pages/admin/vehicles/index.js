@@ -3,24 +3,130 @@ import { ICPlusLight, ILCamera, ILPlus } from '../../../src/assets';
 import { Button, GoBackPage, Input, MainLayout } from '../../../src/components';
 import { StyledAddingVehiclesPage } from './styled';
 import { Select } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import Axios from '../../../src/config/Axios';
+import { toastify } from '../../../src/utils';
+import LoginPage from '../../login';
 
 const AddVehicles = () => {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    getValues,
+  } = useForm();
+
+  const [totalStock, setTotalStock] = useState(1);
+  // Upload Image
+  const [uploadImage, setUploadImage] = useState([]);
+  const [previewAvatar, setPreviewAvatar] = useState([]);
+
+  const handleInputImageProduct = async () => {
+    try {
+      const getImage = getValues('images')[0];
+      const preview = URL.createObjectURL(getImage);
+      setUploadImage(getImage);
+      setPreviewAvatar(preview);
+    } catch (error) {
+      // console.log(error);
+    }
+  };
+  useEffect(() => {
+    const allValue = getValues();
+    // console.log('allValue', allValue);
+
+    handleInputImageProduct();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch('images')]);
+
+  const onSubmit = (data) => {
+    console.log(data);
+    const token = localStorage.getItem('token');
+    const idUser = localStorage.getItem('idUser');
+    console.log('token', token);
+    console.log('idUser', idUser);
+
+    const formData = new FormData();
+    formData.append('idOwner', idUser);
+    formData.append('name', data.name);
+    formData.append('location', data.location);
+    formData.append('description', data.description);
+    formData.append('price', data.price);
+    formData.append('type', data.category);
+    formData.append('stock', totalStock);
+    formData.append('capacity', 2);
+    formData.append('paymentOption', 'per day');
+    formData.append('status', data.status);
+    // formData.append('images', data.image);
+
+    // console.log('data.image1', data.image1);
+    const imageMultiple = [];
+    imageMultiple.push(data.images[0]);
+    // imageMultiple.push(data.images2[0]);
+    // imageMultiple.push(data.images3[0]);
+    Array.from(imageMultiple).forEach((image) => {
+      formData.append('images', image);
+    });
+
+    Axios.post('/vehicles', formData, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((result) => {
+        console.log(result);
+        router.push('/');
+      })
+      .catch((err) => {
+        console.log('Error:', err.response);
+        const message = err.response.data.error;
+        toastify(message, 'warning');
+      });
+  };
+
+  // START = COUNTER STOCK
+
+  const handleIncrement = () => {
+    let currentValue = totalStock;
+    currentValue += 1;
+    setTotalStock(currentValue);
+  };
+  const handleDecrement = () => {
+    if (totalStock === 1) {
+      return null;
+    } else {
+      let currentValue = totalStock;
+      currentValue -= 1;
+
+      setTotalStock(currentValue);
+    }
+  };
+  // END = COUNTER STOCK
+
   return (
     <MainLayout bgFooter="gray" title="Add new vehicles">
       <StyledAddingVehiclesPage className="container">
         <GoBackPage titleBack="Add New Item" />
-        <form className="form">
+        <form className="form" onSubmit={handleSubmit(onSubmit)}>
           <div className="form-content">
             <div className="galery-wrapper">
               <div className="main">
+                {/* {!previewAvatar && ( */}
                 <div className="default">
                   <Image src={ILCamera} alt="camera" layout="fill" />
                 </div>
+                {/* )} */}
+                {!previewAvatar && (
+                  <Image src={previewAvatar} alt="camera" layout="fill" />
+                )}
                 <input
                   className="input-upload-file"
                   type="file"
-                  multiple
                   name="images"
+                  {...register('images')}
                 />
               </div>
               <div className="item-wrapper">
@@ -29,24 +135,24 @@ const AddVehicles = () => {
                     <Image src={ILCamera} alt="camera" layout="fill" />
                   </div>
                   <p>Click to add image</p>
-                  <input
+                  {/* <input
                     className="input-upload-file"
                     type="file"
-                    multiple
                     name="images"
-                  />
+                    {...register('images2')}
+                  /> */}
                 </div>
                 <div className="item">
                   <div className="icon-wrapper">
                     <Image src={ICPlusLight} alt="camera" layout="fill" />
                   </div>
                   <p>Add more</p>
-                  <input
+                  {/* <input
                     className="input-upload-file"
                     type="file"
-                    multiple
                     name="images"
-                  />
+                    {...register('images3')}
+                  /> */}
                 </div>
               </div>
             </div>
@@ -57,11 +163,17 @@ const AddVehicles = () => {
                   type="text"
                   name="name"
                   placeholder="Name (max up to 50 words)"
+                  {...register('name')}
                 />
                 <div className="line" />
               </div>
               <div className="input-wrapper">
-                <input type="text" name="location" placeholder="Location" />
+                <input
+                  type="text"
+                  name="location"
+                  placeholder="Location"
+                  {...register('location')}
+                />
                 <div className="line" />
               </div>
               <div className="input-wrapper">
@@ -69,12 +181,18 @@ const AddVehicles = () => {
                   type="text"
                   name="description"
                   placeholder="Description (max up to 150 words)"
+                  {...register('description')}
                 />
                 <div className="line" />
               </div>
               <div className="select-wrapper">
                 <label htmlFor="price">Price :</label>
-                <Input name="email" type="text" placeholder="Email" />
+                <Input
+                  name="price"
+                  type="text"
+                  placeholder="Price"
+                  {...register('price')}
+                />
               </div>
               <div className="select-wrapper">
                 <label htmlFor="status">Status :</label>
@@ -82,6 +200,8 @@ const AddVehicles = () => {
                   bg=" rgba(255, 255, 255, 0.5)"
                   variant="filled"
                   size="lg"
+                  defaultValue="available"
+                  {...register('status')}
                 >
                   <option value="available">Available</option>
                   <option value="full-booked">Full Booked</option>
@@ -90,7 +210,7 @@ const AddVehicles = () => {
               <div className="select-wrapper counter-wrapper">
                 <label htmlFor="status">Stock :</label>
                 <div className="counter">
-                  <div className="icon plus">
+                  <div className="icon plus" onClick={handleIncrement}>
                     <svg
                       width="25"
                       height="24"
@@ -104,8 +224,8 @@ const AddVehicles = () => {
                       />
                     </svg>
                   </div>
-                  <p className="count">2</p>
-                  <div className="icon minus">
+                  <p className="count">{totalStock}</p>
+                  <div className="icon minus" onClick={handleDecrement}>
                     <svg
                       width="18"
                       height="8"
@@ -130,6 +250,7 @@ const AddVehicles = () => {
               size="lg"
               className="add-category"
               placeholder="Add item to"
+              {...register('category')}
             >
               <option value="cars">Cars</option>
               <option value="motorbike">Motorbike</option>

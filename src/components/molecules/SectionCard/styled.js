@@ -88,6 +88,10 @@ export const StyledSectionCard = styled.section`
       position: relative;
       height: 337px;
       filter: drop-shadow(0px 7px 15px rgba(0, 0, 0, 0.05));
+      &:hover {
+        cursor: pointer;
+        opacity: 0.7;
+      }
       ${breakpoints.lessThan('lg')`
           height: 250px;
 

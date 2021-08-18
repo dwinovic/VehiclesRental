@@ -1,10 +1,33 @@
-import { IMGJogja } from '../../../src/assets';
+import { AVADefault, IMGDefault, IMGJogja } from '../../../src/assets';
 import { Button, GoBackPage, MainLayout } from '../../../src/components';
 import { StyledDetailVehicle } from './styled';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import { useRouter } from 'next/router';
+import { fetcher } from '../../../src/config/fetcher';
 
 const DetailVehicle = () => {
-  const role = 'seller';
+  const [dataUser, setDataUser] = useState();
+  const [role, setRole] = useState('');
+  const router = useRouter();
+  const idVehicles = router.query.idVehicle;
+
+  const { data, error } = useSWR(`/vehicles/${idVehicles}`, fetcher);
+  const dataVehicles = data?.data;
+
+  useEffect(() => {
+    const roleLocal = localStorage.getItem('role');
+    setRole(roleLocal);
+  }, []);
+
+  if (!dataVehicles) {
+    return <h1>Kooosong</h1>;
+  }
+
+  const myLoader = ({ src }) => {
+    return `${dataVehicles.images[0]}`;
+  };
 
   return (
     <MainLayout bgFooter="gray" title="Fixie - Gray Only">
@@ -13,7 +36,12 @@ const DetailVehicle = () => {
         <section className=" detail-vehicle">
           <div className="galery-wrapper">
             <div className="image-main">
-              <Image src={IMGJogja} alt="vehicle" layout="fill" />
+              <Image
+                src={dataVehicles.images[0]}
+                loader={myLoader}
+                alt={dataVehicles.name}
+                layout="fill"
+              />
             </div>
             <div className="item-wrapper">
               <div className="control prev">
@@ -43,10 +71,10 @@ const DetailVehicle = () => {
               </div>
               <div className="item-main">
                 <div className="item">
-                  <Image src={IMGJogja} alt="vehicle" layout="fill" />
+                  <Image src={IMGDefault} alt="vehicle" layout="fill" />
                 </div>
                 <div className="item">
-                  <Image src={IMGJogja} alt="vehicle" layout="fill" />
+                  <Image src={IMGDefault} alt="vehicle" layout="fill" />
                 </div>
               </div>
               <div className="control next">
@@ -76,14 +104,16 @@ const DetailVehicle = () => {
             </div>
           </div>
           <div className="detail-info">
-            <h1 className="title-vehicle">Fixie - Gray Only </h1>
-            <p className="location">Yogyakarta</p>
-            <p className="status green">Available</p>
-            <p className="paymentOption red">No prepayment</p>
+            <h1 className="title-vehicle">{dataVehicles.name}</h1>
+            <p className="location">{dataVehicles.location}</p>
+            <p className="status green">{dataVehicles.status}</p>
+            <p className="paymentOption red">{dataVehicles.paymentOption}</p>
             <p className="detail">Capacity : 1 person</p>
-            <p className="detail">Type : Bike</p>
-            <p className="detail">Reservation before 2 PM</p>
-            <p className="price">Rp. 78.000/day</p>
+            <p className="detail">
+              Type : {dataVehicles.type ? dataVehicles.type : 'Motor'}
+            </p>
+            <p className="detail">{dataVehicles.description}</p>
+            <p className="price">Rp. {dataVehicles.price}/day</p>
             <div className="amount-wrapper">
               <button className="btn primary">
                 <svg
@@ -130,12 +160,26 @@ const DetailVehicle = () => {
             </Button>
           </section>
         )}
-        {role === 'seller' && (
+        {role === 'admin' && (
           <section className=" button-action-wrapper">
-            <Button type="dark" className="btn">
+            <Button
+              type="dark"
+              className="btn"
+              onClick={() => {
+                return router.push('/');
+              }}
+            >
               Add to home page
             </Button>
-            <Button type="light" className="btn">
+            <Button
+              type="light"
+              className="btn"
+              onClick={() => {
+                return router.push(
+                  `/admin/vehicles/${dataVehicles.idVehicles}`
+                );
+              }}
+            >
               Edit item
             </Button>
           </section>

@@ -3,8 +3,11 @@ import Link from 'next/link';
 import { IMGJogja, IMGKalimantan, IMGMalang } from '../../../assets';
 import { StyledSectionCard } from './styled';
 import PropTypes from 'prop-types';
+import { useRouter } from 'next/router';
 
 const SectionCard = ({ heading, data, anchor }) => {
+  const router = useRouter();
+  console.log(data);
   return (
     <StyledSectionCard className="container">
       {heading && (
@@ -17,41 +20,35 @@ const SectionCard = ({ heading, data, anchor }) => {
       )}
 
       <div className="content">
-        <div className="card">
-          <Image src={IMGJogja} alt="image" layout="fill" />
-          <div className="description">
-            <h5>Merapi</h5>
-            <p className="text-regular">Yogyakarta</p>
-          </div>
-        </div>
-        <div className="card">
-          <Image src={IMGKalimantan} alt="image" layout="fill" />
-          <div className="description">
-            <h5>Teluk Bogam</h5>
-            <p className="text-regular">Kalimantan</p>
-          </div>
-        </div>
-        <div className="card">
-          <Image src={IMGMalang} alt="image" layout="fill" />
-          <div className="description">
-            <h5>Bromo</h5>
-            <p className="text-regular">Malang</p>
-          </div>
-        </div>
-        <div className="card">
-          <Image src={IMGJogja} alt="image" layout="fill" />
-          <div className="description">
-            <h5>Malioboro</h5>
-            <p className="text-regular">Yogyakarta</p>
-          </div>
-        </div>
-        <div className="card">
-          <Image src={IMGJogja} alt="image" layout="fill" />
-          <div className="description">
-            <h5>Malioboro</h5>
-            <p className="text-regular">Yogyakarta</p>
-          </div>
-        </div>
+        {data &&
+          data.map((item) => {
+            const myLoader = ({ src }) => {
+              return `${item.images}`;
+            };
+            return (
+              <div
+                className="card"
+                key={item.idVehicles}
+                onClick={() => {
+                  return router.push({
+                    pathname: `/vehicles/${item.idVehicles}`,
+                  });
+                }}
+              >
+                <Image
+                  loader={myLoader}
+                  src={item.images}
+                  alt={item.name}
+                  layout="fill"
+                />
+                <div className="description">
+                  <h5>{item.name}</h5>
+                  <p className="text-regular">{item.location}</p>
+                </div>
+              </div>
+            );
+          })}
+        {!data && <h1>No vehicles</h1>}
       </div>
     </StyledSectionCard>
   );

@@ -37,6 +37,11 @@ export const StyledAddingVehiclesPage = styled.div`
           display: flex;
           justify-content: center;
           align-items: center;
+          position: relative;
+          img {
+            border-radius: 25px;
+            object-fit: cover;
+          }
           ${breakpoints.lessThan('2xl')`
             width: 100%;
             height: 380px;
@@ -125,6 +130,17 @@ export const StyledAddingVehiclesPage = styled.div`
           input {
             background: #f5f5f6;
             color: #80918e;
+            height: 80px;
+            padding: 15px;
+            font-family: Nunito;
+            font-style: normal;
+            font-weight: 300;
+            font-size: 24px;
+            line-height: 24px;
+            color: #80918e;
+            &:focus {
+              outline: none;
+            }
           }
           select {
             background: #f5f5f6;
@@ -148,6 +164,10 @@ export const StyledAddingVehiclesPage = styled.div`
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                &:hover {
+                  opacity: 0.6;
+                  cursor: pointer;
+                }
                 &.plus {
                   background: #ffcd61;
                 }

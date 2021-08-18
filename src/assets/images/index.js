@@ -7,8 +7,10 @@ import IMGMalang from './IMGMalang.png';
 import IMGMerapi from './IMGMerapi.png';
 import IMGDMUser from './DMUser.png';
 import IMGBgAdmin from './IMGAdmin.png';
+import IMGDefault from './IMGDefault.png';
 
 export {
+  IMGDefault,
   IMGBgAdmin,
   IMGDMUser,
   IMGBgLogin,

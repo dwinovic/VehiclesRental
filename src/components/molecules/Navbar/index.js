@@ -11,9 +11,18 @@ import { useRouter } from 'next/router';
 
 const Navbar = ({ session, data }) => {
   const [collapse, setCollapse] = useState(false);
+  const [avatarPop, setAvatarPop] = useState(false);
   const router = useRouter();
   const pathActive = router.pathname.split('/')[1];
-  console.log('data in Navbar', data);
+  const idUser = data?.idUser;
+
+  const handleLogout = () => {
+    localStorage.removeItem('idUser');
+    localStorage.removeItem('token');
+    router.push('/login');
+  };
+
+  // console.log('data in Navbar', idUser);
   return (
     <>
       <StyledNavbar>
@@ -66,9 +75,74 @@ const Navbar = ({ session, data }) => {
                   <Image src={ICEmail} alt="email" layout="fill" />
                   <div className="circle">2</div>
                 </div>
-                <div className="item">
+                <div
+                  className="item avatar"
+                  onClick={() => {
+                    avatarPop ? setAvatarPop(false) : setAvatarPop(true);
+                    // return router.push(`/profile/${idUser}`);
+                  }}
+                >
                   <Image src={AVADefault} alt="user profile" layout="fill" />
                 </div>
+                {avatarPop && (
+                  <div className="avatar-popup">
+                    <div
+                      className="row"
+                      onClick={() => {
+                        return router.push(`/profile/${idUser}`);
+                      }}
+                    >
+                      <p>Edit Profile</p>
+                      <svg
+                        width="10"
+                        height="14"
+                        viewBox="0 0 10 14"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          opacity="0.7"
+                          d="M9.66019 7.74375C9.85437 7.56875 10 7.30625 10 7C10 6.7375 9.85437 6.475 9.66019 6.25625L3.05825 0.30625C2.81553 0.13125 2.52427 0 2.23301 0C1.8932 0 1.60194 0.13125 1.40777 0.30625L0.339806 1.3125C0.0970874 1.53125 0 1.79375 0 2.05625C0 2.3625 0.0970874 2.625 0.339806 2.8L5 7L0.339806 11.2C0.0970874 11.4187 0 11.6812 0 11.9438C0 12.25 0.0970874 12.5125 0.339806 12.6875L1.40777 13.6938C1.60194 13.9125 1.8932 14 2.23301 14C2.52427 14 2.81553 13.9125 3.05825 13.6938L9.66019 7.74375Z"
+                          fill="#999999"
+                        />
+                      </svg>
+                    </div>
+                    <div className="divider" />
+                    <div className="row">
+                      <p>Help</p>
+                      <svg
+                        width="10"
+                        height="14"
+                        viewBox="0 0 10 14"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          opacity="0.7"
+                          d="M9.66019 7.74375C9.85437 7.56875 10 7.30625 10 7C10 6.7375 9.85437 6.475 9.66019 6.25625L3.05825 0.30625C2.81553 0.13125 2.52427 0 2.23301 0C1.8932 0 1.60194 0.13125 1.40777 0.30625L0.339806 1.3125C0.0970874 1.53125 0 1.79375 0 2.05625C0 2.3625 0.0970874 2.625 0.339806 2.8L5 7L0.339806 11.2C0.0970874 11.4187 0 11.6812 0 11.9438C0 12.25 0.0970874 12.5125 0.339806 12.6875L1.40777 13.6938C1.60194 13.9125 1.8932 14 2.23301 14C2.52427 14 2.81553 13.9125 3.05825 13.6938L9.66019 7.74375Z"
+                          fill="#999999"
+                        />
+                      </svg>
+                    </div>
+                    <div className="divider" />
+                    <div className="row" onClick={() => handleLogout()}>
+                      <p>Logout</p>
+                      <svg
+                        width="10"
+                        height="14"
+                        viewBox="0 0 10 14"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          opacity="0.7"
+                          d="M9.66019 7.74375C9.85437 7.56875 10 7.30625 10 7C10 6.7375 9.85437 6.475 9.66019 6.25625L3.05825 0.30625C2.81553 0.13125 2.52427 0 2.23301 0C1.8932 0 1.60194 0.13125 1.40777 0.30625L0.339806 1.3125C0.0970874 1.53125 0 1.79375 0 2.05625C0 2.3625 0.0970874 2.625 0.339806 2.8L5 7L0.339806 11.2C0.0970874 11.4187 0 11.6812 0 11.9438C0 12.25 0.0970874 12.5125 0.339806 12.6875L1.40777 13.6938C1.60194 13.9125 1.8932 14 2.23301 14C2.52427 14 2.81553 13.9125 3.05825 13.6938L9.66019 7.74375Z"
+                          fill="#999999"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             <div
@@ -249,6 +323,7 @@ const StyledNavbar = styled.nav`
         display: flex;
         gap: 30px;
         align-items: center;
+        position: relative;
         ${breakpoints.lessThan('md')`
           display: none;
         `}
@@ -256,10 +331,15 @@ const StyledNavbar = styled.nav`
           position: relative;
           height: 50px;
           width: 50px;
+          &:hover {
+            cursor: pointer;
+            opacity: 0.7;
+          }
           &.email {
             height: 40px;
             width: 40px;
             position: relative;
+
             .circle {
               width: 20px;
               height: 20px;
@@ -276,6 +356,35 @@ const StyledNavbar = styled.nav`
               font-weight: bold;
               color: #393939;
             }
+          }
+        }
+        .avatar-popup {
+          position: absolute;
+          top: 60px;
+          right: 0;
+          background: #ffffff;
+          box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.23);
+          border-radius: 10px;
+          width: 150px;
+          z-index: 9;
+          .row {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            p {
+              font-style: normal;
+              font-weight: bold;
+              font-size: 14px;
+              line-height: 21px;
+              color: #000000;
+            }
+            &:hover {
+              opacity: 0.5;
+              cursor: pointer;
+            }
+          }
+          .divider {
+            border: 1px solid #dadada;
           }
         }
       }
