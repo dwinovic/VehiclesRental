@@ -5,6 +5,7 @@ import { IMGMalang } from '../../../src/assets';
 import { Select } from '@chakra-ui/react';
 
 const PaymentReservation = () => {
+  const role = 'seller';
   return (
     <MainLayout bgFooter="gray" title="Payment Reservation">
       <StyledReservationPayment className="container">
@@ -67,9 +68,16 @@ const PaymentReservation = () => {
             </Select>
           </div>
         </div>
-        <Button className="btn-finish" type="light">
-          Finish payment : <span className="timer">59:30</span>
-        </Button>
+        {role === 'customer' && (
+          <Button className="btn-finish" type="light">
+            Finish payment : <span className="timer">59:30</span>
+          </Button>
+        )}
+        {role === 'seller' && (
+          <Button className="btn-finish" type="light">
+            Approve Payments
+          </Button>
+        )}
       </StyledReservationPayment>
     </MainLayout>
   );

@@ -1,12 +1,17 @@
 import Image from 'next/image';
-import { ICPlusLight, ILCamera, ILPlus } from '../../../src/assets';
-import { Button, GoBackPage, Input, MainLayout } from '../../../src/components';
-import { StyledAddingVehiclesPage } from './styled';
+import { ICPlusLight, ILCamera, ILPlus } from '../../../../src/assets';
+import {
+  Button,
+  GoBackPage,
+  Input,
+  MainLayout,
+} from '../../../../src/components';
+import { StyledAddingVehiclesPage } from '../styled';
 import { Select } from '@chakra-ui/react';
 
 const AddVehicles = () => {
   return (
-    <MainLayout bgFooter="gray" title="Add new vehicles">
+    <MainLayout bgFooter="gray" title="Update new vehicles">
       <StyledAddingVehiclesPage className="container">
         <GoBackPage titleBack="Add New Item" />
         <form className="form">
@@ -53,7 +58,6 @@ const AddVehicles = () => {
             <div className="input-group-wrapper">
               <div className="input-wrapper">
                 <input
-                  className="input-data"
                   type="text"
                   name="name"
                   placeholder="Name (max up to 50 words)"
@@ -134,7 +138,8 @@ const AddVehicles = () => {
               <option value="cars">Cars</option>
               <option value="motorbike">Motorbike</option>
             </Select>
-            <Button type="light">Save item</Button>
+            <Button type="light">Save changes</Button>
+            <Button type="dark">Delete</Button>
           </div>
         </form>
       </StyledAddingVehiclesPage>

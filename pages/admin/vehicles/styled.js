@@ -20,7 +20,15 @@ export const StyledAddingVehiclesPage = styled.div`
           `}
         ${breakpoints.lessThan('md')`
           width: 100%;
-      `}
+        `} 
+        .input-upload-file {
+          opacity: 0;
+          height: 100%;
+          position: absolute;
+          &:hover {
+            cursor: pointer;
+          }
+        }
         .main {
           width: 616px;
           height: 412px;
@@ -53,9 +61,10 @@ export const StyledAddingVehiclesPage = styled.div`
             align-items: center;
             justify-content: center;
             gap: 1rem;
+            position: relative;
             ${breakpoints.lessThan('md')`
           width: 50%;
-      `}
+          `}
             ${breakpoints.lessThan('2xl')`
             `}
             .icon-wrapper {
@@ -90,6 +99,10 @@ export const StyledAddingVehiclesPage = styled.div`
             line-height: 24px;
             color: #80918e;
             background-color: transparent;
+            &:focus {
+              outline: none;
+              width: 100%;
+            }
           }
           .line {
             margin-top: 22px;

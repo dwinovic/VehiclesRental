@@ -4,6 +4,8 @@ import { StyledDetailVehicle } from './styled';
 import Image from 'next/image';
 
 const DetailVehicle = () => {
+  const role = 'seller';
+
   return (
     <MainLayout bgFooter="gray" title="Fixie - Gray Only">
       <StyledDetailVehicle className="container">
@@ -115,17 +117,29 @@ const DetailVehicle = () => {
             </div>
           </div>
         </section>
-        <section className=" button-action-wrapper">
-          <Button type="dark" className="btn">
-            Chat Admin
-          </Button>
-          <Button type="light" className="btn">
-            Reservation
-          </Button>
-          <Button type="dark" className="btn small">
-            Like
-          </Button>
-        </section>
+        {role === 'customer' && (
+          <section className=" button-action-wrapper">
+            <Button type="dark" className="btn">
+              Chat Admin
+            </Button>
+            <Button type="light" className="btn">
+              Reservation
+            </Button>
+            <Button type="dark" className="btn small">
+              Like
+            </Button>
+          </section>
+        )}
+        {role === 'seller' && (
+          <section className=" button-action-wrapper">
+            <Button type="dark" className="btn">
+              Add to home page
+            </Button>
+            <Button type="light" className="btn">
+              Edit item
+            </Button>
+          </section>
+        )}
       </StyledDetailVehicle>
     </MainLayout>
   );
