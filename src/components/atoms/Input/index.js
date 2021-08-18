@@ -1,7 +1,16 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-const Input = ({ placeholder, name, onChange, value, type, className }) => {
+const Input = ({
+  placeholder,
+  name,
+  onChange,
+  value,
+  type,
+  className,
+  label,
+  theme,
+}) => {
   return (
     <StyledInput
       className={className}
