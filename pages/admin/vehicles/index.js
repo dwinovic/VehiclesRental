@@ -105,8 +105,17 @@ const AddVehicles = () => {
             </div>
           </div>
           <div className="form-action">
-            <Button type="dark">Add item to</Button>
-            <Button type="light">Save item</Button>
+            <Select
+              bg=" rgba(255, 255, 255, 0.5)"
+              variant="filled"
+              size="lg"
+              className="add-category"
+              placeholder="Add item to"
+            >
+              <option value="cars">Cars</option>
+              <option value="motorbike">Motorbike</option>
+            </Select>
+            <Button type="light">Bike</Button>
           </div>
         </form>
       </StyledAddingVehiclesPage>

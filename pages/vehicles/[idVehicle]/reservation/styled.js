@@ -2,6 +2,10 @@ import styled from 'styled-components';
 import { breakpoints } from '../../../../src/utils';
 
 export const StyledReservationVehicle = styled.div`
+  /* WARNING!!! */
+  /*
+    STYLING INI JUGA DIGUNAKAN DI PAGE /ADMIN/RESERVATION/INDEX.JS
+  */
   padding-top: 40px;
   .main {
     display: flex;

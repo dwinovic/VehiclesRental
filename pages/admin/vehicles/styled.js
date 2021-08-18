@@ -159,6 +159,19 @@ export const StyledAddingVehiclesPage = styled.div`
       display: flex;
       margin-top: 2rem;
       gap: 2rem;
+      .add-category {
+        background: #393939;
+        border-radius: 10px;
+        font-family: Nunito;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 24px;
+        line-height: 25px;
+        display: flex;
+        align-items: center;
+        color: #ffcd61;
+        height: 80px;
+      }
     }
   }
 `;

@@ -2,6 +2,10 @@ import styled from 'styled-components';
 import { breakpoints } from '../../../src/utils';
 
 export const StyledReservationPayment = styled.div`
+  /* WARNING!!! */
+  /*
+    STYLING INI JUGA DIGUNAKAN DI PAGE /ADMIN/APPROVE-PAYMENTS/INDEX.JS
+  */
   padding-top: 50px;
   .detail-vehicle {
     display: flex;
