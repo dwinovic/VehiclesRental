@@ -3,14 +3,41 @@ import styled from 'styled-components';
 import { breakpoints } from '../../../utils';
 import Footer from '../../molecules/Footer';
 import Navbar from '../../molecules/Navbar';
+import useSWR from 'swr';
+import { fetcher } from '../../../config/fetcher';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 const MainLayout = ({ title, children, bgFooter }) => {
+  const [localStrg, setLocalStrg] = useState({
+    token: '',
+    idUser: '',
+  });
+
+  useEffect(() => {
+    setLocalStrg({
+      token: localStorage.getItem('token'),
+      idUser: localStorage.getItem('idUser'),
+    });
+  }, []);
+
+  const { data, error } = useSWR(
+    [`/users/${localStrg.idUser}`, localStrg.token],
+    fetcher
+  );
+
+  const dataUser = data?.data[0];
+  const session = dataUser ? 'login' : false;
+  // console.log('session', session);
+  // console.log('datauser', dataUser);
+
   return (
     <StyledMainLayout>
       <Head>
         <title>{title}</title>
       </Head>
-      <Navbar />
+      <Navbar session={session} />
       {children}
       <Footer bgFooter={bgFooter} />
     </StyledMainLayout>

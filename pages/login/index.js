@@ -2,12 +2,41 @@ import styled from 'styled-components';
 import { BgImageLayout, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
 import Link from 'next/link';
-import { breakpoints } from '../../src/utils';
+import { breakpoints, toastify } from '../../src/utils';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { useForm } from 'react-hook-form';
+import Axios from '../../src/config/Axios';
 
 const LoginPage = () => {
   const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    const dataSend = {
+      email: data.email,
+      password: data.password,
+    };
+    Axios.post('/users/login', dataSend)
+      .then((result) => {
+        const idUser = result.data.data.idUser;
+        const token = result.data.data.token;
+        localStorage.setItem('token', token);
+        localStorage.setItem('idUser', idUser);
+        router.push('/');
+      })
+      .catch((err) => {
+        console.log('Error:', err.response);
+        const message = err.response.data.error;
+        toastify(message, 'warning');
+      });
+  };
+
   return (
     <>
       <Head>
@@ -83,12 +112,22 @@ const LoginPage = () => {
                 />
               </svg>
             </div>
-            <form className="right">
+            <form className="right" onSubmit={handleSubmit(onSubmit)}>
               <div className="form-input">
-                <Input name="email" type="text" placeholder="Email" />
+                <Input
+                  name="email"
+                  type="text"
+                  placeholder="Email"
+                  {...register('email')}
+                />
               </div>
               <div className="form-input">
-                <Input name="password" type="password" placeholder="Password" />
+                <Input
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  {...register('password')}
+                />
               </div>
               <div className="form-input forgot-password-wrapper">
                 <Link href="#">

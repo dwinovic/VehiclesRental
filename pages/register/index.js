@@ -2,12 +2,44 @@ import styled from 'styled-components';
 import { BgImageLayout, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
 import Link from 'next/link';
-import { breakpoints } from '../../src/utils';
+import { breakpoints, toastify } from '../../src/utils';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { useForm } from 'react-hook-form';
+import Axios from '../../src/config/Axios';
 
 const LoginPage = () => {
   const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    const dataSend = {
+      email: data.email,
+      password: data.password,
+      name: data.name,
+      role: 'customer',
+    };
+    Axios.post('/users/register', dataSend)
+      .then((result) => {
+        const idUser = result.data.data.idUser;
+        const token = result.data.data.token;
+        localStorage.setItem('token', token);
+        localStorage.setItem('idUser', idUser);
+        router.push('/');
+      })
+      .catch((err) => {
+        console.log('Error:', err.response);
+        if (err.response.status === 501) {
+          const message = err.response.data.error;
+          toastify(message, 'warning');
+        }
+      });
+  };
 
   return (
     <>
@@ -84,13 +116,14 @@ const LoginPage = () => {
                 />
               </svg>
             </div>
-            <form className="right">
+            <form className="right" onSubmit={handleSubmit(onSubmit)}>
               <div className="form-input">
                 <Input
                   name="name"
                   type="text"
                   placeholder="Name"
                   className="input"
+                  {...register('name')}
                 />
               </div>
               <div className="form-input">
@@ -99,6 +132,7 @@ const LoginPage = () => {
                   type="text"
                   placeholder="Email"
                   className="input"
+                  {...register('email')}
                 />
               </div>
               <div className="form-input">
@@ -107,6 +141,7 @@ const LoginPage = () => {
                   type="password"
                   placeholder="Password"
                   className="input"
+                  {...register('password')}
                 />
               </div>
               <div className="form-input forgot-password-wrapper">

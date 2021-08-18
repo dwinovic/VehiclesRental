@@ -9,12 +9,11 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
-const Navbar = ({ session }) => {
+const Navbar = ({ session, data }) => {
   const [collapse, setCollapse] = useState(false);
   const router = useRouter();
   const pathActive = router.pathname.split('/')[1];
-  console.log(pathActive);
-
+  console.log('data in Navbar', data);
   return (
     <>
       <StyledNavbar>
@@ -125,7 +124,7 @@ const Navbar = ({ session }) => {
             </Link>
           </div>
           <div className="footer">
-            {session === 'login' && (
+            {session !== 'login' && (
               <>
                 <button
                   className="btn outline"
@@ -157,7 +156,7 @@ Navbar.propTypes = {
 };
 
 Navbar.defaultProps = {
-  session: 'login',
+  session: '',
 };
 
 export default Navbar;

@@ -10,6 +10,7 @@ const Input = ({
   className,
   label,
   theme,
+  ...props
 }) => {
   return (
     <StyledInput
@@ -19,6 +20,7 @@ const Input = ({
       name={name}
       onChange={onChange}
       value={value}
+      {...props}
     />
   );
 };
