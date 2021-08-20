@@ -171,8 +171,6 @@ const RegisterAdminPage = () => {
   );
 };
 
-export default RegisterAdminPage;
-
 const StyledContent = styled.div`
   width: 100%;
   height: 100%;
@@ -290,3 +288,4 @@ const StyledContent = styled.div`
     }
   }
 `;
+export default RegisterAdminPage;

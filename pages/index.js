@@ -89,7 +89,11 @@ function Home(props) {
           </BgImageLayout>
         </header>
         <main>
-          <SectionCard heading="Popular in town" data={dataVehicles} />
+          <SectionCard
+            heading="Popular in town"
+            data={dataVehicles}
+            anchor="/vehicles-type/category"
+          />
           {isAdmin && (
             <div className="container add-new-item">
               <Button

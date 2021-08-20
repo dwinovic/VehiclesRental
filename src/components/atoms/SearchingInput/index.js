@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const SearchInput = ({ onChane, value, placeholder, onClick }) => {
+const SearchInput = ({ onChane, value, placeholder, onClick, ...props }) => {
   return (
     <StyledSearchInput>
       <input
@@ -8,6 +8,7 @@ const SearchInput = ({ onChane, value, placeholder, onClick }) => {
         onChange={onChane}
         value={value}
         placeholder={placeholder}
+        {...props}
       />
       <div className="btn-action">
         <svg
