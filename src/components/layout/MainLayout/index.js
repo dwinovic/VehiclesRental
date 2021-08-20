@@ -77,6 +77,13 @@ const StyledMainLayout = styled.div`
     line-height: 24px;
     color: #000000;
   }
+  .text-playfair {
+    font-family: Playfair Display;
+    font-weight: 900;
+    font-size: 24px;
+    line-height: 180%;
+    color: #393939;
+  }
   .text-nunito-bold {
     font-family: Nunito;
     font-style: normal;
@@ -144,4 +151,10 @@ const StyledMainLayout = styled.div`
     color: #000000;
   }
   /* END = TYPHOGRAPHY */
+
+  /* START = COLOR */
+  .green {
+    color: #087e0d !important;
+  }
+  /* END = COLOR */
 `;

@@ -29,7 +29,7 @@ function Home(props) {
     }
   }, []);
 
-  console.log(dataUser);
+  // console.log(dataUser);
 
   return (
     <MainLayout bgFooter="gray" title="Home">

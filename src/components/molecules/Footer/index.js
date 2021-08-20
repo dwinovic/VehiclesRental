@@ -300,7 +300,7 @@ const StyledFooter = styled.div`
     }
   }};
 
-  padding-bottom: 0;
+  padding-bottom: 5px;
   .container {
     padding-top: 70px;
     margin: 0 auto;

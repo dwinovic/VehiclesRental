@@ -1,8 +1,15 @@
 import styled from 'styled-components';
 
-const SearchInput = ({ onChane, value, placeholder, onClick, ...props }) => {
+const SearchInput = ({
+  onChane,
+  value,
+  placeholder,
+  onClick,
+  className,
+  ...props
+}) => {
   return (
-    <StyledSearchInput>
+    <StyledSearchInput className={className}>
       <input
         type="text"
         onChange={onChane}

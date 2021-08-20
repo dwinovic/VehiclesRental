@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { fetcher } from '../../src/config/fetcher';
 import { useForm } from 'react-hook-form';
+import Axios from '../../src/config/Axios';
 
 const VehiclesType = () => {
   const [dataVehiclesType, setDataVehiclesType] = useState();
@@ -27,7 +28,7 @@ const VehiclesType = () => {
 
   const onSearching = () => {
     const keyword = getValues('search');
-    console.log('keyword', keyword);
+    Axios.get(`/vehicles?src=${keyword}`);
   };
 
   // console.log(('WATCH SEARCHING:', watch('search')));
