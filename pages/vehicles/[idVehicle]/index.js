@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { fetcher } from '../../../src/config/fetcher';
 import styled from 'styled-components';
 import { breakpoints } from '../../../src/utils';
+import NumberFormat from 'react-number-format';
 
 const DetailVehicle = () => {
   const [dataUser, setDataUser] = useState();
@@ -16,7 +17,6 @@ const DetailVehicle = () => {
 
   const { data, error } = useSWR(`/vehicles/${idVehicles}`, fetcher);
   const dataVehicles = data?.data;
-
   useEffect(() => {
     const roleLocal = localStorage.getItem('role');
     setRole(roleLocal);
@@ -72,10 +72,10 @@ const DetailVehicle = () => {
               </div>
               <div className="item-main">
                 <div className="item">
-                  <Image src={IMGDefault} alt="vehicle" layout="fill" />
+                  <Image src={IMGJogja} alt="vehicle" layout="fill" />
                 </div>
                 <div className="item">
-                  <Image src={IMGDefault} alt="vehicle" layout="fill" />
+                  <Image src={IMGJogja} alt="vehicle" layout="fill" />
                 </div>
               </div>
               <div className="control next">
@@ -111,10 +111,20 @@ const DetailVehicle = () => {
             <p className="paymentOption red">{dataVehicles.paymentOption}</p>
             <p className="detail">Capacity : 1 person</p>
             <p className="detail">
-              Type : {dataVehicles.type ? dataVehicles.type : 'Motor'}
+              Type : {dataVehicles.category ? dataVehicles.type : 'Motor'}
             </p>
             <p className="detail">{dataVehicles.description}</p>
-            <p className="price">Rp. {dataVehicles.price}/day</p>
+            <div className="price-wrapper">
+              <NumberFormat
+                className="price"
+                value={dataVehicles.price}
+                displayType={'text'}
+                thousandSeparator={true}
+                prefix={'Rp. '}
+              />
+              <p className="price kouta">Kouta: {dataVehicles.stock}</p>
+            </div>
+            <div></div>
             <div className="amount-wrapper">
               <button className="btn primary">
                 <svg
@@ -130,7 +140,7 @@ const DetailVehicle = () => {
                   />
                 </svg>
               </button>
-              <p className="btn count">2</p>
+              <p className="btn count">2s</p>
               <button className="btn secondary">
                 <svg
                   width="18"
@@ -191,6 +201,25 @@ const DetailVehicle = () => {
 };
 
 const StyledDetailVehicle = styled.div`
+  /* ${breakpoints.lessThan('2xl')`
+      background-color: yellow;
+    `}
+  ${breakpoints.lessThan('xl')`
+      background-color: blue;
+    `}
+    ${breakpoints.lessThan('lg')`
+      background-color: cyan;
+    `}
+    ${breakpoints.lessThan('md')`
+      background-color: pink;
+    `}
+    ${breakpoints.lessThan('sm')`
+      background-color: green;
+    `}
+    ${breakpoints.lessThan('xsm')`
+      background-color: pink;
+    `} */
+
   padding-top: 40px;
 
   /* START = DETAIL VEHICLES  */
@@ -237,20 +266,23 @@ const StyledDetailVehicle = styled.div`
           width: max-content;
           display: flex;
           align-items: center;
+          display: none;
         }
         .item-main {
           display: flex;
           gap: 1rem;
+          width: 100%;
           .item {
             position: relative;
-            width: 200px;
+            width: 50%;
             height: 150px;
             ${breakpoints.lessThan('2xl')`
-              width: 150px; 
+            width: 50%;
             `}
             ${breakpoints.lessThan('md')`
-              width: 200px;
+                  width: 50%;
             `}
+            
             ${breakpoints.lessThan('xsm')`
               display: none; 
             `}
@@ -317,15 +349,13 @@ const StyledDetailVehicle = styled.div`
         color: #393939;
         margin-bottom: 1rem;
       }
-      /* .price {
-        font-family: Playfair Display;
-        font-style: normal;
-        font-weight: 900;
-        font-size: 36px;
-        line-height: 25px;
+      .price-wrapper {
         text-align: right;
-        color: #000000;
-      } */
+        .kouta {
+          margin-top: 1rem;
+          font-size: 26px;
+        }
+      }
       .amount-wrapper {
         display: flex;
         justify-content: space-around;
@@ -337,6 +367,7 @@ const StyledDetailVehicle = styled.div`
         bottom: 0;
         width: 100%;
         .btn {
+          display: none;
           border: 0;
           box-sizing: content-box;
           padding: 27px;

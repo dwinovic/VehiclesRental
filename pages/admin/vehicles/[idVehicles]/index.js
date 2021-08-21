@@ -15,6 +15,18 @@ import { useForm } from 'react-hook-form';
 import Axios from '../../../../src/config/Axios';
 import { breakpoints, toastify } from '../../../../src/utils';
 import styled from 'styled-components';
+import { useDisclosure } from '@chakra-ui/react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react';
+import { Button as ButtonChakra, ButtonGroup } from '@chakra-ui/react';
+import { Heading } from '@chakra-ui/react';
 
 const AddVehicles = () => {
   const router = useRouter();
@@ -23,6 +35,10 @@ const AddVehicles = () => {
   const dataVehicles = data?.data;
   const [totalStock, setTotalStock] = useState(1);
 
+  // START = MODAL
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  // END = MODAL
+
   const {
     register,
     handleSubmit,
@@ -30,60 +46,127 @@ const AddVehicles = () => {
     formState: { errors },
     getValues,
   } = useForm();
-
-  // Upload Image
-  const [uploadImage, setUploadImage] = useState([]);
-  const [previewAvatar, setPreviewAvatar] = useState([]);
-
+  // START = CATEGORIES
+  const [categories, setCategories] = useState([]);
+  const { data: dataCategories, error: errorCategories } = useSWR(
+    '/category',
+    fetcher
+  );
+  // END = CATEGORIES
+  // START = UPLOAD IMAGE
+  const [uploadImage, setUploadImage] = useState(dataVehicles.images);
+  const [previewImage1, setpreviewImage1] = useState(dataVehicles.images[0]);
+  const [previewImage2, setpreviewImage2] = useState(dataVehicles.images[1]);
+  const [previewImage3, setpreviewImage3] = useState(dataVehicles.images[2]);
   const handleInputImageProduct = async () => {
     try {
-      const getImage = getValues('images')[0];
-      const preview = URL.createObjectURL(getImage);
-      setUploadImage(getImage);
-      setPreviewAvatar(preview);
+      const image1 = getValues('image1')[0];
+      const image2 = getValues('image2')[0];
+      const image3 = getValues('image3')[0];
+      const images = [];
+
+      if (image1) {
+        const formData = new FormData();
+        formData.append('avatar', image1);
+        Axios.post(`/vehicles/images`, formData)
+          .then(() => {
+            images.push(image1);
+            setpreviewImage1(URL.createObjectURL(image1));
+          })
+          .catch((err) => {
+            const message = err.response.data.message;
+            toastify(message, 'error');
+          });
+      }
+      if (image2) {
+        const formData = new FormData();
+
+        formData.append('avatar', image2);
+        Axios.post(`/vehicles/images`, formData)
+          .then(() => {
+            images.push(image2);
+            setpreviewImage2(URL.createObjectURL(image2));
+          })
+          .catch((err) => {
+            const message = err.response.data.message;
+            toastify(message, 'error');
+          });
+      }
+      if (image3) {
+        const formData = new FormData();
+
+        formData.append('avatar', image3);
+        Axios.post(`/vehicles/images`, formData)
+          .then(() => {
+            images.push(image3);
+            setpreviewImage3(URL.createObjectURL(image3));
+          })
+          .catch((err) => {
+            const message = err.response.data.message;
+            toastify(message, 'error');
+          });
+      }
+
+      setUploadImage(images);
     } catch (error) {
       // console.log(error);
     }
   };
-  useEffect(() => {
-    const allValue = getValues();
-    // console.log('allValue', allValue);
 
+  useEffect(() => {
+    setCategories(dataCategories?.data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     handleInputImageProduct();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch('images')]);
+  }, [getValues('image1'), getValues('image2'), getValues('image3')]);
 
+  useEffect(() => {
+    setUploadImage(dataVehicles.images);
+    setTotalStock(dataVehicles.stock);
+  }, [dataVehicles.images, dataVehicles.stock]);
   const onSubmit = (data) => {
-    console.log(data);
     const token = localStorage.getItem('token');
     const idUser = localStorage.getItem('idUser');
+    // console.log('token', token);
+    // console.log('idUser', idUser)
+    const checkDataSend = {
+      ...data,
+      stock: totalStock,
+      images: uploadImage,
+    };
+    console.log('checkDataSend', checkDataSend);
 
     const formData = new FormData();
+    formData.append('idOwner', idUser);
     formData.append('name', data.name);
     formData.append('location', data.location);
     formData.append('description', data.description);
     formData.append('price', data.price);
-    formData.append('type', data.category);
+    formData.append('category', data.category);
     formData.append('stock', totalStock);
     formData.append('capacity', 2);
     formData.append('paymentOption', 'per day');
     formData.append('status', data.status);
-    // formData.append('images', data.image);
+    // formData.append('images', uploadImage);
 
     // console.log('data.image1', data.image1);
-    const imageMultiple = [];
-    imageMultiple.push(data.images[0]);
-    // imageMultiple.push(data.images2[0]);
-    // imageMultiple.push(data.images3[0]);
-    Array.from(imageMultiple).forEach((image) => {
+    uploadImage.forEach((image) => {
       formData.append('images', image);
     });
 
-    Axios.post(`/vehicles/${idUser}`, formData)
+    Axios.patch('/vehicles', formData, {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    })
       .then((result) => {
-        console.log(result);
-        router.back();
+        // console.log(result);
+        toastify('Success update vehicles', 'success');
+        router.push(`/vehicles/${result.data.data.idVehicles}`);
       })
       .catch((err) => {
         console.log('Error:', err.response);
@@ -91,15 +174,16 @@ const AddVehicles = () => {
         toastify(message, 'warning');
       });
   };
-
   const deleteItem = () => {
     Axios.delete(`/vehicles/${idVehicles}`)
       .then((result) => {
         console.log(result);
+        toastify(`Success deleted ${dataVehicles.name}`, 'success');
         return router.push('/');
       })
       .catch((err) => {
         console.log(err.response);
+        toastify(err.response?.data.message, 'error');
       });
   };
 
@@ -132,59 +216,81 @@ const AddVehicles = () => {
   };
 
   return (
-    <MainLayout bgFooter="gray" title="Update new vehicles">
+    <MainLayout bgFooter="gray" title={`Update | ${dataVehicles.name}`}>
       <StyledAddingVehiclesPage className="container">
         <GoBackPage titleBack="Add New Item" />
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           <div className="form-content">
             <div className="galery-wrapper">
               <div className="main">
-                {!dataVehicles.images[0] && (
+                {!previewImage1 && (
                   <div className="default">
                     <Image src={ILCamera} alt="camera" layout="fill" />
                   </div>
                 )}
-                {dataVehicles.images[0] && (
-                  <Image
-                    src={dataVehicles.images[0]}
-                    loader={myLoader}
-                    alt={dataVehicles.name}
-                    layout="fill"
+                {previewImage1 && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className="preview-img"
+                    src={previewImage1}
+                    alt="camera"
                   />
                 )}
                 <input
                   className="input-upload-file"
                   type="file"
-                  multiple
-                  name="images"
-                  {...register('images')}
+                  name="image1"
+                  {...register('image1')}
                 />
               </div>
-
               <div className="item-wrapper">
                 <div className="item">
-                  <div className="icon-wrapper">
-                    <Image src={ILCamera} alt="camera" layout="fill" />
-                  </div>
-                  <p>Click to add image</p>
-                  {/* <input
+                  {!previewImage2 && (
+                    <div>
+                      <div className="icon-wrapper">
+                        <Image src={ILCamera} alt="camera" layout="fill" />
+                      </div>
+                      <p>Click to add image</p>
+                    </div>
+                  )}
+                  {previewImage2 && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="preview-img"
+                      src={previewImage2}
+                      alt="camera"
+                    />
+                  )}
+                  <input
                     className="input-upload-file"
                     type="file"
-                    multiple
-                    name="images"
-                  /> */}
+                    name="image2"
+                    {...register('image2')}
+                  />
                 </div>
                 <div className="item">
-                  <div className="icon-wrapper">
-                    <Image src={ICPlusLight} alt="camera" layout="fill" />
-                  </div>
-                  <p>Add more</p>
-                  {/* <input
+                  {!previewImage3 && (
+                    <div>
+                      <div className="icon-wrapper">
+                        <Image src={ICPlusLight} alt="camera" layout="fill" />
+                      </div>
+                      <p>Add more</p>
+                    </div>
+                  )}
+                  {previewImage3 && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="preview-img"
+                      src={previewImage3}
+                      alt="camera"
+                    />
+                  )}
+                  <input
                     className="input-upload-file"
                     type="file"
-                    multiple
-                    name="images"
-                  /> */}
+                    name="image3"
+                    {...register('image3')}
+                  />
                 </div>
               </div>
             </div>
@@ -284,18 +390,49 @@ const AddVehicles = () => {
               variant="filled"
               size="lg"
               className="add-category"
-              placeholder="Add item to"
-              defaultValue={dataVehicles.type}
+              placeholder={dataVehicles.category}
+              defaultValue={dataVehicles.idCategory}
             >
-              <option value="cars">Cars</option>
-              <option value="motorbike">Motorbike</option>
+              {categories &&
+                categories.map((category) => {
+                  return (
+                    <option
+                      key={category.idCategory}
+                      value={category.idCategory}
+                    >
+                      {category.name}
+                    </option>
+                  );
+                })}
             </Select>
             <Button type="light">Save changes</Button>
-            <Button type="dark" onClick={deleteItem}>
+            <Button type="dark" onClick={onOpen}>
               Delete
             </Button>
           </div>
         </form>
+        <CustomModal
+          closeOnOverlayClick={false}
+          isOpen={isOpen}
+          onClose={onClose}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Are you sure to delete?</ModalHeader>
+            <ModalBody>
+              <Heading as="h5" size="lg">
+                {dataVehicles.name}
+              </Heading>
+            </ModalBody>
+            <ModalCloseButton />
+            <ModalFooter>
+              <ButtonChakra mr={3} colorScheme="red" onClick={deleteItem}>
+                Yes
+              </ButtonChakra>
+              <ButtonChakra onClick={onClose}>Cancel</ButtonChakra>
+            </ModalFooter>
+          </ModalContent>
+        </CustomModal>
       </StyledAddingVehiclesPage>
     </MainLayout>
   );
@@ -340,6 +477,11 @@ const StyledAddingVehiclesPage = styled.div`
           img {
             border-radius: 25px;
             object-fit: cover;
+            &.preview-img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
           }
           ${breakpoints.lessThan('2xl')`
             width: 100%;
@@ -367,8 +509,8 @@ const StyledAddingVehiclesPage = styled.div`
             gap: 1rem;
             position: relative;
             ${breakpoints.lessThan('md')`
-          width: 50%;
-          `}
+              width: 50%;
+            `}
             ${breakpoints.lessThan('2xl')`
             `}
             .icon-wrapper {
@@ -383,6 +525,15 @@ const StyledAddingVehiclesPage = styled.div`
               font-size: 18px;
               line-height: 24px;
               color: #b8becd;
+            }
+            img {
+              border-radius: 25px;
+              object-fit: cover;
+              &.preview-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
             }
           }
         }
@@ -506,6 +657,16 @@ const StyledAddingVehiclesPage = styled.div`
       }
     }
   }
+`;
+
+const CustomModal = styled(Modal)`
+  background-color: yellow;
+  /* START = BUTTON DELETE ACTION */
+  .btn-delete {
+    background-color: blue;
+    height: 45px;
+  }
+  /* END = BUTTON DELETE ACTION */
 `;
 
 export default AddVehicles;

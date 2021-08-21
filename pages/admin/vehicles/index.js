@@ -4,22 +4,22 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
+import useSWR from 'swr';
 import { ICPlusLight, ILCamera } from '../../../src/assets';
 import { Button, GoBackPage, Input, MainLayout } from '../../../src/components';
 import Axios from '../../../src/config/Axios';
-import { breakpoints, toastify } from '../../../src/utils';
-import useSWR from 'swr';
 import { fetcher } from '../../../src/config/fetcher';
-import { useDisclosure } from '@chakra-ui/react';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-} from '@chakra-ui/react';
+import { breakpoints, toastify } from '../../../src/utils';
+// import { useDisclosure } from '@chakra-ui/react';
+// import {
+//   Modal,
+//   ModalOverlay,
+//   ModalContent,
+//   ModalHeader,
+//   ModalFooter,
+//   ModalBody,
+//   ModalCloseButton,
+// } from '@chakra-ui/react';
 
 const AddVehicles = () => {
   const router = useRouter();
