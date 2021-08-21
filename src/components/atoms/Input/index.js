@@ -52,13 +52,15 @@ const StyledInput = styled.input`
   font-weight: bold;
   font-size: 24px;
   line-height: 33px;
-  color: #ffffff;
+  /* color: #ffffff; */
+  color: #80918e;
+
   border: 0;
   &:focus {
     outline: 0;
     /* background: rgba(255, 255, 255, 0.582); */
   }
   &::placeholder {
-    color: #ffffff;
+    /* color: #ffffff; */
   }
 `;

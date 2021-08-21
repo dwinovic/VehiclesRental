@@ -1,14 +1,25 @@
-import Image from 'next/image';
-import { ICPlusLight, ILCamera, ILPlus } from '../../../src/assets';
-import { Button, GoBackPage, Input, MainLayout } from '../../../src/components';
 import { Select } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import styled from 'styled-components';
+import { ICPlusLight, ILCamera } from '../../../src/assets';
+import { Button, GoBackPage, Input, MainLayout } from '../../../src/components';
 import Axios from '../../../src/config/Axios';
 import { breakpoints, toastify } from '../../../src/utils';
-import LoginPage from '../../login';
-import styled from 'styled-components';
+import useSWR from 'swr';
+import { fetcher } from '../../../src/config/fetcher';
+import { useDisclosure } from '@chakra-ui/react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react';
 
 const AddVehicles = () => {
   const router = useRouter();
@@ -20,36 +31,93 @@ const AddVehicles = () => {
     getValues,
   } = useForm();
 
+  // START = MODAL
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  // END = MODAL
+  // START = CATEGORIES
+  const [categories, setCategories] = useState([]);
+  const { data: dataCategories, error } = useSWR('/category', fetcher);
+  // END = CATEGORIES
   const [totalStock, setTotalStock] = useState(1);
-  // Upload Image
+  // START = UPLOAD IMAGE
   const [uploadImage, setUploadImage] = useState([]);
-  const [previewAvatar, setPreviewAvatar] = useState([]);
+  const [previewImage1, setpreviewImage1] = useState();
+  const [previewImage2, setpreviewImage2] = useState();
+  const [previewImage3, setpreviewImage3] = useState();
 
   const handleInputImageProduct = async () => {
     try {
-      const getImage = getValues('images')[0];
-      const preview = URL.createObjectURL(getImage);
-      setUploadImage(getImage);
-      setPreviewAvatar(preview);
+      const image1 = getValues('image1')[0];
+      const image2 = getValues('image2')[0];
+      const image3 = getValues('image3')[0];
+      const images = [];
+
+      if (image1) {
+        const formData = new FormData();
+        formData.append('avatar', image1);
+        Axios.post(`/vehicles/images`, formData)
+          .then(() => {
+            images.push(image1);
+            setpreviewImage1(URL.createObjectURL(image1));
+          })
+          .catch((err) => {
+            const message = err.response.data.message;
+            toastify(message, 'error');
+          });
+      }
+      if (image2) {
+        const formData = new FormData();
+
+        formData.append('avatar', image2);
+        Axios.post(`/vehicles/images`, formData)
+          .then(() => {
+            images.push(image2);
+            setpreviewImage2(URL.createObjectURL(image2));
+          })
+          .catch((err) => {
+            const message = err.response.data.message;
+            toastify(message, 'error');
+          });
+      }
+      if (image3) {
+        const formData = new FormData();
+
+        formData.append('avatar', image3);
+        Axios.post(`/vehicles/images`, formData)
+          .then(() => {
+            images.push(image3);
+            setpreviewImage3(URL.createObjectURL(image3));
+          })
+          .catch((err) => {
+            const message = err.response.data.message;
+            toastify(message, 'error');
+          });
+      }
+
+      setUploadImage(images);
     } catch (error) {
       // console.log(error);
     }
   };
-  useEffect(() => {
-    const allValue = getValues();
-    // console.log('allValue', allValue);
 
+  useEffect(() => {
+    setCategories(dataCategories?.data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     handleInputImageProduct();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch('images')]);
+  }, [watch('image1'), watch('image2'), watch('image3')]);
+  // START = UPLOAD IMAGE
 
   const onSubmit = (data) => {
-    console.log(data);
     const token = localStorage.getItem('token');
     const idUser = localStorage.getItem('idUser');
-    console.log('token', token);
-    console.log('idUser', idUser);
+    // console.log('token', token);
+    // console.log('idUser', idUser);
+    // console.log(data);
 
     const formData = new FormData();
     formData.append('idOwner', idUser);
@@ -57,28 +125,27 @@ const AddVehicles = () => {
     formData.append('location', data.location);
     formData.append('description', data.description);
     formData.append('price', data.price);
-    formData.append('type', data.category);
+    formData.append('category', data.category);
     formData.append('stock', totalStock);
     formData.append('capacity', 2);
     formData.append('paymentOption', 'per day');
     formData.append('status', data.status);
-    // formData.append('images', data.image);
+    // formData.append('images', uploadImage);
 
     // console.log('data.image1', data.image1);
-    const imageMultiple = [];
-    imageMultiple.push(data.images[0]);
-    // imageMultiple.push(data.images2[0]);
-    // imageMultiple.push(data.images3[0]);
-    Array.from(imageMultiple).forEach((image) => {
+    uploadImage.forEach((image) => {
       formData.append('images', image);
     });
 
     Axios.post('/vehicles', formData, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
     })
       .then((result) => {
-        console.log(result);
-        router.push('/');
+        // console.log(result);
+        toastify('Success ad vehicles', 'success');
+        router.push(`/vehicles/${result.data.data.idVehicles}`);
       })
       .catch((err) => {
         console.log('Error:', err.response);
@@ -114,45 +181,74 @@ const AddVehicles = () => {
           <div className="form-content">
             <div className="galery-wrapper">
               <div className="main">
-                {/* {!previewAvatar && ( */}
-                <div className="default">
-                  <Image src={ILCamera} alt="camera" layout="fill" />
-                </div>
-                {/* )} */}
-                {!previewAvatar && (
-                  <Image src={previewAvatar} alt="camera" layout="fill" />
+                {!previewImage1 && (
+                  <div className="default">
+                    <Image src={ILCamera} alt="camera" layout="fill" />
+                  </div>
+                )}
+                {previewImage1 && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className="preview-img"
+                    src={previewImage1}
+                    alt="camera"
+                  />
                 )}
                 <input
                   className="input-upload-file"
                   type="file"
-                  name="images"
-                  {...register('images')}
+                  name="image1"
+                  {...register('image1')}
                 />
               </div>
               <div className="item-wrapper">
                 <div className="item">
-                  <div className="icon-wrapper">
-                    <Image src={ILCamera} alt="camera" layout="fill" />
-                  </div>
-                  <p>Click to add image</p>
-                  {/* <input
+                  {!previewImage2 && (
+                    <div>
+                      <div className="icon-wrapper">
+                        <Image src={ILCamera} alt="camera" layout="fill" />
+                      </div>
+                      <p>Click to add image</p>
+                    </div>
+                  )}
+                  {previewImage2 && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="preview-img"
+                      src={previewImage2}
+                      alt="camera"
+                    />
+                  )}
+                  <input
                     className="input-upload-file"
                     type="file"
-                    name="images"
-                    {...register('images2')}
-                  /> */}
+                    name="image2"
+                    {...register('image2')}
+                  />
                 </div>
                 <div className="item">
-                  <div className="icon-wrapper">
-                    <Image src={ICPlusLight} alt="camera" layout="fill" />
-                  </div>
-                  <p>Add more</p>
-                  {/* <input
+                  {!previewImage3 && (
+                    <div>
+                      <div className="icon-wrapper">
+                        <Image src={ICPlusLight} alt="camera" layout="fill" />
+                      </div>
+                      <p>Add more</p>
+                    </div>
+                  )}
+                  {previewImage3 && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="preview-img"
+                      src={previewImage3}
+                      alt="camera"
+                    />
+                  )}
+                  <input
                     className="input-upload-file"
                     type="file"
-                    name="images"
-                    {...register('images3')}
-                  /> */}
+                    name="image3"
+                    {...register('image3')}
+                  />
                 </div>
               </div>
             </div>
@@ -204,7 +300,6 @@ const AddVehicles = () => {
                   {...register('status')}
                 >
                   <option value="available">Available</option>
-                  <option value="full-booked">Full Booked</option>
                 </Select>
               </div>
               <div className="select-wrapper counter-wrapper">
@@ -249,14 +344,47 @@ const AddVehicles = () => {
               variant="filled"
               size="lg"
               className="add-category"
-              placeholder="Add item to"
               {...register('category')}
             >
-              <option value="cars">Cars</option>
-              <option value="motorbike">Motorbike</option>
+              {/* <option
+                onClick={() => {
+                  console.log('open');
+                  return onOpen;
+                }}
+              >
+                Add item to
+              </option> */}
+              {categories &&
+                categories.map((category) => {
+                  return (
+                    <option
+                      key={category.idCategory}
+                      value={category.idCategory}
+                    >
+                      {category.name}
+                    </option>
+                  );
+                })}
             </Select>
             <Button type="light">Save item</Button>
           </div>
+          {/* <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Create your account</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody pb={6}>
+                <p>Modal</p>
+              </ModalBody>
+
+              <ModalFooter>
+                <Button colorScheme="blue" mr={3}>
+                  Save
+                </Button>
+                <Button onClick={onClose}>Cancel</Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal> */}
         </form>
       </StyledAddingVehiclesPage>
     </MainLayout>
@@ -267,7 +395,6 @@ const StyledAddingVehiclesPage = styled.div`
   padding-top: 50px;
   .form {
     /* background-color: yellow; */
-
     .form-content {
       /* background-color: red; */
       display: flex;
@@ -303,6 +430,11 @@ const StyledAddingVehiclesPage = styled.div`
           img {
             border-radius: 25px;
             object-fit: cover;
+            &.preview-img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
           }
           ${breakpoints.lessThan('2xl')`
             width: 100%;
@@ -330,8 +462,8 @@ const StyledAddingVehiclesPage = styled.div`
             gap: 1rem;
             position: relative;
             ${breakpoints.lessThan('md')`
-          width: 50%;
-          `}
+              width: 50%;
+            `}
             ${breakpoints.lessThan('2xl')`
             `}
             .icon-wrapper {
@@ -346,6 +478,15 @@ const StyledAddingVehiclesPage = styled.div`
               font-size: 18px;
               line-height: 24px;
               color: #b8becd;
+            }
+            img {
+              border-radius: 25px;
+              object-fit: cover;
+              &.preview-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
             }
           }
         }
@@ -365,10 +506,11 @@ const StyledAddingVehiclesPage = styled.div`
             font-size: 24px;
             line-height: 24px;
             color: #80918e;
+            width: 100%;
+
             background-color: transparent;
             &:focus {
               outline: none;
-              width: 100%;
             }
           }
           .line {
@@ -399,7 +541,6 @@ const StyledAddingVehiclesPage = styled.div`
             font-weight: 300;
             font-size: 24px;
             line-height: 24px;
-            color: #80918e;
             &:focus {
               outline: none;
             }
