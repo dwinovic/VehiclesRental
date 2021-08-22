@@ -187,20 +187,36 @@ export async function getServerSideProps(ctx) {
 
   // HAVE QUERY PARAMS
   if (checkQuery) {
-    console.log(query);
     let searchResult = {};
-    try {
-      const resData = await Axios.get(
-        `/vehicles?src=${query?.search ? query?.search : ''}&field=${
-          query?.field ? query?.field : 'price'
-        }&sort=${query?.sort ? query?.sort : 'DESC'}`
-      );
-      searchResult = resData.data;
-      return { props: { searchResult } };
-    } catch (error) {
-      // console.log(error.response.data);
-      searchResult = error.response.data;
-      return { props: { searchResult } };
+    // SEARCH AND FILTER FOR PAGE VEHICLES TYPE
+    if (query?.search && query?.sort) {
+      try {
+        const resData = await Axios.get(
+          `/vehicles?src=${query?.search ? query?.search : ''}&field=${
+            query?.field ? query?.field : 'price'
+          }&sort=${query?.sort ? query?.sort : 'DESC'}`
+        );
+        searchResult = resData.data;
+        return { props: { searchResult } };
+      } catch (error) {
+        // console.log(error.response.data);
+        searchResult = error.response.data;
+        return { props: { searchResult } };
+      }
+    }
+    // FILTER FOR PAGE HOME
+    if (query?.category && query?.location) {
+      try {
+        const resData = await Axios.get(
+          `/vehicles?location=${query?.location}&category=${query?.category}`
+        );
+        searchResult = resData.data;
+        return { props: { searchResult } };
+      } catch (error) {
+        // console.log(error.response.data);
+        searchResult = error.response.data;
+        return { props: { searchResult } };
+      }
     }
   }
 }

@@ -5,18 +5,55 @@ import { Radio, RadioGroup, Stack } from '@chakra-ui/react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { breakpoints } from '../../../src/utils';
+import Axios from '../../../src/config/Axios';
 
-const ProfileUserPage = () => {
+const ProfileUserPage = ({ userData }) => {
+  // console.log(userData);
   const [value, setValue] = useState();
+  const [previewImage, setpreviewImage] = useState(userData?.avatar);
 
+  const date = new Date(userData?.createdAt);
+  const fullDate =
+    (date.getDate() > 9 ? date.getDate() : '0' + date.getDate()) +
+    '/' +
+    (date.getMonth() > 8 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1)) +
+    '/' +
+    date.getFullYear();
+  console.log(userData);
+  // HANDLE CHANGE IMAGES
+  const changeAvatar = (e) => {
+    const file = e.target.files;
+    const formData = new FormData();
+    formData.append('avatar', file);
+    console.log(file);
+    Axios.patch(`/users/${userData.idUser}`)
+      .then((res) => {
+        const prevAvatar = URL.createObjectURL(file);
+        console.log(prevAvatar);
+        console.log(res);
+        setpreviewImage(prevAvatar);
+      })
+      .catch((err) => {
+        console.log(err.response);
+      });
+  };
   return (
-    <MainLayout bgFooter="gray" title="Nopik">
+    <MainLayout bgFooter="gray" title={userData.name}>
       <StyledProfileUser className="container">
         <h1 className="heading-page">Profile</h1>
         <section className="profile-section">
           <div className="avatar-wrapper">
-            <Image src={AVADefault} alt="username" layout="fill" />
+            <Image
+              src={previewImage ? previewImage : AVADefault}
+              alt="username"
+              layout="fill"
+            />
             <div className="edit-avatar">
+              <input
+                type="file"
+                className="change-avatar"
+                onChange={(e) => changeAvatar(e)}
+              />
               <svg
                 width="18"
                 height="19"
@@ -34,16 +71,23 @@ const ProfileUserPage = () => {
               </svg>
             </div>
           </div>
-          <h2 className="heading-playfair">Samantha Doe</h2>
-          <p className="text-nunito-bold">samanthadoe@mail.com</p>
-          <p className="text-nunito-bold">+62833467823</p>
-          <p className="text-nunito-bold">Has been active since 2013</p>
-          <RadioGroup defaultValue="2" className="select-gender">
+          <h2 className="heading-playfair">{userData.name}</h2>
+          <p className="text-nunito-bold">{userData.email}</p>
+          {userData.phone && (
+            <p className="text-nunito-bold">{userData.phone}</p>
+          )}
+          <p className="text-nunito-bold">Has been active since {fullDate}</p>
+          <RadioGroup defaultValue={userData.gender} className="select-gender">
             <Stack spacing={5} direction="row">
-              <Radio name="male" size="lg" colorScheme="orange" value="1">
+              <Radio name="male" size="lg" colorScheme="orange" value="male">
                 Male
               </Radio>
-              <Radio name="female" size="lg" colorScheme="orange" value="2">
+              <Radio
+                name="female"
+                size="lg"
+                colorScheme="orange"
+                value="female"
+              >
                 Female
               </Radio>
             </Stack>
@@ -57,7 +101,7 @@ const ProfileUserPage = () => {
               id="email"
               name="email"
               type="text"
-              placeholder="zulaikha17@gmail.com"
+              defaultValue={userData.email}
             />
             <div className="line" />
           </div>
@@ -67,7 +111,8 @@ const ProfileUserPage = () => {
               id="address"
               type="text"
               name="address"
-              placeholder="Iskandar Street no. 67 Block A Near Bus Stop"
+              defaultValue={userData.address}
+              placeholder="Your address"
             />
             <div className="line" />
           </div>
@@ -77,14 +122,15 @@ const ProfileUserPage = () => {
               type="text"
               id="phone"
               name="phone"
-              placeholder="(+62)813456782"
+              defaultValue={userData.phone}
+              placeholder="Your phone number"
             />
             <div className="line" />
           </div>
-          <h4 className="heading-section-form">Identity</h4>
+          {/* <h4 className="heading-section-form">Identity</h4> */}
           <div className="input-group-two">
-            <div className="input-group">
-              <label htmlFor="username">Dsiplay name :</label>
+            {/* <div className="input-group">
+              <label htmlFor="username">Display name :</label>
               <input
                 type="text"
                 id="username"
@@ -92,14 +138,15 @@ const ProfileUserPage = () => {
                 placeholder="zulaikha"
               />
               <div className="line" />
-            </div>
+            </div> */}
             <div className="input-group">
               <label htmlFor="born">DD/MM/YY</label>
               <input
                 type="text"
                 id="born"
                 name="born"
-                placeholder="03/09/2003"
+                defaultValue={userData.born}
+                placeholder="Your date of birth"
               />
               <div className="line" />
             </div>
@@ -115,6 +162,23 @@ const ProfileUserPage = () => {
   );
 };
 
+export async function getServerSideProps(context) {
+  try {
+    const { params } = context;
+    const res = await Axios(`/users/${params.idUser}`);
+    const dataResponse = res.data.data[0];
+
+    return {
+      props: { userData: dataResponse },
+    };
+  } catch (error) {
+    return {
+      props: { userData: null },
+    };
+  }
+}
+
+// START = STYLING FOR THIS PAGE
 const StyledProfileUser = styled.div`
   padding-top: 50px;
   padding-bottom: 50px;
@@ -139,6 +203,15 @@ const StyledProfileUser = styled.div`
         position: absolute;
         bottom: 0;
         right: 0;
+        .change-avatar {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          opacity: 0;
+          &:hover {
+            cursor: pointer;
+          }
+        }
       }
     }
     .heading-playfair {
@@ -213,4 +286,6 @@ const StyledProfileUser = styled.div`
     }
   }
 `;
+// END = STYLING FOR THIS PAGE
+
 export default ProfileUserPage;

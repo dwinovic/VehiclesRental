@@ -7,7 +7,8 @@ import useSWR from 'swr';
 import { fetcher } from '../../../src/config/fetcher';
 import Axios from '../../../src/config/Axios';
 
-const VehiclesType = () => {
+const VehiclesType = ({ categories }) => {
+  console.log('categories client', categories);
   const router = useRouter();
   const { type } = router.query;
   const [dataVehiclesType, setDataVehiclesType] = useState();
@@ -47,16 +48,16 @@ const VehiclesType = () => {
     <MainLayout bgFooter="gray" title={titlePage}>
       <StyledDetailTypes>
         <header className="container">
-          <h1 className="heading-page">Popular in Town</h1>
+          <h1 className="heading-page">{categories?.meta.category}</h1>
           <p className="sub-heading">
             Click item to see details and reservation
           </p>
         </header>
-        <SectionCard data={dataVehiclesType} anchor="/vehicles-type/category" />
+        <SectionCard data={categories?.data} anchor="/vehicles-type/category" />
         <section className="container pagination-wrapper">
           <Pagination
-            count={totalPage?.totalPage}
-            page={page}
+            count={categories?.meta.totalPage}
+            page={categories?.meta.currentPage}
             onChange={handleChange}
           />
         </section>
@@ -66,6 +67,34 @@ const VehiclesType = () => {
   );
 };
 
+export async function getStaticPaths() {
+  const res = await Axios.get('/category');
+
+  const paths = res.data.data.map((category) => ({
+    params: { type: category.name },
+  }));
+  console.log(paths);
+
+  return { paths, fallback: false };
+}
+
+export async function getStaticProps({ params }) {
+  let categories;
+  console.log(params.type);
+  try {
+    const res = await Axios(`/vehicles?category=${params.type}`);
+    categories = res.data;
+    console.log(categories);
+    // Pass post data to the page via props
+    return { props: { categories } };
+  } catch (error) {
+    categories = error.response;
+    console.log(categories);
+    return { props: { categories: dataResponse } };
+  }
+}
+
+// START = STYLING THIS PAGE
 const StyledDetailTypes = styled.div`
   margin-top: 70px;
 
@@ -111,4 +140,6 @@ const StyledDetailTypes = styled.div`
   }
   /* END = PAGINATION SECTION */
 `;
+// END = STYLING THIS PAGE
+
 export default VehiclesType;
