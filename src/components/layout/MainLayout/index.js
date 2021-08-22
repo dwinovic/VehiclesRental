@@ -36,7 +36,7 @@ const MainLayout = ({ title, children, bgFooter }) => {
         <title>{title}</title>
       </Head>
       <Navbar session={session} data={dataUser} />
-      {children}
+      <main className="main">{children}</main>
       <Footer bgFooter={bgFooter} />
     </StyledMainLayout>
   );
@@ -59,6 +59,12 @@ const StyledMainLayout = styled.div`
     `}
   }
   /* END = CONTAINER */
+
+  /* START = MAIN CHILDREN */
+  .main {
+    padding-top: 120px;
+  }
+  /* END = MAIN CHILDREN */
 
   /* START = TYPHOGRAPHY */
   .heading-page {

@@ -1,26 +1,21 @@
 import { Select } from '@chakra-ui/react';
 import Image from 'next/image';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ILCircle, ILPlus, IMGBGhome, IMGDMUser } from '../src/assets';
 import { SectionCard } from '../src/components';
 import { Button } from '../src/components/atoms';
 import { BgImageLayout, MainLayout } from '../src/components/layout';
-import { breakpoints } from '../src/utils';
-import useSWR from 'swr';
-import { fetcher } from '../src/config/fetcher';
-import { useRouter } from 'next/router';
 import Axios from '../src/config/Axios';
+import { breakpoints } from '../src/utils';
+import { useForm } from 'react-hook-form';
 
-function Home(props) {
-  console.log('PROPS', props);
+function Home({ vehiclePopular, listLocation, listCategories }) {
+  // console.log('vehiclePopular', vehiclePopular);
   const [dataUser, setDataUser] = useState();
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
-
-  const { data, error } = useSWR('/vehicles?limit=5', fetcher);
-  const dataVehicles = data?.data;
 
   useEffect(() => {
     const roleLocal = localStorage.getItem('role');
@@ -30,6 +25,25 @@ function Home(props) {
   }, []);
 
   // console.log(dataUser);
+
+  // START = HANDLE FILTER VEHICLES FINDER
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+  const onSubmit = (data) => {
+    // console.log(data);
+    router.push({
+      pathname: `/vehicles-type`,
+      query: {
+        category: data.category,
+        location: data.location,
+      },
+    });
+  };
+  // START = HANDLE FILTER VEHICLES FINDER
 
   return (
     <MainLayout bgFooter="gray" title="Home">
@@ -42,45 +56,31 @@ function Home(props) {
                 <h4>Vehicle Finder</h4>
                 <div className="line"></div>
               </div>
-              <form className="form">
+              <form className="form" onSubmit={handleSubmit(onSubmit)}>
                 <div className="input-group">
                   <Select
-                    bg=" rgba(255, 255, 255, 0.5)"
                     variant="filled"
                     placeholder="Location"
+                    {...register('location')}
                   >
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
+                    {listLocation &&
+                      listLocation.map((item, index) => (
+                        <option key={index} value={item}>
+                          {item}
+                        </option>
+                      ))}
                   </Select>
                   <Select
-                    bg=" rgba(255, 255, 255, 0.5)"
                     variant="filled"
                     placeholder="Type"
+                    {...register('category')}
                   >
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
-                  </Select>
-                </div>
-                <div className="input-group">
-                  <Select
-                    bg=" rgba(255, 255, 255, 0.5)"
-                    variant="filled"
-                    placeholder="Payment"
-                  >
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
-                  </Select>
-                  <Select
-                    bg=" rgba(255, 255, 255, 0.5)"
-                    variant="filled"
-                    placeholder="Date"
-                  >
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
+                    {listCategories &&
+                      listCategories.map((item) => (
+                        <option key={item.idCategory} value={item.name}>
+                          {item.name}
+                        </option>
+                      ))}
                   </Select>
                 </div>
                 <Button className="btn-action">Explore</Button>
@@ -89,11 +89,13 @@ function Home(props) {
           </BgImageLayout>
         </header>
         <main>
-          <SectionCard
-            heading="Popular in town"
-            data={dataVehicles}
-            anchor="/vehicles-type/category"
-          />
+          {vehiclePopular && (
+            <SectionCard
+              heading={vehiclePopular.meta.category}
+              data={vehiclePopular.data}
+              anchor="/vehicles-type/category"
+            />
+          )}
           {isAdmin && (
             <div className="container add-new-item">
               <Button
@@ -314,14 +316,34 @@ function Home(props) {
   );
 }
 
-// export async function getServerSideProps() {
-//   const res = Axios.get('/vehicles');
-//   const data = res.data;
+export async function getServerSideProps(context) {
+  try {
+    // GET VEHICLE POPULAR BY CATEGORY
+    const { data } = await Axios.get(`/vehicles?category=Popular In Town`);
+    const vehiclePopular = data;
+    // GET LIST OF LOCATION
+    const getAllData = await Axios.get(`/vehicles`);
+    const listLocation = [
+      ...new Set(getAllData.data.data.map((item) => item.location)),
+    ];
+    // GET LIST OF CATEGORIES
+    const { data: categories } = await Axios.get(`/category`);
+    const listCategories = categories.data;
 
-//   // Pass data to the page via props
-//   return { props: { data } };
-// }
+    return {
+      props: {
+        vehiclePopular,
+        listLocation,
+        listCategories,
+      },
+    };
+  } catch (error) {
+    const errorResponse = error.response.data;
+  }
+}
+
 export default Home;
+
 // STYLING = HOMEPAGE
 
 const StyledHomepage = styled.div`
@@ -427,12 +449,24 @@ const StyledHomepage = styled.div`
       `}
       .input-group {
         display: flex;
-        gap: 30px;
+        flex-direction: column;
+        gap: 25px;
         margin-bottom: 35px;
+        select {
+          background-color: rgba(245, 245, 245, 0.5);
+          height: 50px;
+          &:focus {
+            background-color: rgba(245, 245, 245, 0.911);
+          }
+          &:hover {
+            cursor: pointer;
+            background-color: rgba(245, 245, 245, 0.911);
+          }
+        }
       }
       .btn-action {
         width: 200px;
-        height: 40px;
+        height: 50px;
         font-size: 18px;
         ${breakpoints.lessThan('md')`
         width: 100%;

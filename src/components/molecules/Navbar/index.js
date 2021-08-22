@@ -237,6 +237,10 @@ export default Navbar;
 
 const StyledNavbar = styled.nav`
   padding: 40px 0;
+  position: fixed;
+  width: 100vw;
+  background: #ffffff;
+  z-index: 9;
   .content {
     width: 1500px;
     margin: 0 auto;
