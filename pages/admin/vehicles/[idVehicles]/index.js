@@ -474,6 +474,8 @@ const StyledAddingVehiclesPage = styled.div`
           justify-content: center;
           align-items: center;
           position: relative;
+          padding: 0;
+
           img {
             border-radius: 25px;
             object-fit: cover;

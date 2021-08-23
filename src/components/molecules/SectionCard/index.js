@@ -57,7 +57,7 @@ const SectionCard = ({ heading, data, anchor }) => {
 SectionCard.propTypes = {
   heading: PropTypes.string,
   anchor: PropTypes.string,
-  data: PropTypes.object,
+  data: PropTypes.array,
 };
 
 SectionCard.defaultProps = {};

@@ -8,18 +8,23 @@ import { ICEmail } from '../../../assets/icons';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Axios from '../../../config/Axios';
 
 const Navbar = ({ session, data }) => {
   const [collapse, setCollapse] = useState(false);
   const [avatarPop, setAvatarPop] = useState(false);
   const router = useRouter();
   const pathActive = router.pathname.split('/')[1];
-  const idUser = data?.idUser;
 
   const handleLogout = () => {
-    localStorage.removeItem('idUser');
-    localStorage.removeItem('token');
-    router.push('/login');
+    Axios.get('/users/logout', { withCredentials: true })
+      .then((res) => {
+        console.log(res);
+        router.push('/login');
+      })
+      .catch((err) => {
+        console.log(err.response);
+      });
   };
 
   // console.log('data in Navbar', idUser);
@@ -89,7 +94,7 @@ const Navbar = ({ session, data }) => {
                     <div
                       className="row"
                       onClick={() => {
-                        return router.push(`/profile/${idUser}`);
+                        return router.push(`/profile`);
                       }}
                     >
                       <p>Edit Profile</p>

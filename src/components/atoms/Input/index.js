@@ -20,6 +20,7 @@ const Input = ({
       name={name}
       onChange={onChange}
       value={value}
+      theme={theme}
       {...props}
     />
   );
@@ -52,8 +53,14 @@ const StyledInput = styled.input`
   font-weight: bold;
   font-size: 24px;
   line-height: 33px;
-  /* color: #ffffff; */
-  color: #80918e;
+  color: ${({ theme }) => {
+    switch (theme) {
+      case 'text-white':
+        return '#ffffff';
+      default:
+        break;
+    }
+  }};
 
   border: 0;
   &:focus {
@@ -61,6 +68,13 @@ const StyledInput = styled.input`
     /* background: rgba(255, 255, 255, 0.582); */
   }
   &::placeholder {
-    /* color: #ffffff; */
+    color: ${({ theme }) => {
+      switch (theme) {
+        case 'text-white':
+          return '#ffffff';
+        default:
+          break;
+      }
+    }};
   }
 `;

@@ -8,34 +8,15 @@ import { fetcher } from '../../../config/fetcher';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import Cookies from 'js-cookie';
 
-const MainLayout = ({ title, children, bgFooter }) => {
-  const [localStrg, setLocalStrg] = useState({
-    token: '',
-    idUser: '',
-  });
-
-  const { data, error } = useSWR(
-    [`/users/${localStrg.idUser}`, localStrg.token],
-    fetcher
-  );
-
-  const dataUser = data?.data[0];
-  const session = dataUser ? 'login' : false;
-
-  useEffect(() => {
-    setLocalStrg({
-      token: localStorage.getItem('token'),
-      idUser: localStorage.getItem('idUser'),
-    });
-  }, []);
-
+const MainLayout = ({ title, children, bgFooter, session }) => {
   return (
     <StyledMainLayout>
       <Head>
         <title>{title}</title>
       </Head>
-      <Navbar session={session} data={dataUser} />
+      <Navbar session={session} />
       <main className="main">{children}</main>
       <Footer bgFooter={bgFooter} />
     </StyledMainLayout>

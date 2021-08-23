@@ -8,10 +8,17 @@ import { SectionCard } from '../src/components';
 import { Button } from '../src/components/atoms';
 import { BgImageLayout, MainLayout } from '../src/components/layout';
 import Axios from '../src/config/Axios';
-import { breakpoints } from '../src/utils';
+import { breakpoints, getCookies, requireAuthentication } from '../src/utils';
 import { useForm } from 'react-hook-form';
 
-function Home({ vehiclePopular, listLocation, listCategories }) {
+function Home({
+  vehiclePopular,
+  listLocation,
+  listCategories,
+  errorResponse,
+  roleUser,
+  avatarUser,
+}) {
   // console.log('vehiclePopular', vehiclePopular);
   const [dataUser, setDataUser] = useState();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -45,8 +52,16 @@ function Home({ vehiclePopular, listLocation, listCategories }) {
   };
   // START = HANDLE FILTER VEHICLES FINDER
 
+  if (errorResponse) {
+    return <h1>Error in server</h1>;
+  }
+
   return (
-    <MainLayout bgFooter="gray" title="Home">
+    <MainLayout
+      bgFooter="gray"
+      title="Home"
+      session={roleUser ? 'login' : false}
+    >
       <StyledHomepage>
         <header>
           <BgImageLayout imageBg={IMGBGhome}>
@@ -96,7 +111,7 @@ function Home({ vehiclePopular, listLocation, listCategories }) {
               anchor="/vehicles-type/category"
             />
           )}
-          {isAdmin && (
+          {roleUser === 'admin' && (
             <div className="container add-new-item">
               <Button
                 type="dark"
@@ -316,8 +331,56 @@ function Home({ vehiclePopular, listLocation, listCategories }) {
   );
 }
 
-export async function getServerSideProps(context) {
+// export const getServerSideProps = requireAuthentication(async (context) => {
+//   try {
+//     const { req, res } = context;
+//     //
+//     const avatarUser = res.avatar;
+//     const roleUser = res.role;
+
+//     // GET VEHICLE POPULAR BY CATEGORY
+//     const { data } = await Axios.get(`/vehicles?category=Popular In Town`);
+//     const vehiclePopular = data;
+//     // GET LIST OF LOCATION
+//     const getAllData = await Axios.get(`/vehicles`);
+//     const listLocation = [
+//       ...new Set(getAllData.data.data.map((item) => item.location)),
+//     ];
+//     // GET LIST OF CATEGORIES
+//     const { data: categories } = await Axios.get(`/category`);
+//     const listCategories = categories.data;
+
+//     return {
+//       props: {
+//         vehiclePopular,
+//         listLocation,
+//         listCategories,
+//         roleUser,
+//         avatarUser,
+//       },
+//     };
+//   } catch (error) {
+//     const errorResponse = error.response.data;
+//     return {
+//       props: {
+//         errorResponse,
+//       },
+//     };
+//   }
+// });
+
+export async function getServerSideProps(ctx) {
   try {
+    const { req, res } = ctx;
+    let roleUser = '';
+    let avatarUser = '';
+    let token = '';
+    if (req.headers.cookie) {
+      token = getCookies(req, 'tokenvr');
+      avatarUser = getCookies(req, 'avatarvr');
+      roleUser = getCookies(req, 'rolevr');
+    }
+
     // GET VEHICLE POPULAR BY CATEGORY
     const { data } = await Axios.get(`/vehicles?category=Popular In Town`);
     const vehiclePopular = data;
@@ -335,10 +398,18 @@ export async function getServerSideProps(context) {
         vehiclePopular,
         listLocation,
         listCategories,
+        roleUser: roleUser ? roleUser : null,
+        avatarUser: avatarUser ? avatarUser : null,
+        token: token ? token : null,
       },
     };
   } catch (error) {
     const errorResponse = error.response.data;
+    return {
+      props: {
+        errorResponse,
+      },
+    };
   }
 }
 

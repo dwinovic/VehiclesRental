@@ -2,13 +2,20 @@ import styled from 'styled-components';
 import { BgImageLayout, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
 import Link from 'next/link';
-import { breakpoints, toastify } from '../../src/utils';
+import {
+  breakpoints,
+  getCookies,
+  isLoginAuthentication,
+  requireAuthentication,
+  toastify,
+} from '../../src/utils';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useForm } from 'react-hook-form';
 import Axios from '../../src/config/Axios';
+import Router from 'next/router';
 
-const LoginPage = () => {
+const LoginPage = ({ data }) => {
   const router = useRouter();
   const {
     register,
@@ -22,14 +29,9 @@ const LoginPage = () => {
       email: data.email,
       password: data.password,
     };
-    Axios.post('/users/login', dataSend)
+    Axios.post('/users/login', dataSend, { withCredentials: true })
       .then((result) => {
-        const idUser = result.data.data.idUser;
-        const token = result.data.data.token;
-        const role = result.data.data.role;
-        localStorage.setItem('token', token);
-        localStorage.setItem('idUser', idUser);
-        localStorage.setItem('role', role);
+        console.log(result);
         router.push('/');
       })
       .catch((err) => {
@@ -76,7 +78,7 @@ const LoginPage = () => {
                   y2="558.795"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle cx="10" cy="10" r="10" fill="white" />
                 <circle cx="10" cy="557" r="10" fill="white" />
@@ -96,7 +98,7 @@ const LoginPage = () => {
                   y2="10.5"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle
                   cx="557"
@@ -117,6 +119,7 @@ const LoginPage = () => {
             <form className="right" onSubmit={handleSubmit(onSubmit)}>
               <div className="form-input">
                 <Input
+                  theme="text-white"
                   name="email"
                   type="text"
                   placeholder="Email"
@@ -125,6 +128,7 @@ const LoginPage = () => {
               </div>
               <div className="form-input">
                 <Input
+                  theme="text-white"
                   name="password"
                   type="password"
                   placeholder="Password"
@@ -147,6 +151,33 @@ const LoginPage = () => {
     </>
   );
 };
+
+LoginPage.getInitialProps = isLoginAuthentication(async (ctx) => {
+  return { data: null };
+});
+
+// LoginPage.getInitialProps = async (ctx) => {
+//   const { req, res } = ctx;
+
+//   const getCookies = (name) => {
+//     const value = `; ${req.headers.cookie}`;
+//     const parts = value.split(`; ${name}=`);
+//     if (parts.length === 2) return parts.pop().split(';').shift();
+//   };
+
+//   const token = await getCookies('tokenvr');
+
+//   if (token) {
+//     // Redirect homepage
+//     res.writeHead(302, {
+//       // or 301
+//       Location: '/',
+//     });
+//     res.end();
+//   } else {
+//     return { stars: null };
+//   }
+// };
 
 const StyledContent = styled.div`
   width: 100%;
@@ -220,9 +251,10 @@ const StyledContent = styled.div`
       .form-input {
         margin-bottom: 34px;
         width: 447px;
+
         ${breakpoints.lessThan('lg')`
-      width: 100%;
-    `}
+          width: 100%;
+        `}
         &.forgot-password-wrapper {
           margin-top: -25px;
           .forgot-password {

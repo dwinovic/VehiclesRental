@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { BgImageLayout, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
 import Link from 'next/link';
-import { breakpoints, toastify } from '../../src/utils';
+import { breakpoints, isLoginAuthentication, toastify } from '../../src/utils';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useForm } from 'react-hook-form';
@@ -85,7 +85,7 @@ const RegisterCustomerPage = () => {
                   y2="558.795"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle cx="10" cy="10" r="10" fill="white" />
                 <circle cx="10" cy="557" r="10" fill="white" />
@@ -105,7 +105,7 @@ const RegisterCustomerPage = () => {
                   y2="10.5"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle
                   cx="557"
@@ -169,6 +169,10 @@ const RegisterCustomerPage = () => {
     </>
   );
 };
+
+RegisterCustomerPage.getInitialProps = isLoginAuthentication(async (ctx) => {
+  return { data: null };
+});
 
 const StyledContent = styled.div`
   width: 100%;

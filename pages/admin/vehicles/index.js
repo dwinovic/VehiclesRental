@@ -63,6 +63,7 @@ const AddVehicles = () => {
           .catch((err) => {
             const message = err.response.data.message;
             toastify(message, 'error');
+            setpreviewImage1('');
           });
       }
       if (image2) {
@@ -77,6 +78,7 @@ const AddVehicles = () => {
           .catch((err) => {
             const message = err.response.data.message;
             toastify(message, 'error');
+            setpreviewImage2('');
           });
       }
       if (image3) {
@@ -91,6 +93,7 @@ const AddVehicles = () => {
           .catch((err) => {
             const message = err.response.data.message;
             toastify(message, 'error');
+            setpreviewImage3('');
           });
       }
 
@@ -204,7 +207,7 @@ const AddVehicles = () => {
               <div className="item-wrapper">
                 <div className="item">
                   {!previewImage2 && (
-                    <div>
+                    <div className="default-wrapper">
                       <div className="icon-wrapper">
                         <Image src={ILCamera} alt="camera" layout="fill" />
                       </div>
@@ -228,7 +231,7 @@ const AddVehicles = () => {
                 </div>
                 <div className="item">
                   {!previewImage3 && (
-                    <div>
+                    <div className="default-wrapper">
                       <div className="icon-wrapper">
                         <Image src={ICPlusLight} alt="camera" layout="fill" />
                       </div>
@@ -427,6 +430,7 @@ const StyledAddingVehiclesPage = styled.div`
           justify-content: center;
           align-items: center;
           position: relative;
+          padding: 0;
           img {
             border-radius: 25px;
             object-fit: cover;
@@ -466,19 +470,29 @@ const StyledAddingVehiclesPage = styled.div`
             `}
             ${breakpoints.lessThan('2xl')`
             `}
-            .icon-wrapper {
-              width: 65px;
-              height: 70px;
-              position: relative;
+            .default-wrapper {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              .icon-wrapper {
+                width: 65px;
+                height: 70px;
+                position: relative;
+                img {
+                  object-fit: contain;
+                }
+              }
+              p {
+                font-family: Nunito;
+                font-style: normal;
+                font-weight: bold;
+                font-size: 18px;
+                line-height: 24px;
+                color: #b8becd;
+              }
             }
-            p {
-              font-family: Nunito;
-              font-style: normal;
-              font-weight: bold;
-              font-size: 18px;
-              line-height: 24px;
-              color: #b8becd;
-            }
+
             img {
               border-radius: 25px;
               object-fit: cover;

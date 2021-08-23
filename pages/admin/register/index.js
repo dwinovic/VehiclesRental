@@ -86,7 +86,7 @@ const RegisterAdminPage = () => {
                   y2="558.795"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle cx="10" cy="10" r="10" fill="white" />
                 <circle cx="10" cy="557" r="10" fill="white" />
@@ -106,7 +106,7 @@ const RegisterAdminPage = () => {
                   y2="10.5"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle
                   cx="557"

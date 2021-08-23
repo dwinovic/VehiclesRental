@@ -1,8 +1,21 @@
 import '../src/styles/globals.css';
 import Head from 'next/head';
+import Router from 'next/router';
 import { ChakraProvider } from '@chakra-ui/react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ProgressBar from '@badrap/bar-of-progress';
+
+const progress = new ProgressBar({
+  size: 5,
+  color: '#FFCD61',
+  className: 'bar-of-progress',
+  delay: 150,
+});
+
+Router.events.on('routeChangeStart', progress.start);
+Router.events.on('routeChangeComplete', progress.finish);
+Router.events.on('routeChangeError', progress.finish);
 
 function MyApp({ Component, pageProps }) {
   return (

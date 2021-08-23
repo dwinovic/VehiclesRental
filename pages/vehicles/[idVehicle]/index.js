@@ -8,39 +8,40 @@ import { fetcher } from '../../../src/config/fetcher';
 import styled from 'styled-components';
 import { breakpoints } from '../../../src/utils';
 import NumberFormat from 'react-number-format';
+import Axios from '../../../src/config/Axios';
 
-const DetailVehicle = () => {
+const DetailVehicle = ({ dataVehicle }) => {
+  console.log('dataVehicle in CLIENT', dataVehicle);
+  const { data: vehicle, statusCode } = dataVehicle;
   const [dataUser, setDataUser] = useState();
   const [role, setRole] = useState('');
   const router = useRouter();
   const idVehicles = router.query.idVehicle;
 
-  const { data, error } = useSWR(`/vehicles/${idVehicles}`, fetcher);
-  const dataVehicles = data?.data;
   useEffect(() => {
     const roleLocal = localStorage.getItem('role');
     setRole(roleLocal);
   }, []);
 
-  if (!dataVehicles) {
+  if (statusCode !== 200) {
     return <h1>Kooosong</h1>;
   }
 
   const myLoader = ({ src }) => {
-    return `${dataVehicles?.images[0]}`;
+    return `${vehicle?.images[0]}`;
   };
 
   return (
-    <MainLayout bgFooter="gray" title="Fixie - Gray Only">
+    <MainLayout bgFooter="gray" title={vehicle.name}>
       <StyledDetailVehicle className="container">
         <GoBackPage titleBack="Detail" />
         <section className=" detail-vehicle">
           <div className="galery-wrapper">
             <div className="image-main">
               <Image
-                src={dataVehicles?.images[0]}
+                src={vehicle?.images[0]}
                 loader={myLoader}
-                alt={dataVehicles.name}
+                alt={vehicle.name}
                 layout="fill"
               />
             </div>
@@ -72,7 +73,7 @@ const DetailVehicle = () => {
               </div>
               <div className="item-main">
                 <div className="item">
-                  <Image src={IMGJogja} alt="vehicle" layout="fill" />
+                  <Image src={vehicle?.images[1]} alt="vehicle" layout="fill" />
                 </div>
                 <div className="item">
                   <Image src={IMGJogja} alt="vehicle" layout="fill" />
@@ -105,24 +106,24 @@ const DetailVehicle = () => {
             </div>
           </div>
           <div className="detail-info">
-            <h1 className="title-vehicle">{dataVehicles.name}</h1>
-            <p className="location">{dataVehicles.location}</p>
-            <p className="status green">{dataVehicles.status}</p>
-            <p className="paymentOption red">{dataVehicles.paymentOption}</p>
+            <h1 className="title-vehicle">{vehicle.name}</h1>
+            <p className="location">{vehicle.location}</p>
+            <p className="status green">{vehicle.status}</p>
+            <p className="paymentOption red">{vehicle.paymentOption}</p>
             <p className="detail">Capacity : 1 person</p>
             <p className="detail">
-              Type : {dataVehicles.category ? dataVehicles.type : 'Motor'}
+              Type : {vehicle.category ? vehicle.type : 'Motor'}
             </p>
-            <p className="detail">{dataVehicles.description}</p>
+            <p className="detail">{vehicle.description}</p>
             <div className="price-wrapper">
               <NumberFormat
                 className="price"
-                value={dataVehicles.price}
+                value={vehicle.price}
                 displayType={'text'}
                 thousandSeparator={true}
                 prefix={'Rp. '}
               />
-              <p className="price kouta">Kouta: {dataVehicles.stock}</p>
+              <p className="price kouta">Kouta: {vehicle.stock}</p>
             </div>
             <div></div>
             <div className="amount-wrapper">
@@ -199,7 +200,34 @@ const DetailVehicle = () => {
     </MainLayout>
   );
 };
+export async function getStaticPaths() {
+  const res = await Axios.get('/vehicles');
 
+  const paths = res.data.data.map((item) => ({
+    params: { idVehicle: item.idVehicles },
+  }));
+  // console.log(paths);
+
+  return { paths, fallback: false };
+}
+
+export async function getStaticProps({ params }) {
+  let dataVehicle;
+  // console.log(params.idVehicle);
+  try {
+    const res = await Axios(`/vehicles/${params.idVehicle}`);
+    dataVehicle = res.data;
+    // console.log(dataVehicle);
+    // Pass post data to the page via props
+    return { props: { dataVehicle } };
+  } catch (error) {
+    dataVehicle = error.response;
+    // console.log(dataVehicle);
+    return { props: { dataVehicle } };
+  }
+}
+
+// STYLING CURRENT PAGE
 const StyledDetailVehicle = styled.div`
   /* ${breakpoints.lessThan('2xl')`
       background-color: yellow;
