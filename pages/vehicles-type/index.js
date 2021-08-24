@@ -116,7 +116,7 @@ const VehiclesType = ({ dataCategory, searchResult }) => {
                 key={index}
                 heading={category.category}
                 data={category.data}
-                anchor={`/vehicles-type/${category.category}`}
+                anchor={`vehicles-type/${category.category}`}
               />
             );
           })}

@@ -13,7 +13,11 @@ import { fetcher } from '../../../../src/config/fetcher';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Axios from '../../../../src/config/Axios';
-import { breakpoints, toastify } from '../../../../src/utils';
+import {
+  breakpoints,
+  requireAuthenticationAdmin,
+  toastify,
+} from '../../../../src/utils';
 import styled from 'styled-components';
 import { useDisclosure } from '@chakra-ui/react';
 import {
@@ -27,12 +31,12 @@ import {
 } from '@chakra-ui/react';
 import { Button as ButtonChakra, ButtonGroup } from '@chakra-ui/react';
 import { Heading } from '@chakra-ui/react';
-
-const AddVehicles = () => {
+const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
+  const { data: vehicle, statusCode } = dataVehicle;
+  // console.log('categories', categories);
   const router = useRouter();
   const idVehicles = router.query.idVehicles;
-  const { data, error } = useSWR(`/vehicles/${idVehicles}`, fetcher);
-  const dataVehicles = data?.data;
+
   const [totalStock, setTotalStock] = useState(1);
 
   // START = MODAL
@@ -47,17 +51,13 @@ const AddVehicles = () => {
     getValues,
   } = useForm();
   // START = CATEGORIES
-  const [categories, setCategories] = useState([]);
-  const { data: dataCategories, error: errorCategories } = useSWR(
-    '/category',
-    fetcher
-  );
+
   // END = CATEGORIES
   // START = UPLOAD IMAGE
-  const [uploadImage, setUploadImage] = useState(dataVehicles.images);
-  const [previewImage1, setpreviewImage1] = useState(dataVehicles.images[0]);
-  const [previewImage2, setpreviewImage2] = useState(dataVehicles.images[1]);
-  const [previewImage3, setpreviewImage3] = useState(dataVehicles.images[2]);
+  const [uploadImage, setUploadImage] = useState(vehicle.images);
+  const [previewImage1, setpreviewImage1] = useState(vehicle.images[0]);
+  const [previewImage2, setpreviewImage2] = useState(vehicle.images[1]);
+  const [previewImage3, setpreviewImage3] = useState(vehicle.images[2]);
   const handleInputImageProduct = async () => {
     try {
       const image1 = getValues('image1')[0];
@@ -68,7 +68,7 @@ const AddVehicles = () => {
       if (image1) {
         const formData = new FormData();
         formData.append('avatar', image1);
-        Axios.post(`/vehicles/images`, formData)
+        Axios.post(`/vehicles/images`, formData, { withCredentials: true })
           .then(() => {
             images.push(image1);
             setpreviewImage1(URL.createObjectURL(image1));
@@ -82,7 +82,7 @@ const AddVehicles = () => {
         const formData = new FormData();
 
         formData.append('avatar', image2);
-        Axios.post(`/vehicles/images`, formData)
+        Axios.post(`/vehicles/images`, formData, { withCredentials: true })
           .then(() => {
             images.push(image2);
             setpreviewImage2(URL.createObjectURL(image2));
@@ -96,7 +96,7 @@ const AddVehicles = () => {
         const formData = new FormData();
 
         formData.append('avatar', image3);
-        Axios.post(`/vehicles/images`, formData)
+        Axios.post(`/vehicles/images`, formData, { withCredentials: true })
           .then(() => {
             images.push(image3);
             setpreviewImage3(URL.createObjectURL(image3));
@@ -114,34 +114,35 @@ const AddVehicles = () => {
   };
 
   useEffect(() => {
-    setCategories(dataCategories?.data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     handleInputImageProduct();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getValues('image1'), getValues('image2'), getValues('image3')]);
 
   useEffect(() => {
-    setUploadImage(dataVehicles.images);
-    setTotalStock(dataVehicles.stock);
-  }, [dataVehicles.images, dataVehicles.stock]);
+    setUploadImage(vehicle.images);
+    setTotalStock(vehicle.stock);
+  }, [vehicle.images, vehicle.stock]);
+
   const onSubmit = (data) => {
-    const token = localStorage.getItem('token');
-    const idUser = localStorage.getItem('idUser');
+    const idVehicles = router.query.idVehicles;
     // console.log('token', token);
-    // console.log('idUser', idUser)
-    const checkDataSend = {
-      ...data,
-      stock: totalStock,
-      images: uploadImage,
-    };
-    console.log('checkDataSend', checkDataSend);
+    // const checkDataSend = {
+    //   idVehicles,
+    //   name: data.name,
+    //   location: data.location,
+    //   description: data.description,
+    //   price: data.price,
+    //   category: data.category,
+    //   stock: totalStock,
+    //   capacity: 2,
+    //   paymentOption: 'per day',
+    //   status: data.status,
+    // };
+
+    // console.log('checkDataSend', checkDataSend);
 
     const formData = new FormData();
-    formData.append('idOwner', idUser);
     formData.append('name', data.name);
     formData.append('location', data.location);
     formData.append('description', data.description);
@@ -158,11 +159,7 @@ const AddVehicles = () => {
       formData.append('images', image);
     });
 
-    Axios.patch('/vehicles', formData, {
-      headers: {
-        'content-type': 'multipart/form-data',
-      },
-    })
+    Axios.patch(`/vehicles/${idVehicles}`, formData, { withCredentials: true })
       .then((result) => {
         // console.log(result);
         toastify('Success update vehicles', 'success');
@@ -174,11 +171,12 @@ const AddVehicles = () => {
         toastify(message, 'warning');
       });
   };
+
   const deleteItem = () => {
     Axios.delete(`/vehicles/${idVehicles}`)
       .then((result) => {
         console.log(result);
-        toastify(`Success deleted ${dataVehicles.name}`, 'success');
+        toastify(`Success deleted ${vehicle.name}`, 'success');
         return router.push('/');
       })
       .catch((err) => {
@@ -188,7 +186,7 @@ const AddVehicles = () => {
   };
 
   useEffect(() => {
-    setTotalStock(dataVehicles.stock);
+    setTotalStock(vehicle.stock);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -212,11 +210,20 @@ const AddVehicles = () => {
   // END = COUNTER STOCK
 
   const myLoader = ({ src }) => {
-    return `${dataVehicles.images[0]}`;
+    return `${vehicle.images[0]}`;
   };
 
+  if (statusCode !== 200) {
+    return <h1>Kooosong</h1>;
+  }
+
   return (
-    <MainLayout bgFooter="gray" title={`Update | ${dataVehicles.name}`}>
+    <MainLayout
+      bgFooter="gray"
+      title={`Update | ${vehicle.name}`}
+      avatar={avatar}
+      session={roleUser ? 'login' : false}
+    >
       <StyledAddingVehiclesPage className="container">
         <GoBackPage titleBack="Add New Item" />
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
@@ -300,7 +307,7 @@ const AddVehicles = () => {
                   type="text"
                   name="name"
                   placeholder="Name (max up to 50 words)"
-                  defaultValue={dataVehicles.name}
+                  defaultValue={vehicle.name}
                   {...register('name')}
                 />
                 <div className="line" />
@@ -310,7 +317,7 @@ const AddVehicles = () => {
                   type="text"
                   name="location"
                   placeholder="Location"
-                  defaultValue={dataVehicles.location}
+                  defaultValue={vehicle.location}
                   {...register('location')}
                 />
                 <div className="line" />
@@ -320,7 +327,7 @@ const AddVehicles = () => {
                   type="text"
                   name="description"
                   placeholder="Description (max up to 150 words)"
-                  defaultValue={dataVehicles.description}
+                  defaultValue={vehicle.description}
                   {...register('description')}
                 />
                 <div className="line" />
@@ -331,7 +338,7 @@ const AddVehicles = () => {
                   type="text"
                   name="price"
                   placeholder="price"
-                  defaultValue={dataVehicles.price}
+                  defaultValue={vehicle.price}
                   {...register('price')}
                 />
               </div>
@@ -341,7 +348,7 @@ const AddVehicles = () => {
                   bg=" rgba(255, 255, 255, 0.5)"
                   variant="filled"
                   size="lg"
-                  defaultValue={dataVehicles.status}
+                  defaultValue={vehicle.status}
                   {...register('status')}
                 >
                   <option value="available">Available</option>
@@ -390,8 +397,9 @@ const AddVehicles = () => {
               variant="filled"
               size="lg"
               className="add-category"
-              placeholder={dataVehicles.category}
-              defaultValue={dataVehicles.idCategory}
+              placeholder={vehicle.category}
+              defaultValue={vehicle.idCategory}
+              {...register('category')}
             >
               {categories &&
                 categories.map((category) => {
@@ -421,7 +429,7 @@ const AddVehicles = () => {
             <ModalHeader>Are you sure to delete?</ModalHeader>
             <ModalBody>
               <Heading as="h5" size="lg">
-                {dataVehicles.name}
+                {vehicle.name}
               </Heading>
             </ModalBody>
             <ModalCloseButton />
@@ -437,6 +445,42 @@ const AddVehicles = () => {
     </MainLayout>
   );
 };
+
+export const getServerSideProps = requireAuthenticationAdmin(
+  async (context) => {
+    let dataVehicle;
+    try {
+      const { req, res, params } = context;
+      const avatar = res.avatar;
+      const roleUser = res.role;
+
+      const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicles}`, {
+        withCredentials: true,
+        headers: context.req
+          ? { cookie: context.req.headers.cookie }
+          : undefined,
+      });
+      dataVehicle = resDataVehicle.data;
+
+      const resCategories = await Axios.get(`/category`);
+      const categories = resCategories.data.data;
+      // console.log('categories', categories);
+
+      // Pass post data to the page via props
+      return {
+        props: {
+          dataVehicle,
+          avatar,
+          roleUser,
+          categories,
+        },
+      };
+    } catch (error) {
+      dataVehicle = error.response;
+      return { props: { dataVehicle } };
+    }
+  }
+);
 
 const StyledAddingVehiclesPage = styled.div`
   padding-top: 50px;

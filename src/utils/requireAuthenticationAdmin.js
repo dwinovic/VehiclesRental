@@ -1,6 +1,6 @@
 import { getCookies } from './getCookies';
 
-export function isLoginAuthentication(gssp) {
+export function requireAuthenticationAdmin(gssp) {
   return async (context) => {
     const { req, res } = context;
     // get Cookie
@@ -13,19 +13,25 @@ export function isLoginAuthentication(gssp) {
     const avatar = await getCookies(req, 'avatar');
     const role = await getCookies(req, 'role');
 
-    if (res?.avatar) {
-      res.avatar = avatar;
+    res.avatar = avatar;
+    res.role = role;
+    if (!token) {
+      // Redirect to login page
+      return {
+        redirect: {
+          destination: '/login',
+          statusCode: 302,
+        },
+      };
     }
-    if (res?.role) {
-      res.role = role;
-    }
-    if (token) {
-      // Redirect homepage
-      res.writeHead(302, {
-        // or 301
-        Location: '/',
-      });
-      res.end();
+
+    if (role !== 'admin') {
+      return {
+        redirect: {
+          destination: '/',
+          statusCode: 302,
+        },
+      };
     }
 
     return await gssp(context);

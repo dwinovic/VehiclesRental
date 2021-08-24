@@ -53,7 +53,7 @@ const VehiclesType = ({ categories }) => {
             Click item to see details and reservation
           </p>
         </header>
-        <SectionCard data={categories?.data} anchor="/vehicles-type/category" />
+        <SectionCard data={categories?.data} anchor="vehicles-type/category" />
         <section className="container pagination-wrapper">
           <Pagination
             count={categories?.meta.totalPage}

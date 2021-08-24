@@ -165,7 +165,7 @@ LoginPage.getInitialProps = isLoginAuthentication(async (ctx) => {
 //     if (parts.length === 2) return parts.pop().split(';').shift();
 //   };
 
-//   const token = await getCookies('tokenvr');
+//   const token = await getCookies('token');
 
 //   if (token) {
 //     // Redirect homepage

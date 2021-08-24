@@ -9,12 +9,10 @@ export function requireAuthentication(gssp) {
     //   const parts = value.split(`; ${name}=`);
     //   if (parts.length === 2) return parts.pop().split(';').shift();
     // };
-    const token = await getCookies(req, 'tokenvr');
-    const avatar = await getCookies(req, 'avatarvr');
-    const role = await getCookies(req, 'rolevr');
+    const token = await getCookies(req, 'token');
+    const avatar = await getCookies(req, 'avatar');
+    const role = await getCookies(req, 'role');
 
-    res.avatar = avatar;
-    res.role = role;
     if (!token) {
       // Redirect to login page
       return {
@@ -24,6 +22,10 @@ export function requireAuthentication(gssp) {
         },
       };
     }
+
+    res.avatar = avatar;
+    res.role = role;
+    res.token = token;
 
     return await gssp(context);
   };

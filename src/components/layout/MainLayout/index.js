@@ -10,13 +10,13 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 
-const MainLayout = ({ title, children, bgFooter, session }) => {
+const MainLayout = ({ title, children, bgFooter, session, avatar }) => {
   return (
     <StyledMainLayout>
       <Head>
         <title>{title}</title>
       </Head>
-      <Navbar session={session} />
+      <Navbar session={session} avatar={avatar} />
       <main className="main">{children}</main>
       <Footer bgFooter={bgFooter} />
     </StyledMainLayout>

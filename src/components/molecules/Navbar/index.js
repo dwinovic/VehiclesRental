@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Axios from '../../../config/Axios';
 
-const Navbar = ({ session, data }) => {
+const Navbar = ({ session, avatar }) => {
   const [collapse, setCollapse] = useState(false);
   const [avatarPop, setAvatarPop] = useState(false);
   const router = useRouter();
@@ -87,7 +87,11 @@ const Navbar = ({ session, data }) => {
                     // return router.push(`/profile/${idUser}`);
                   }}
                 >
-                  <Image src={AVADefault} alt="user profile" layout="fill" />
+                  <Image
+                    src={avatar ? avatar : AVADefault}
+                    alt="user profile"
+                    layout="fill"
+                  />
                 </div>
                 {avatarPop && (
                   <div className="avatar-popup">

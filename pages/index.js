@@ -61,6 +61,7 @@ function Home({
       bgFooter="gray"
       title="Home"
       session={roleUser ? 'login' : false}
+      avatar={avatarUser}
     >
       <StyledHomepage>
         <header>
@@ -108,7 +109,7 @@ function Home({
             <SectionCard
               heading={vehiclePopular.meta.category}
               data={vehiclePopular.data}
-              anchor="/vehicles-type/category"
+              anchor="vehicles-type/category"
             />
           )}
           {roleUser === 'admin' && (
@@ -376,9 +377,9 @@ export async function getServerSideProps(ctx) {
     let avatarUser = '';
     let token = '';
     if (req.headers.cookie) {
-      token = getCookies(req, 'tokenvr');
-      avatarUser = getCookies(req, 'avatarvr');
-      roleUser = getCookies(req, 'rolevr');
+      token = getCookies(req, 'token');
+      avatarUser = getCookies(req, 'avatar');
+      roleUser = getCookies(req, 'role');
     }
 
     // GET VEHICLE POPULAR BY CATEGORY

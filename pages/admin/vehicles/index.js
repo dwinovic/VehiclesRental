@@ -9,7 +9,12 @@ import { ICPlusLight, ILCamera } from '../../../src/assets';
 import { Button, GoBackPage, Input, MainLayout } from '../../../src/components';
 import Axios from '../../../src/config/Axios';
 import { fetcher } from '../../../src/config/fetcher';
-import { breakpoints, toastify } from '../../../src/utils';
+import {
+  breakpoints,
+  requireAuthentication,
+  requireAuthenticationAdmin,
+  toastify,
+} from '../../../src/utils';
 // import { useDisclosure } from '@chakra-ui/react';
 // import {
 //   Modal,
@@ -21,7 +26,7 @@ import { breakpoints, toastify } from '../../../src/utils';
 //   ModalCloseButton,
 // } from '@chakra-ui/react';
 
-const AddVehicles = () => {
+const AddVehicles = ({ roleUser, avatar }) => {
   const router = useRouter();
   const {
     register,
@@ -177,7 +182,12 @@ const AddVehicles = () => {
   // END = COUNTER STOCK
 
   return (
-    <MainLayout bgFooter="gray" title="Add new vehicles">
+    <MainLayout
+      bgFooter="gray"
+      title="Add new vehicles"
+      session={roleUser ? 'login' : false}
+      avatar={avatar}
+    >
       <StyledAddingVehiclesPage className="container">
         <GoBackPage titleBack="Add New Item" />
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
@@ -393,6 +403,21 @@ const AddVehicles = () => {
     </MainLayout>
   );
 };
+
+export const getServerSideProps = requireAuthenticationAdmin(
+  async (context) => {
+    const { req, res } = context;
+    const avatar = res.avatar;
+    const roleUser = res.role;
+
+    return {
+      props: {
+        avatar,
+        roleUser,
+      },
+    };
+  }
+);
 
 const StyledAddingVehiclesPage = styled.div`
   padding-top: 50px;

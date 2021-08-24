@@ -6,22 +6,13 @@ import useSWR from 'swr';
 import { useRouter } from 'next/router';
 import { fetcher } from '../../../src/config/fetcher';
 import styled from 'styled-components';
-import { breakpoints } from '../../../src/utils';
+import { breakpoints, requireAuthentication } from '../../../src/utils';
 import NumberFormat from 'react-number-format';
 import Axios from '../../../src/config/Axios';
 
-const DetailVehicle = ({ dataVehicle }) => {
-  console.log('dataVehicle in CLIENT', dataVehicle);
+const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
   const { data: vehicle, statusCode } = dataVehicle;
-  const [dataUser, setDataUser] = useState();
-  const [role, setRole] = useState('');
   const router = useRouter();
-  const idVehicles = router.query.idVehicle;
-
-  useEffect(() => {
-    const roleLocal = localStorage.getItem('role');
-    setRole(roleLocal);
-  }, []);
 
   if (statusCode !== 200) {
     return <h1>Kooosong</h1>;
@@ -30,9 +21,20 @@ const DetailVehicle = ({ dataVehicle }) => {
   const myLoader = ({ src }) => {
     return `${vehicle?.images[0]}`;
   };
+  const myLoader2 = ({ src }) => {
+    return `${vehicle?.images[1]}`;
+  };
+  const myLoader3 = ({ src }) => {
+    return `${vehicle?.images[2]}`;
+  };
 
   return (
-    <MainLayout bgFooter="gray" title={vehicle.name}>
+    <MainLayout
+      bgFooter="gray"
+      title={vehicle.name}
+      avatar={avatar}
+      session={roleUser ? 'login' : false}
+    >
       <StyledDetailVehicle className="container">
         <GoBackPage titleBack="Detail" />
         <section className=" detail-vehicle">
@@ -73,10 +75,20 @@ const DetailVehicle = ({ dataVehicle }) => {
               </div>
               <div className="item-main">
                 <div className="item">
-                  <Image src={vehicle?.images[1]} alt="vehicle" layout="fill" />
+                  <Image
+                    src={vehicle?.images[1]}
+                    loader={myLoader2}
+                    alt="vehicle"
+                    layout="fill"
+                  />
                 </div>
                 <div className="item">
-                  <Image src={IMGJogja} alt="vehicle" layout="fill" />
+                  <Image
+                    src={IMGJogja}
+                    loader={myLoader3}
+                    alt="vehicle"
+                    layout="fill"
+                  />
                 </div>
               </div>
               <div className="control next">
@@ -159,7 +171,7 @@ const DetailVehicle = ({ dataVehicle }) => {
             </div>
           </div>
         </section>
-        {role === 'customer' && (
+        {roleUser === 'customer' && (
           <section className=" button-action-wrapper">
             <Button type="dark" className="btn">
               Chat Admin
@@ -172,7 +184,7 @@ const DetailVehicle = ({ dataVehicle }) => {
             </Button>
           </section>
         )}
-        {role === 'admin' && (
+        {roleUser === 'admin' && (
           <section className=" button-action-wrapper">
             <Button
               type="dark"
@@ -187,9 +199,7 @@ const DetailVehicle = ({ dataVehicle }) => {
               type="light"
               className="btn"
               onClick={() => {
-                return router.push(
-                  `/admin/vehicles/${dataVehicles.idVehicles}`
-                );
+                return router.push(`/admin/vehicles/${vehicle.idVehicles}`);
               }}
             >
               Edit item
@@ -200,32 +210,61 @@ const DetailVehicle = ({ dataVehicle }) => {
     </MainLayout>
   );
 };
-export async function getStaticPaths() {
-  const res = await Axios.get('/vehicles');
 
-  const paths = res.data.data.map((item) => ({
-    params: { idVehicle: item.idVehicles },
-  }));
-  // console.log(paths);
-
-  return { paths, fallback: false };
-}
-
-export async function getStaticProps({ params }) {
+export const getServerSideProps = requireAuthentication(async (context) => {
   let dataVehicle;
-  // console.log(params.idVehicle);
   try {
-    const res = await Axios(`/vehicles/${params.idVehicle}`);
-    dataVehicle = res.data;
-    // console.log(dataVehicle);
+    const { req, res, params } = context;
+    const avatar = res.avatar;
+    const roleUser = res.role;
+    const token = res.token;
+
+    const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicle}`, {
+      withCredentials: true,
+      headers: context.req ? { cookie: context.req.headers.cookie } : undefined,
+    });
+    dataVehicle = resDataVehicle.data;
+    console.log('resDataVehicle', dataVehicle);
     // Pass post data to the page via props
-    return { props: { dataVehicle } };
+    return {
+      props: {
+        dataVehicle,
+        avatar,
+        roleUser,
+      },
+    };
   } catch (error) {
     dataVehicle = error.response;
-    // console.log(dataVehicle);
     return { props: { dataVehicle } };
   }
-}
+});
+
+// export async function getStaticPaths() {
+//   const res = await Axios.get('/vehicles');
+
+//   const paths = res.data.data.map((item) => ({
+//     params: { idVehicle: item.idVehicles },
+//   }));
+//   // console.log(paths);
+
+//   return { paths, fallback: false };
+// }
+
+// export async function getStaticProps({ params }) {
+//   let dataVehicle;
+//   // console.log(params.idVehicle);
+//   try {
+//     const res = await Axios(`/vehicles/${params.idVehicle}`);
+//     dataVehicle = res.data;
+//     // console.log(dataVehicle);
+//     // Pass post data to the page via props
+//     return { props: { dataVehicle } };
+//   } catch (error) {
+//     dataVehicle = error.response;
+//     // console.log(dataVehicle);
+//     return { props: { dataVehicle } };
+//   }
+// }
 
 // STYLING CURRENT PAGE
 const StyledDetailVehicle = styled.div`
