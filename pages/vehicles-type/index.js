@@ -8,8 +8,15 @@ import { useForm } from 'react-hook-form';
 import Axios from '../../src/config/Axios';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { requireAuthentication } from '../../src/utils';
 
-const VehiclesType = ({ dataCategory, searchResult }) => {
+const VehiclesType = ({
+  dataCategory,
+  searchResult,
+  avatar,
+  roleUser,
+  cookie,
+}) => {
   const [isShowSort, setIsShowSort] = useState(false);
   const [sortSelected, setSortSelected] = useState();
   const router = useRouter();
@@ -68,7 +75,12 @@ const VehiclesType = ({ dataCategory, searchResult }) => {
     setIsShowSort(false);
   };
   return (
-    <MainLayout bgFooter="gray" title="Vehicles Types">
+    <MainLayout
+      bgFooter="gray"
+      title="Vehicles Types"
+      avatar={avatar}
+      session={roleUser ? 'login' : false}
+    >
       <StyledVehiclesType>
         <section className="container">
           <form className="search-wrapper">
@@ -140,88 +152,207 @@ const VehiclesType = ({ dataCategory, searchResult }) => {
   );
 };
 
-export async function getServerSideProps(ctx) {
-  const { query } = ctx;
+// export async function getServerSideProps(ctx) {
+//   const { query } = ctx;
 
-  // INITIAL SHOW DATA
-  const checkQuery = Object.keys(query).length;
-  if (!checkQuery) {
-    const dataCategory = await axios
-      .all([
-        // Remember to replace the api\_key with a valid one.
-        axios.get('http://localhost:3030/v1/vehicles?category=popular in town'),
-        axios.get('http://localhost:3030/v1/vehicles?category=motor'),
-        axios.get('http://localhost:3030/v1/vehicles?category=cars'),
-        axios.get('http://localhost:3030/v1/vehicles?category=bike'),
-      ])
-      .then(
-        axios.spread(function (popular, motor, cars, bike) {
-          //... but this callback will be executed only when all requests are complete.
-          const dataCategory = [
-            {
-              category: 'Popular in town',
-              data: popular.data.data,
-            },
-            {
-              category: 'Motors',
-              data: motor.data.data,
-            },
-            {
-              category: 'Cars',
-              data: cars.data.data,
-            },
-            {
-              category: 'Bikers',
-              data: bike.data.data,
-            },
-          ];
-          return dataCategory;
-        })
-      )
-      .catch((errors) => {
-        // console.log(errors.response);
-      });
+//   // INITIAL SHOW DATA
+//   const checkQuery = Object.keys(query).length;
+//   if (!checkQuery) {
+//     const dataCategory = await axios
+//       .all([
+//         // Remember to replace the api\_key with a valid one.
+//         axios.get('http://localhost:3030/v1/vehicles?category=popular in town'),
+//         axios.get('http://localhost:3030/v1/vehicles?category=motor'),
+//         axios.get('http://localhost:3030/v1/vehicles?category=cars'),
+//         axios.get('http://localhost:3030/v1/vehicles?category=bike'),
+//       ])
+//       .then(
+//         axios.spread(function (popular, motor, cars, bike) {
+//           //... but this callback will be executed only when all requests are complete.
+//           const dataCategory = [
+//             {
+//               category: 'Popular in town',
+//               data: popular.data.data,
+//             },
+//             {
+//               category: 'Motors',
+//               data: motor.data.data,
+//             },
+//             {
+//               category: 'Cars',
+//               data: cars.data.data,
+//             },
+//             {
+//               category: 'Bikers',
+//               data: bike.data.data,
+//             },
+//           ];
+//           return dataCategory;
+//         })
+//       )
+//       .catch((errors) => {
+//         // console.log(errors.response);
+//       });
 
-    return { props: { dataCategory } };
-  }
+//     return { props: { dataCategory } };
+//   }
 
-  // HAVE QUERY PARAMS
-  if (checkQuery) {
-    let searchResult = {};
-    // SEARCH AND FILTER FOR PAGE VEHICLES TYPE
-    if (query?.search && query?.sort) {
-      try {
-        const resData = await Axios.get(
-          `/vehicles?src=${query?.search ? query?.search : ''}&field=${
-            query?.field ? query?.field : 'price'
-          }&sort=${query?.sort ? query?.sort : 'DESC'}`
-        );
-        searchResult = resData.data;
-        return { props: { searchResult } };
-      } catch (error) {
-        // console.log(error.response.data);
-        searchResult = error.response.data;
-        return { props: { searchResult } };
+//   // HAVE QUERY PARAMS
+//   if (checkQuery) {
+//     let searchResult = {};
+//     // SEARCH AND FILTER FOR PAGE VEHICLES TYPE
+//     if (query?.search && query?.sort) {
+//       try {
+//         const resData = await Axios.get(
+//           `/vehicles?src=${query?.search ? query?.search : ''}&field=${
+//             query?.field ? query?.field : 'price'
+//           }&sort=${query?.sort ? query?.sort : 'DESC'}`
+//         );
+//         searchResult = resData.data;
+//         return { props: { searchResult } };
+//       } catch (error) {
+//         // console.log(error.response.data);
+//         searchResult = error.response.data;
+//         return { props: { searchResult } };
+//       }
+//     }
+//     // FILTER FOR PAGE HOME
+//     if (query?.category && query?.location) {
+//       try {
+//         const resData = await Axios.get(
+//           `/vehicles?location=${query?.location}&category=${query?.category}`
+//         );
+//         searchResult = resData.data;
+//         return { props: { searchResult } };
+//       } catch (error) {
+//         // console.log(error.response.data);
+//         searchResult = error.response.data;
+//         return { props: { searchResult } };
+//       }
+//     }
+//   }
+// }
+
+export const getServerSideProps = requireAuthentication(async (context) => {
+  try {
+    const { req, res, params, query } = context;
+    const avatar = res.avatar;
+    const roleUser = res.role;
+    const cookie = context.req.headers.cookie;
+    // INITIAL SHOW DATA
+    const checkQuery = Object.keys(query).length;
+    if (!checkQuery) {
+      const dataCategory = await axios
+        .all([
+          // Remember to replace the api\_key with a valid one.
+          axios.get(
+            'http://localhost:3030/v1/vehicles?category=popular in town'
+          ),
+          axios.get('http://localhost:3030/v1/vehicles?category=motor'),
+          axios.get('http://localhost:3030/v1/vehicles?category=cars'),
+          axios.get('http://localhost:3030/v1/vehicles?category=bike'),
+        ])
+        .then(
+          axios.spread(function (popular, motor, cars, bike) {
+            //... but this callback will be executed only when all requests are complete.
+            const dataCategory = [
+              {
+                category: 'Popular in town',
+                data: popular.data.data,
+              },
+              {
+                category: 'Motors',
+                data: motor.data.data,
+              },
+              {
+                category: 'Cars',
+                data: cars.data.data,
+              },
+              {
+                category: 'Bikers',
+                data: bike.data.data,
+              },
+            ];
+            return dataCategory;
+          })
+        )
+        .catch((errors) => {
+          // console.log(errors.response);
+        });
+
+      return { props: { dataCategory, avatar, roleUser, cookie } };
+    }
+
+    // HAVE QUERY PARAMS
+    if (checkQuery) {
+      let searchResult = {};
+      // SEARCH AND FILTER FOR PAGE VEHICLES TYPE
+      if (query?.search || query?.sort) {
+        try {
+          const resData = await Axios.get(
+            `/vehicles?src=${query?.search ? query?.search : ''}&field=${
+              query?.field ? query?.field : 'price'
+            }&sort=${query?.sort ? query?.sort : 'DESC'}`,
+            { withCredentials: true }
+          );
+          searchResult = resData.data;
+          console.log('searchResult', searchResult);
+          return {
+            props: {
+              searchResult: searchResult,
+              avatar: avatar,
+              roleUser: roleUser,
+              cookie: cookie,
+            },
+          };
+        } catch (error) {
+          // console.log(error.response.data);
+          searchResult = error.response.data;
+          return {
+            props: {
+              searchResult: searchResult,
+              avatar: avatar,
+              roleUser: roleUser,
+              cookie: cookie,
+            },
+          };
+        }
+      }
+      // FILTER FOR PAGE HOME
+      if (query?.category || query?.location) {
+        try {
+          const resData = await Axios.get(
+            `/vehicles?location=${query?.location}&category=${query?.category}`,
+            { withCredentials: true }
+          );
+          searchResult = resData.data;
+          return {
+            props: {
+              searchResult: searchResult,
+              avatar: avatar,
+              roleUser: roleUser,
+              cookie: cookie,
+            },
+          };
+        } catch (error) {
+          // console.log(error.response.data);
+          searchResult = error.response.data;
+          return {
+            props: {
+              searchResult: searchResult,
+              avatar: avatar,
+              roleUser: roleUser,
+              cookie: cookie,
+            },
+          };
+        }
       }
     }
-    // FILTER FOR PAGE HOME
-    if (query?.category && query?.location) {
-      try {
-        const resData = await Axios.get(
-          `/vehicles?location=${query?.location}&category=${query?.category}`
-        );
-        searchResult = resData.data;
-        return { props: { searchResult } };
-      } catch (error) {
-        // console.log(error.response.data);
-        searchResult = error.response.data;
-        return { props: { searchResult } };
-      }
-    }
-  }
-}
+  } catch (error) {}
+});
 
 // START = STYLING FOR THIS PAGE
+
 const StyledVehiclesType = styled.div`
   /* START = SECTION SEARCH FEATURE */
   section.container {

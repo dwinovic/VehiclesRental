@@ -26,7 +26,7 @@ import {
 //   ModalCloseButton,
 // } from '@chakra-ui/react';
 
-const AddVehicles = ({ roleUser, avatar }) => {
+const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
   const router = useRouter();
   const {
     register,
@@ -39,10 +39,7 @@ const AddVehicles = ({ roleUser, avatar }) => {
   // START = MODAL
   // const { isOpen, onOpen, onClose } = useDisclosure();
   // END = MODAL
-  // START = CATEGORIES
-  const [categories, setCategories] = useState([]);
-  const { data: dataCategories, error } = useSWR('/category', fetcher);
-  // END = CATEGORIES
+
   const [totalStock, setTotalStock] = useState(1);
   // START = UPLOAD IMAGE
   const [uploadImage, setUploadImage] = useState([]);
@@ -60,14 +57,18 @@ const AddVehicles = ({ roleUser, avatar }) => {
       if (image1) {
         const formData = new FormData();
         formData.append('avatar', image1);
-        Axios.post(`/vehicles/images`, formData)
+        Axios.post(`/vehicles/images`, formData, {
+          withCredentials: true,
+          cookie: cookie,
+        })
           .then(() => {
             images.push(image1);
             setpreviewImage1(URL.createObjectURL(image1));
           })
           .catch((err) => {
-            const message = err.response.data.message;
-            toastify(message, 'error');
+            console.log(err);
+            // const message = err.response.data.message;
+            // toastify(message, 'error');
             setpreviewImage1('');
           });
       }
@@ -75,7 +76,10 @@ const AddVehicles = ({ roleUser, avatar }) => {
         const formData = new FormData();
 
         formData.append('avatar', image2);
-        Axios.post(`/vehicles/images`, formData)
+        Axios.post(`/vehicles/images`, formData, {
+          withCredentials: true,
+          cookie: cookie,
+        })
           .then(() => {
             images.push(image2);
             setpreviewImage2(URL.createObjectURL(image2));
@@ -90,7 +94,10 @@ const AddVehicles = ({ roleUser, avatar }) => {
         const formData = new FormData();
 
         formData.append('avatar', image3);
-        Axios.post(`/vehicles/images`, formData)
+        Axios.post(`/vehicles/images`, formData, {
+          withCredentials: true,
+          cookie: cookie,
+        })
           .then(() => {
             images.push(image3);
             setpreviewImage3(URL.createObjectURL(image3));
@@ -109,11 +116,6 @@ const AddVehicles = ({ roleUser, avatar }) => {
   };
 
   useEffect(() => {
-    setCategories(dataCategories?.data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     handleInputImageProduct();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,13 +123,19 @@ const AddVehicles = ({ roleUser, avatar }) => {
   // START = UPLOAD IMAGE
 
   const onSubmit = (data) => {
-    const token = localStorage.getItem('token');
-    const idUser = localStorage.getItem('idUser');
-    // console.log('token', token);
-    // console.log('idUser', idUser);
-    // console.log(data);
-
     const formData = new FormData();
+
+    // console.log({
+    //   idOwner: idUser,
+    //   name: data.name,
+    //   location: data.location,
+    //   description: data.description,
+    //   price: data.price,
+    //   category: data.category,
+    //   stock: totalStock,
+    //   status: data.status,
+    // });
+    // return;
     formData.append('idOwner', idUser);
     formData.append('name', data.name);
     formData.append('location', data.location);
@@ -141,19 +149,34 @@ const AddVehicles = ({ roleUser, avatar }) => {
     // formData.append('images', uploadImage);
 
     // console.log('data.image1', data.image1);
+
+    const imagesExist = [];
+
     uploadImage.forEach((image) => {
-      formData.append('images', image);
+      // console.log('image before', typeof image);
+      if (image !== false && image !== undefined) {
+        formData.append('images', image);
+        imagesExist.push(image);
+        console.log('image true', image);
+      }
     });
 
+    // console.log('uploadImage', uploadImage);
+    // console.log('imagesExist', imagesExist);
+    if (imagesExist.length === 0) {
+      return toastify('Upps, Images required!', 'warning');
+    }
+    // console.log('imagesExist.length', imagesExist.length);
+    // return;
+
     Axios.post('/vehicles', formData, {
-      headers: {
-        'content-type': 'multipart/form-data',
-      },
+      withCredentials: true,
+      cookie: cookie,
     })
       .then((result) => {
         // console.log(result);
         toastify('Success ad vehicles', 'success');
-        router.push(`/vehicles/${result.data.data.idVehicles}`);
+        router.replace(`/vehicles/${result.data.data.idVehicles}`);
       })
       .catch((err) => {
         console.log('Error:', err.response);
@@ -406,16 +429,26 @@ const AddVehicles = ({ roleUser, avatar }) => {
 
 export const getServerSideProps = requireAuthenticationAdmin(
   async (context) => {
-    const { req, res } = context;
-    const avatar = res.avatar;
-    const roleUser = res.role;
+    try {
+      const { req, res } = context;
+      const avatar = res.avatar;
+      const roleUser = res.role;
+      const idUser = res.idUser;
+      const cookie = context.req.headers.cookie;
 
-    return {
-      props: {
-        avatar,
-        roleUser,
-      },
-    };
+      const resCategories = await Axios.get(`/category`);
+      const categories = resCategories.data.data;
+
+      return {
+        props: {
+          avatar,
+          roleUser,
+          cookie,
+          categories,
+          idUser,
+        },
+      };
+    } catch (error) {}
   }
 );
 

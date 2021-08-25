@@ -32,7 +32,7 @@ const LoginPage = ({ data }) => {
     Axios.post('/users/login', dataSend, { withCredentials: true })
       .then((result) => {
         console.log(result);
-        router.push('/');
+        router.replace('/');
       })
       .catch((err) => {
         console.log('Error:', err.response);

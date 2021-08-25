@@ -4,21 +4,44 @@ import Image from 'next/image';
 import { Select } from '@chakra-ui/react';
 import { Input } from '@chakra-ui/react';
 import styled from 'styled-components';
-import { breakpoints } from '../../../../src/utils';
+import { breakpoints, requireAuthentication } from '../../../../src/utils';
+import Axios from '../../../../src/config/Axios';
 
-const ReservationVehicle = () => {
+const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
+  const { data: vehicle, statusCode } = dataVehicle;
+  const myLoader = ({ src }) => {
+    return `${vehicle?.images[0]}`;
+  };
+
   return (
-    <MainLayout bgFooter="gray" title="Vespa Reservation">
+    <MainLayout
+      bgFooter="gray"
+      title={`Reservation | ${vehicle.name}`}
+      avatar={avatar}
+      session={roleUser ? 'login' : false}
+    >
       <StyledReservationVehicle className="container">
         <GoBackPage titleBack="Reservation" />
         <div className="main">
-          <div className="image-wrapper">
-            <Image src={IMGJogja} layout="fill" alt="image" />
-          </div>
+          {vehicle?.images[0] && (
+            <div className="image-wrapper">
+              <Image
+                src={vehicle?.images[0]}
+                loader={myLoader}
+                alt={vehicle.name}
+                layout="fill"
+              />
+            </div>
+          )}
+          {!vehicle?.images[0] && (
+            <div className="image-wrapper">
+              <Image src={IMGJogja} layout="fill" alt="image" />
+            </div>
+          )}
           <div className="detail-wrapper">
-            <h1 className="title-vehicle">Fixie - Gray Only </h1>
-            <p className="location">Yogyakarta</p>
-            <p className="status green">Available</p>
+            <h1 className="title-vehicle">{vehicle.name}</h1>
+            <p className="location">{vehicle.locaton}</p>
+            <p className="status green">{vehicle.status}</p>
             <div className="amount-wrapper">
               <button className="btn primary">
                 <svg
@@ -78,6 +101,34 @@ const ReservationVehicle = () => {
     </MainLayout>
   );
 };
+
+export const getServerSideProps = requireAuthentication(async (context) => {
+  let dataVehicle;
+  try {
+    const { req, res, params } = context;
+    const avatar = res.avatar;
+    const roleUser = res.role;
+    const token = res.token;
+    const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicle}`, {
+      withCredentials: true,
+      headers: context.req ? { cookie: context.req.headers.cookie } : undefined,
+    });
+    dataVehicle = resDataVehicle.data;
+    // console.log('resDataVehicle', dataVehicle);
+    // Pass post data to the page via props
+    return {
+      props: {
+        dataVehicle,
+        avatar,
+        roleUser,
+      },
+    };
+  } catch (error) {
+    dataVehicle = error.response;
+    console.log(error);
+    return { props: { dataVehicle } };
+  }
+});
 
 const StyledReservationVehicle = styled.div`
   /* WARNING!!! */

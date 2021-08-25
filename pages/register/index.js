@@ -24,15 +24,10 @@ const RegisterCustomerPage = () => {
       name: data.name,
       role: 'customer',
     };
-    Axios.post('/users/register', dataSend)
+    Axios.post('/users/register', dataSend, { withCredentials: true })
       .then((result) => {
-        const idUser = result.data.data.idUser;
-        const token = result.data.data.token;
-        const role = result.data.data.role;
-        localStorage.setItem('token', token);
-        localStorage.setItem('idUser', idUser);
-        localStorage.setItem('role', role);
-        router.push('/');
+        toastify('Success register. Please login', 'success');
+        router.push('/login');
       })
       .catch((err) => {
         console.log('Error:', err.response);
@@ -127,6 +122,7 @@ const RegisterCustomerPage = () => {
               <div className="form-input">
                 <Input
                   name="name"
+                  theme="text-white"
                   type="text"
                   placeholder="Name"
                   className="input"
@@ -137,6 +133,7 @@ const RegisterCustomerPage = () => {
                 <Input
                   name="email"
                   type="text"
+                  theme="text-white"
                   placeholder="Email"
                   className="input"
                   {...register('email')}
@@ -146,6 +143,7 @@ const RegisterCustomerPage = () => {
                 <Input
                   name="password"
                   type="password"
+                  theme="text-white"
                   placeholder="Password"
                   className="input"
                   {...register('password')}

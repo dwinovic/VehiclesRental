@@ -1,4 +1,9 @@
-import { AVADefault, IMGDefault, IMGJogja } from '../../../src/assets';
+import {
+  AVADefault,
+  ILCamera,
+  IMGDefault,
+  IMGJogja,
+} from '../../../src/assets';
 import { Button, GoBackPage, MainLayout } from '../../../src/components';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -39,14 +44,26 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
         <GoBackPage titleBack="Detail" />
         <section className=" detail-vehicle">
           <div className="galery-wrapper">
-            <div className="image-main">
-              <Image
-                src={vehicle?.images[0]}
-                loader={myLoader}
-                alt={vehicle.name}
-                layout="fill"
-              />
-            </div>
+            {vehicle?.images[0] && (
+              <div className="image-main">
+                <Image
+                  src={vehicle?.images[0]}
+                  loader={myLoader}
+                  alt={vehicle.name}
+                  layout="fill"
+                />
+              </div>
+            )}
+            {!vehicle?.images[0] && (
+              <div className="image-main">
+                <Image
+                  src={ILCamera}
+                  loader={myLoader}
+                  alt={vehicle.name}
+                  layout="fill"
+                />
+              </div>
+            )}
             <div className="item-wrapper">
               <div className="control prev">
                 <svg
@@ -74,22 +91,26 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
                 </svg>
               </div>
               <div className="item-main">
-                <div className="item">
-                  <Image
-                    src={vehicle?.images[1]}
-                    loader={myLoader2}
-                    alt="vehicle"
-                    layout="fill"
-                  />
-                </div>
-                <div className="item">
-                  <Image
-                    src={IMGJogja}
-                    loader={myLoader3}
-                    alt="vehicle"
-                    layout="fill"
-                  />
-                </div>
+                {vehicle?.images[1] !== undefined && (
+                  <div className="item">
+                    <Image
+                      src={vehicle?.images[1]}
+                      loader={myLoader2}
+                      alt="vehicle"
+                      layout="fill"
+                    />
+                  </div>
+                )}
+                {vehicle?.images[2] !== undefined && (
+                  <div className="item">
+                    <Image
+                      src={vehicle?.images[2]}
+                      loader={myLoader3}
+                      alt="vehicle"
+                      layout="fill"
+                    />
+                  </div>
+                )}
               </div>
               <div className="control next">
                 <svg
@@ -176,7 +197,15 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
             <Button type="dark" className="btn">
               Chat Admin
             </Button>
-            <Button type="light" className="btn">
+            <Button
+              type="light"
+              className="btn"
+              onClick={() => {
+                return router.push(
+                  `/vehicles/${vehicle.idVehicles}/reservation`
+                );
+              }}
+            >
               Reservation
             </Button>
             <Button type="dark" className="btn small">

@@ -1,37 +1,31 @@
-import Image from 'next/image';
-import { ICPlusLight, ILCamera, ILPlus } from '../../../../src/assets';
 import {
-  Button,
-  GoBackPage,
-  Input,
-  MainLayout,
-} from '../../../../src/components';
-import { Select } from '@chakra-ui/react';
+  Button as ButtonChakra,
+  Heading,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Select,
+  useDisclosure,
+} from '@chakra-ui/react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
-import { fetcher } from '../../../../src/config/fetcher';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import styled from 'styled-components';
+import { ICDelete, ICPlusLight, ILCamera } from '../../../../src/assets';
+import { Button, GoBackPage, MainLayout } from '../../../../src/components';
 import Axios from '../../../../src/config/Axios';
 import {
   breakpoints,
   requireAuthenticationAdmin,
   toastify,
 } from '../../../../src/utils';
-import styled from 'styled-components';
-import { useDisclosure } from '@chakra-ui/react';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-} from '@chakra-ui/react';
-import { Button as ButtonChakra, ButtonGroup } from '@chakra-ui/react';
-import { Heading } from '@chakra-ui/react';
-const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
+
+const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
   const { data: vehicle, statusCode } = dataVehicle;
   // console.log('categories', categories);
   const router = useRouter();
@@ -51,13 +45,14 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
     getValues,
   } = useForm();
   // START = CATEGORIES
-
   // END = CATEGORIES
   // START = UPLOAD IMAGE
-  const [uploadImage, setUploadImage] = useState(vehicle.images);
+  const [uploadImage, setUploadImage] = useState([]);
   const [previewImage1, setpreviewImage1] = useState(vehicle.images[0]);
   const [previewImage2, setpreviewImage2] = useState(vehicle.images[1]);
   const [previewImage3, setpreviewImage3] = useState(vehicle.images[2]);
+  const [deleteActive, setDeleteActive] = useState(false);
+
   const handleInputImageProduct = async () => {
     try {
       const image1 = getValues('image1')[0];
@@ -77,6 +72,8 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
             const message = err.response.data.message;
             toastify(message, 'error');
           });
+      } else {
+        // images.push(vehicle.images[0]);
       }
       if (image2) {
         const formData = new FormData();
@@ -91,6 +88,8 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
             const message = err.response.data.message;
             toastify(message, 'error');
           });
+      } else {
+        // images.push(vehicle.images[1]);
       }
       if (image3) {
         const formData = new FormData();
@@ -105,6 +104,22 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
             const message = err.response.data.message;
             toastify(message, 'error');
           });
+      } else {
+        // images.push(vehicle.images[2]);
+      }
+
+      // Check Default Images
+      if (setpreviewImage1) {
+        // console.log('previewImage1', previewImage1);
+        images.push(previewImage1);
+      }
+      if (setpreviewImage2) {
+        // console.log('previewImage2', previewImage2);
+        images.push(previewImage2);
+      }
+      if (setpreviewImage3) {
+        // console.log('previewImage3', previewImage3);
+        images.push(previewImage3);
       }
 
       setUploadImage(images);
@@ -114,15 +129,13 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
   };
 
   useEffect(() => {
-    handleInputImageProduct();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getValues('image1'), getValues('image2'), getValues('image3')]);
-
-  useEffect(() => {
-    setUploadImage(vehicle.images);
+    // setUploadImage(vehicle.images);
     setTotalStock(vehicle.stock);
-  }, [vehicle.images, vehicle.stock]);
+  }, [vehicle.stock]);
+
+  // useEffect(() => {
+  //   setUploadImage(vehicle.images);
+  // }, [vehicle.images]);
 
   const onSubmit = (data) => {
     const idVehicles = router.query.idVehicles;
@@ -155,32 +168,62 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
     // formData.append('images', uploadImage);
 
     // console.log('data.image1', data.image1);
+    // console.log('uploadImage 1', uploadImage);
+
+    // if (uploadImage.length === 0) {
+    //   images.push(vehicle.images);
+    //   console.log('vehicle.images', vehicle.images);
+    // } else {
+    //   images.push(uploadImage);
+    // }
+
+    const imagesExist = [];
+
     uploadImage.forEach((image) => {
-      formData.append('images', image);
+      // console.log('image before', typeof image);
+      if (image !== false && image !== undefined) {
+        formData.append('images', image);
+        imagesExist.push(image);
+        console.log('image true', image);
+      }
     });
 
-    Axios.patch(`/vehicles/${idVehicles}`, formData, { withCredentials: true })
+    // console.log('uploadImage', uploadImage);
+    // console.log('imagesExist', imagesExist);
+    if (imagesExist.length === 0) {
+      return toastify('Upps, Images required!', 'warning');
+    }
+    // console.log('imagesExist.length', imagesExist.length);
+    // return;
+    return Axios.patch(`/vehicles/${idVehicles}`, formData, {
+      withCredentials: true,
+      cookie: cookie,
+    })
       .then((result) => {
         // console.log(result);
         toastify('Success update vehicles', 'success');
-        router.push(`/vehicles/${result.data.data.idVehicles}`);
+        router.replace(`/vehicles/${idVehicles}`);
       })
       .catch((err) => {
-        console.log('Error:', err.response);
+        console.log('Error:', err);
         const message = err.response.data.error;
         toastify(message, 'warning');
       });
+    console.log(2);
   };
 
   const deleteItem = () => {
-    Axios.delete(`/vehicles/${idVehicles}`)
+    Axios.delete(`/vehicles/${idVehicles}`, {
+      withCredentials: true,
+      cookie: cookie,
+    })
       .then((result) => {
-        console.log(result);
+        // console.log(result);
         toastify(`Success deleted ${vehicle.name}`, 'success');
         return router.push('/');
       })
       .catch((err) => {
-        console.log(err.response);
+        // console.log(err.response);
         toastify(err.response?.data.message, 'error');
       });
   };
@@ -209,6 +252,30 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
   };
   // END = COUNTER STOCK
 
+  // START = DELETE IMAGE
+  const deleteImage = (order) => {
+    deleteActive ? setDeleteActive(false) : setDeleteActive(true);
+    switch (order) {
+      case '0':
+        setpreviewImage1(false);
+        break;
+      case '1':
+        setpreviewImage2(false);
+        break;
+      case '2':
+        setpreviewImage3(false);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // END = DELETE IMAGE
+  useEffect(() => {
+    handleInputImageProduct();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch('image1'), watch('image2'), watch('image3'), deleteActive]);
+
   const myLoader = ({ src }) => {
     return `${vehicle.images[0]}`;
   };
@@ -233,6 +300,17 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
                 {!previewImage1 && (
                   <div className="default">
                     <Image src={ILCamera} alt="camera" layout="fill" />
+                  </div>
+                )}
+                {previewImage1 && (
+                  <div className="icon-trash">
+                    <Image
+                      width={32}
+                      height={32}
+                      src={ICDelete}
+                      alt="trash"
+                      onClick={() => deleteImage('0')}
+                    />
                   </div>
                 )}
                 {previewImage1 && (
@@ -261,6 +339,19 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
                     </div>
                   )}
                   {previewImage2 && (
+                    <div
+                      className="icon-trash"
+                      onClick={() => deleteImage('1')}
+                    >
+                      <Image
+                        width={32}
+                        height={32}
+                        src={ICDelete}
+                        alt="trash"
+                      />
+                    </div>
+                  )}
+                  {previewImage2 && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       className="preview-img"
@@ -282,6 +373,19 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
                         <Image src={ICPlusLight} alt="camera" layout="fill" />
                       </div>
                       <p>Add more</p>
+                    </div>
+                  )}
+                  {previewImage3 && (
+                    <div
+                      className="icon-trash"
+                      onClick={() => deleteImage('2')}
+                    >
+                      <Image
+                        width={32}
+                        height={32}
+                        src={ICDelete}
+                        alt="trash"
+                      />
                     </div>
                   )}
                   {previewImage3 && (
@@ -414,9 +518,9 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories }) => {
                 })}
             </Select>
             <Button type="light">Save changes</Button>
-            <Button type="dark" onClick={onOpen}>
+            <div className="button-delete-dark" onClick={onOpen}>
               Delete
-            </Button>
+            </div>
           </div>
         </form>
         <CustomModal
@@ -453,6 +557,7 @@ export const getServerSideProps = requireAuthenticationAdmin(
       const { req, res, params } = context;
       const avatar = res.avatar;
       const roleUser = res.role;
+      const cookie = context.req.headers.cookie;
 
       const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicles}`, {
         withCredentials: true,
@@ -473,6 +578,7 @@ export const getServerSideProps = requireAuthenticationAdmin(
           avatar,
           roleUser,
           categories,
+          cookie,
         },
       };
     } catch (error) {
@@ -509,6 +615,17 @@ const StyledAddingVehiclesPage = styled.div`
             cursor: pointer;
           }
         }
+        .icon-trash {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background-color: white;
+          z-index: 1;
+          &:hover {
+            opacity: 0.5;
+            cursor: pointer;
+          }
+        }
         .main {
           width: 616px;
           height: 412px;
@@ -533,6 +650,7 @@ const StyledAddingVehiclesPage = styled.div`
             width: 100%;
             height: 380px;
           `}
+
           .default {
             position: relative;
             width: 130px;
@@ -688,7 +806,8 @@ const StyledAddingVehiclesPage = styled.div`
       display: flex;
       margin-top: 2rem;
       gap: 2rem;
-      .add-category {
+      .add-category,
+      .button-delete-dark {
         background: #393939;
         border-radius: 10px;
         font-family: Nunito;
@@ -700,6 +819,13 @@ const StyledAddingVehiclesPage = styled.div`
         align-items: center;
         color: #ffcd61;
         height: 80px;
+      }
+      .button-delete-dark {
+        width: 60%;
+        justify-content: center;
+        &:hover {
+          cursor: pointer;
+        }
       }
     }
   }

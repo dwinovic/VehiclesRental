@@ -3,10 +3,16 @@ import { HistoryStyled } from '../../src/styles/styledPage';
 import { Select } from '@chakra-ui/react';
 import Image from 'next/image';
 import { IMGJogja } from '../../src/assets';
+import { requireAuthentication } from '../../src/utils';
 
-const History = () => {
+const History = ({ avatar, roleUser }) => {
   return (
-    <MainLayout bgFooter="gray" title="Home">
+    <MainLayout
+      bgFooter="gray"
+      title="History"
+      avatar={avatar}
+      session={roleUser ? 'login' : false}
+    >
       <HistoryStyled className="container">
         <div className="main">
           <div className="search-section">
@@ -127,5 +133,22 @@ const History = () => {
     </MainLayout>
   );
 };
+
+export const getServerSideProps = requireAuthentication(async (context) => {
+  try {
+    const { req, res, params, query } = context;
+    const avatar = res.avatar;
+    const roleUser = res.role;
+    const cookie = context.req.headers.cookie;
+
+    return {
+      props: {
+        avatar: avatar,
+        roleUser: roleUser,
+        cookie: cookie,
+      },
+    };
+  } catch (error) {}
+});
 
 export default History;

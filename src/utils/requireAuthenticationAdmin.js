@@ -12,9 +12,11 @@ export function requireAuthenticationAdmin(gssp) {
     const token = await getCookies(req, 'token');
     const avatar = await getCookies(req, 'avatar');
     const role = await getCookies(req, 'role');
+    const idUser = await getCookies(req, 'idUser');
 
     res.avatar = avatar;
     res.role = role;
+    res.idUser = idUser;
     if (!token) {
       // Redirect to login page
       return {

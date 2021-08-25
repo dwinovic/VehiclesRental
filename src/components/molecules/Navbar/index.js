@@ -50,7 +50,7 @@ const Navbar = ({ session, avatar }) => {
                   History
                 </a>
               </Link>
-              <Link href="/about">
+              <Link href="/">
                 <a className={pathActive === 'about' ? 'active' : ''}>About</a>
               </Link>
             </div>
