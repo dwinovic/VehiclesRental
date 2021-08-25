@@ -12,6 +12,7 @@ export function requireAuthentication(gssp) {
     const token = await getCookies(req, 'token');
     const avatar = await getCookies(req, 'avatar');
     const role = await getCookies(req, 'role');
+    const idUser = await getCookies(req, 'idUser');
 
     if (!token) {
       // Redirect to login page
@@ -26,6 +27,7 @@ export function requireAuthentication(gssp) {
     res.avatar = avatar;
     res.role = role;
     res.token = token;
+    res.idUser = idUser;
 
     return await gssp(context);
   };
