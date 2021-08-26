@@ -9,6 +9,9 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Axios from '../../../config/Axios';
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
+import { useCookie } from 'next-cookie';
 
 const Navbar = ({ session, avatar }) => {
   const [collapse, setCollapse] = useState(false);
@@ -20,14 +23,17 @@ const Navbar = ({ session, avatar }) => {
     Axios.get('/users/logout', { withCredentials: true })
       .then((res) => {
         console.log(res);
-        router.push('/login');
+        router.replace('/login');
       })
       .catch((err) => {
         console.log(err.response);
       });
   };
-
-  // console.log('data in Navbar', idUser);
+  if (avatar) {
+    console.log('avatar in navbar', avatar);
+  } else {
+    console.log('false');
+  }
   return (
     <>
       <StyledNavbar>
@@ -87,8 +93,13 @@ const Navbar = ({ session, avatar }) => {
                     // return router.push(`/profile/${idUser}`);
                   }}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <Image
-                    src={avatar ? avatar : AVADefault}
+                    src={
+                      avatar
+                        ? `${publicRuntimeConfig.imagesServer}${avatar}`
+                        : AVADefault
+                    }
                     alt="user profile"
                     layout="fill"
                   />

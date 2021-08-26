@@ -19,7 +19,7 @@ function Home({
   roleUser,
   avatarUser,
 }) {
-  // console.log('vehiclePopular', vehiclePopular);
+  console.log('avatarUser', avatarUser);
   const [dataUser, setDataUser] = useState();
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
@@ -376,9 +376,15 @@ export async function getServerSideProps(ctx) {
     let roleUser = '';
     let avatarUser = '';
     let token = '';
+
     if (req.headers.cookie) {
       token = getCookies(req, 'token');
-      avatarUser = getCookies(req, 'avatar');
+      const getAvatar = getCookies(req, 'avatar');
+      if (getAvatar) {
+        avatarUser = getAvatar.split('%').pop();
+      }
+      console.log('getAvatar', getAvatar);
+      console.log('avatarUser', avatarUser);
       roleUser = getCookies(req, 'role');
     }
 
@@ -405,10 +411,11 @@ export async function getServerSideProps(ctx) {
       },
     };
   } catch (error) {
-    const errorResponse = error.response.data;
+    console.log('error home:', error);
+    // const errorResponse = error.response.data;
     return {
       props: {
-        errorResponse,
+        errorResponse: null,
       },
     };
   }

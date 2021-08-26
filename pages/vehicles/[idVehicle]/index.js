@@ -14,7 +14,7 @@ import styled from 'styled-components';
 import { breakpoints, requireAuthentication } from '../../../src/utils';
 import NumberFormat from 'react-number-format';
 import Axios from '../../../src/config/Axios';
-
+import { useCookie } from 'next-cookie';
 const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
   const { data: vehicle, statusCode } = dataVehicle;
   const router = useRouter();
@@ -240,60 +240,70 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
   );
 };
 
-export const getServerSideProps = requireAuthentication(async (context) => {
-  let dataVehicle;
-  try {
-    const { req, res, params } = context;
-    const avatar = res.avatar;
-    const roleUser = res.role;
-    const token = res.token;
-
-    const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicle}`, {
-      withCredentials: true,
-      headers: context.req ? { cookie: context.req.headers.cookie } : undefined,
-    });
-    dataVehicle = resDataVehicle.data;
-    console.log('resDataVehicle', dataVehicle);
-    // Pass post data to the page via props
-    return {
-      props: {
-        dataVehicle,
-        avatar,
-        roleUser,
-      },
-    };
-  } catch (error) {
-    dataVehicle = error.response;
-    return { props: { dataVehicle } };
-  }
-});
-
-// export async function getStaticPaths() {
-//   const res = await Axios.get('/vehicles');
-
-//   const paths = res.data.data.map((item) => ({
-//     params: { idVehicle: item.idVehicles },
-//   }));
-//   // console.log(paths);
-
-//   return { paths, fallback: false };
-// }
-
-// export async function getStaticProps({ params }) {
+// // START = SERVER SIDE PROPS
+// export const getServerSideProps = requireAuthentication(async (context) => {
 //   let dataVehicle;
-//   // console.log(params.idVehicle);
 //   try {
-//     const res = await Axios(`/vehicles/${params.idVehicle}`);
-//     dataVehicle = res.data;
-//     // console.log(dataVehicle);
+//     const { req, res, params } = context;
+//     const avatar = res.avatar;
+//     const roleUser = res.role;
+//     const token = res.token;
+
+//     const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicle}`, {
+//       withCredentials: true,
+//       headers: context.req ? { cookie: context.req.headers.cookie } : undefined,
+//     });
+//     dataVehicle = resDataVehicle.data;
+//     console.log('resDataVehicle', dataVehicle);
 //     // Pass post data to the page via props
-//     return { props: { dataVehicle } };
+//     return {
+//       props: {
+//         dataVehicle,
+//         avatar: avatar ? avatar : null,
+//         roleUser,
+//       },
+//     };
 //   } catch (error) {
+//     console.log(error);
 //     dataVehicle = error.response;
-//     // console.log(dataVehicle);
 //     return { props: { dataVehicle } };
 //   }
-// }
+// });
+// // END = SERVER SIDE PROPS
+
+// START = STATIC GENERATION
+export async function getStaticPaths() {
+  const res = await Axios.get('/vehicles');
+
+  const paths = res.data.data.map((item) => ({
+    params: { idVehicle: item.idVehicles },
+  }));
+  // console.log(paths);
+
+  return { paths, fallback: false };
+}
+
+export async function getStaticProps(context) {
+  const { req, res, params } = context;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // const cookie = useCookie(context);
+  // const token = cookie.get('token');
+  // console.log('token', token);
+  let dataVehicle;
+  // console.log(params.idVehicle);
+  try {
+    const res = await Axios(`/vehicles/static/${params.idVehicle}`);
+    dataVehicle = res.data;
+    console.log('dataVehicle in server', dataVehicle);
+    // Pass post data to the page via props
+    return { props: { dataVehicle } };
+  } catch (error) {
+    dataVehicle = error.response;
+    // console.log(dataVehicle);
+    return { props: { dataVehicle } };
+  }
+}
+// END = STATIC GENERATION
 
 // STYLING CURRENT PAGE
 const StyledDetailVehicle = styled.div`

@@ -97,7 +97,7 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
         router.replace(`/profile`);
       })
       .catch((err) => {
-        console.log('Error:', err);
+        console.log('Error:', err.response);
         return;
         // const message = err.response.data.error;
         toastify('message', 'warning');

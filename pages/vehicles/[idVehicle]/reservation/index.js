@@ -1,18 +1,46 @@
 import { IMGJogja } from '../../../../src/assets';
-import { Button, GoBackPage, MainLayout } from '../../../../src/components';
+import {
+  Button,
+  DatePicker,
+  GoBackPage,
+  MainLayout,
+} from '../../../../src/components';
 import Image from 'next/image';
 import { Select } from '@chakra-ui/react';
 import { Input } from '@chakra-ui/react';
 import styled from 'styled-components';
 import { breakpoints, requireAuthentication } from '../../../../src/utils';
 import Axios from '../../../../src/config/Axios';
+import { useEffect, useState } from 'react';
 
 const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
   const { data: vehicle, statusCode } = dataVehicle;
+
+  const [totalCount, setTotalCount] = useState(1);
+  const [totalPrice, setTotalPrice] = useState(vehicle.price || 0);
   const myLoader = ({ src }) => {
     return `${vehicle?.images[0]}`;
   };
 
+  // console.log('avatar', avatar);
+  // START = COUNTER STOCK
+
+  const handleIncrement = () => {
+    let currentValue = totalCount;
+    currentValue += 1;
+    setTotalCount(currentValue);
+  };
+  const handleDecrement = () => {
+    if (totalCount === 1) {
+      return null;
+    } else {
+      let currentValue = totalCount;
+      currentValue -= 1;
+
+      setTotalCount(currentValue);
+    }
+  };
+  // END = COUNTER STOCK
   return (
     <MainLayout
       bgFooter="gray"
@@ -43,7 +71,7 @@ const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
             <p className="location">{vehicle.locaton}</p>
             <p className="status green">{vehicle.status}</p>
             <div className="amount-wrapper">
-              <button className="btn primary">
+              <button className="btn primary" onClick={handleIncrement}>
                 <svg
                   width="25"
                   height="24"
@@ -57,8 +85,8 @@ const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
                   />
                 </svg>
               </button>
-              <p className="btn count">2</p>
-              <button className="btn secondary">
+              <p className="btn count">{totalCount}</p>
+              <button className="btn secondary" onClick={handleDecrement}>
                 <svg
                   width="18"
                   height="8"
@@ -75,15 +103,23 @@ const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
             </div>
             <h3 className="date-title">Reservation Date :</h3>
             <div className="input-group">
-              <Input
+              {/* <Input
                 placeholder="Select date"
                 size="lg"
                 variant="filled"
                 bg=" rgba(57, 57, 57, 0.8)"
-              />
+              /> */}
+              <div className="col">
+                <p>Start</p>
+                <DatePicker />
+              </div>
+              <div className="col">
+                <p>End</p>
+                <DatePicker />
+              </div>
             </div>
             <div className="input-group">
-              <Select
+              {/* <Select
                 bg=" rgba(57, 57, 57, 0.8)"
                 variant="filled"
                 size="lg"
@@ -92,11 +128,11 @@ const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
                 <option value="option1">Option 1</option>
                 <option value="option2">Option 2</option>
                 <option value="option3">Option 3</option>
-              </Select>
+              </Select> */}
             </div>
           </div>
         </div>
-        <Button type="light">Pay now : Rp. 178.000</Button>
+        <Button type="light">Pay now : Rp. {totalPrice}</Button>
       </StyledReservationVehicle>
     </MainLayout>
   );
@@ -107,6 +143,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
   try {
     const { req, res, params } = context;
     const avatar = res.avatar;
+    console.log('avatar in server', avatar);
     const roleUser = res.role;
     const token = res.token;
     const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicle}`, {
@@ -230,7 +267,12 @@ const StyledReservationVehicle = styled.div`
       color: #393939;
     }
     .input-group {
+      display: flex;
+      gap: 24px;
       margin-bottom: 2rem;
+      select {
+        background: rgba(203, 203, 212, 0.2);
+      }
     }
   }
 `;
