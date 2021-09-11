@@ -43,7 +43,7 @@ const VehiclesType = ({ categories }) => {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  console.log('categories', categories);
   return (
     <MainLayout bgFooter="gray" title={titlePage}>
       <StyledDetailTypes>
@@ -82,7 +82,7 @@ export async function getStaticProps({ params }) {
   let categories;
   console.log(params.type);
   try {
-    const res = await Axios(`/vehicles?category=${params.type}`);
+    const res = await Axios(`/vehicles?category=${params.type}&limit=5`);
     categories = res.data;
     console.log(categories);
     // Pass post data to the page via props

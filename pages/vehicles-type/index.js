@@ -20,6 +20,8 @@ const VehiclesType = ({
   const [isShowSort, setIsShowSort] = useState(false);
   const [sortSelected, setSortSelected] = useState();
   const router = useRouter();
+  const query = router.query;
+  // console.log(query);
   // START = SEARCHING FEATURE
   const {
     register,
@@ -67,7 +69,7 @@ const VehiclesType = ({
     }
   };
 
-  console.log('searchResult:', searchResult);
+  // console.log('searchResult:', searchResult);
   // END = SEARCHING FEATURE
   // START = HANDLE SORT SELECTED
   const sortHandle = (target) => {
@@ -142,7 +144,10 @@ const VehiclesType = ({
         {searchResult?.statusCode === 200 && (
           <>
             <h1 className="container header-result">
-              Showing results for {searchResult?.meta.keyword}
+              Showing results for{' '}
+              {searchResult?.meta.keyword
+                ? searchResult?.meta.keyword
+                : `${router.query.category} in ${router.query.location}`}
             </h1>
             <SectionCard data={searchResult.data} />
           </>
@@ -236,7 +241,10 @@ const VehiclesType = ({
 export const getServerSideProps = requireAuthentication(async (context) => {
   try {
     const { req, res, params, query } = context;
-    const avatar = res.avatar;
+    let avatar = '';
+    if (res.avatar) {
+      avatar = res.avatar;
+    }
     const roleUser = res.role;
     const cookie = context.req.headers.cookie;
     // INITIAL SHOW DATA
@@ -257,7 +265,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
             //... but this callback will be executed only when all requests are complete.
             const dataCategory = [
               {
-                category: 'Popular in town',
+                category: 'Popular In Town',
                 data: popular.data.data,
               },
               {

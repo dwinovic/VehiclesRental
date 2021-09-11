@@ -142,8 +142,10 @@ export const getServerSideProps = requireAuthentication(async (context) => {
   let dataVehicle;
   try {
     const { req, res, params } = context;
-    const avatar = res.avatar;
-    console.log('avatar in server', avatar);
+    let avatar = null;
+    if (res.avatar) {
+      avatar = res.avatar;
+    }
     const roleUser = res.role;
     const token = res.token;
     const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicle}`, {

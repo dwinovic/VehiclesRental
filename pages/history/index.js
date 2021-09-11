@@ -137,7 +137,11 @@ const History = ({ avatar, roleUser }) => {
 export const getServerSideProps = requireAuthentication(async (context) => {
   try {
     const { req, res, params, query } = context;
-    const avatar = res.avatar;
+
+    let avatar = null;
+    if (res.avatar) {
+      avatar = res.avatar;
+    }
     const roleUser = res.role;
     const cookie = context.req.headers.cookie;
 

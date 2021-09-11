@@ -286,7 +286,10 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
 export const getServerSideProps = requireAuthentication(async (context) => {
   try {
     const { req, res, params } = context;
-    const avatar = res.avatar;
+    let avatar = null;
+    if (res.avatar) {
+      avatar = res.avatar;
+    }
     const idUser = res.idUser;
     const roleUser = res.role;
     const cookie = context.req.headers.cookie;

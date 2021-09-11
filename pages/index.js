@@ -19,7 +19,7 @@ function Home({
   roleUser,
   avatarUser,
 }) {
-  console.log('avatarUser', avatarUser);
+  // console.log('avatarUser', avatarUser);
   const [dataUser, setDataUser] = useState();
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
@@ -109,7 +109,7 @@ function Home({
             <SectionCard
               heading={vehiclePopular.meta.category}
               data={vehiclePopular.data}
-              anchor="vehicles-type/category"
+              anchor={`vehicles-type/${vehiclePopular.meta.category}`}
             />
           )}
           {roleUser === 'admin' && (

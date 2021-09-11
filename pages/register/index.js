@@ -7,9 +7,31 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { useForm } from 'react-hook-form';
 import Axios from '../../src/config/Axios';
+import * as Yup from 'yup';
+import { Form, Formik, useFormik } from 'formik';
 
 const RegisterCustomerPage = () => {
   const router = useRouter();
+  const validate = Yup.object({
+    name: Yup.string().required('Name is required'),
+    email: Yup.string().email('Email is invalid').required('Email is required'),
+    password: Yup.string()
+      .min(8, 'Password must be at least 8 charaters')
+      .required('Password is required'),
+  });
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      email: '',
+      password: '',
+    },
+    validationSchema: validate,
+    onSubmit: (values) => {
+      // alert(JSON.stringify(values, null, 2));
+      console.log(values);
+    },
+  });
+
   const {
     register,
     handleSubmit,
@@ -118,7 +140,7 @@ const RegisterCustomerPage = () => {
                 />
               </svg>
             </div>
-            <form className="right" onSubmit={handleSubmit(onSubmit)}>
+            <form className="right" onSubmit={formik.handleSubmit}>
               <div className="form-input">
                 <Input
                   name="name"
@@ -126,8 +148,12 @@ const RegisterCustomerPage = () => {
                   type="text"
                   placeholder="Name"
                   className="input"
-                  {...register('name')}
+                  onChange={formik.handleChange}
+                  value={formik.values.name}
                 />
+                {formik.errors.name &&
+                  formik.touched.name &&
+                  formik.errors.name && <p>Error</p>}
               </div>
               <div className="form-input">
                 <Input
@@ -136,8 +162,12 @@ const RegisterCustomerPage = () => {
                   theme="text-white"
                   placeholder="Email"
                   className="input"
-                  {...register('email')}
+                  onChange={formik.handleChange}
+                  value={formik.values.email}
                 />
+                {formik.errors.email &&
+                  formik.touched.email &&
+                  formik.errors.email && <p>Error</p>}
               </div>
               <div className="form-input">
                 <Input
@@ -146,8 +176,12 @@ const RegisterCustomerPage = () => {
                   theme="text-white"
                   placeholder="Password"
                   className="input"
-                  {...register('password')}
+                  onChange={formik.handleChange}
+                  value={formik.values.password}
                 />
+                {formik.errors.password &&
+                  formik.touched.password &&
+                  formik.errors.password && <p>Error</p>}
               </div>
               <div className="form-input forgot-password-wrapper">
                 <Link href="#">
@@ -155,7 +189,15 @@ const RegisterCustomerPage = () => {
                 </Link>
               </div>
               <div className="btn-wrapper">
-                <Button type="light" className="btn">
+                <Button
+                  disabled={
+                    !formik.isValid ||
+                    (Object.keys(formik.touched).length === 0 &&
+                      formik.touched.constructor === Object)
+                  }
+                  type="light"
+                  className="btn"
+                >
                   Sign Up
                 </Button>
               </div>

@@ -22,7 +22,7 @@ const Navbar = ({ session, avatar }) => {
   const handleLogout = () => {
     Axios.get('/users/logout', { withCredentials: true })
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         router.replace('/login');
       })
       .catch((err) => {
@@ -30,9 +30,9 @@ const Navbar = ({ session, avatar }) => {
       });
   };
   if (avatar) {
-    console.log('avatar in navbar', avatar);
+    // console.log('avatar in navbar', avatar);
   } else {
-    console.log('false');
+    // console.log('false');
   }
   return (
     <>
@@ -246,7 +246,7 @@ const Navbar = ({ session, avatar }) => {
 };
 
 Navbar.propTypes = {
-  session: PropTypes.string,
+  session: PropTypes.bool,
 };
 
 Navbar.defaultProps = {

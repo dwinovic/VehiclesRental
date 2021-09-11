@@ -1,27 +1,21 @@
+import { useField } from 'formik';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-const Input = ({
-  placeholder,
-  name,
-  onChange,
-  value,
-  type,
-  className,
-  label,
-  theme,
-  ...props
-}) => {
+const Input = ({ ...props }) => {
+  const [field] = useField(props);
+
   return (
     <StyledInput
-      className={className}
-      placeholder={placeholder}
-      type={type}
-      name={name}
-      onChange={onChange}
-      value={value}
+      className={props.className}
+      // placeholder={placeholder}
+      // type={type}
+      // name={name}
+      // onChange={onChange}
+      // value={value}
       theme={theme}
       {...props}
+      {...field}
     />
   );
 };

@@ -14,9 +14,12 @@ import Head from 'next/head';
 import { useForm } from 'react-hook-form';
 import Axios from '../../src/config/Axios';
 import Router from 'next/router';
+import * as Yup from 'yup';
+import { Form, Formik } from 'formik';
 
 const LoginPage = ({ data }) => {
   const router = useRouter();
+
   const {
     register,
     handleSubmit,
