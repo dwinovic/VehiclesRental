@@ -1,3 +1,5 @@
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import '../src/styles/globals.css';
 import Head from 'next/head';
 import Router from 'next/router';
@@ -5,6 +7,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProgressBar from '@badrap/bar-of-progress';
+import { persistor, store } from '../src/redux/store';
 
 const progress = new ProgressBar({
   size: 5,
@@ -40,18 +43,22 @@ function MyApp({ Component, pageProps }) {
         ></link>
       </Head>
       <ChakraProvider>
-        <Component {...pageProps} />
-        <ToastContainer
-          position="top-center"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <Component {...pageProps} />
+            <ToastContainer
+              position="top-center"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+          </PersistGate>
+        </Provider>
       </ChakraProvider>
     </>
   );

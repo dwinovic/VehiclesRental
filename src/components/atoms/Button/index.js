@@ -1,9 +1,16 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-const Button = ({ children, type, onClick, className }) => {
+const Button = ({ children, type, onClick, className, disabled, ...props }) => {
+  // console.log(disabled);
   return (
-    <StyledButton type={type} onClick={onClick} className={className}>
+    <StyledButton
+      type={type}
+      onClick={onClick}
+      className={className}
+      disabled={disabled}
+      {...props}
+    >
       {children}
     </StyledButton>
   );
@@ -22,17 +29,12 @@ Button.defaultProps = {
 export default Button;
 
 const StyledButton = styled.button`
-  background-color: ${({ type }) => {
-    switch (type) {
-      case 'light':
-        return '#FFCD61';
-      case 'light-outline':
-        return 'transparent';
-      case 'dark':
-        return '#393939';
-      default:
-        return '#FFFFFF';
-    }
+  background-color: ${({ type, disabled }) => {
+    if (disabled) return '#aaaaaa';
+    if (type === 'light') return '#FFCD61';
+    if (type === 'light-outline') return 'transparent';
+    if (type === 'dark') return '#393939';
+    return '#FFFFFF';
   }};
   border-color: ${({ type }) => {
     switch (type) {
@@ -91,7 +93,11 @@ const StyledButton = styled.button`
   font-size: 24px;
   line-height: 33px;
   &:hover {
-    opacity: 0.8;
-    cursor: pointer;
+    opacity: ${({ disabled }) => {
+      disabled ? 1 : 0.8;
+    }};
+    cursor: ${({ disabled }) => {
+      disabled ? 'default' : 'pointer';
+    }};
   }
 `;
