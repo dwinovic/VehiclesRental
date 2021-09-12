@@ -110,7 +110,7 @@ const RegisterCustomerPage = () => {
                 }}
                 validationSchema={validate}
                 onSubmit={(values, { resetForm }) => {
-                  dispatch(registerUser(values, router));
+                  dispatch(registerUser(values, router, 'customer'));
                   resetForm();
                 }}
               >

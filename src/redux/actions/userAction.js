@@ -1,12 +1,12 @@
 import Axios from '../../config/Axios';
 import { dispatchTypes, toastify } from '../../utils';
 
-export const registerUser = (data, router) => (dispatch, getState) => {
+export const registerUser = (data, router, role) => (dispatch, getState) => {
   const dataSend = {
     email: data.email,
     password: data.password,
     name: data.name,
-    role: 'customer',
+    role: role,
   };
   Axios.post('/users/register', dataSend, { withCredentials: true })
     .then((result) => {
