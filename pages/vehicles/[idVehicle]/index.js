@@ -15,7 +15,7 @@ import { breakpoints, requireAuthentication } from '../../../src/utils';
 import NumberFormat from 'react-number-format';
 import Axios from '../../../src/config/Axios';
 import { useCookie } from 'next-cookie';
-const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
+const DetailVehicle = ({ dataVehicle, roleUser }) => {
   const { data: vehicle, statusCode } = dataVehicle;
   const router = useRouter();
 
@@ -37,7 +37,6 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
     <MainLayout
       bgFooter="gray"
       title={vehicle.name}
-      avatar={avatar}
       session={roleUser ? 'login' : false}
     >
       <StyledDetailVehicle className="container">

@@ -12,13 +12,13 @@ const VehiclesType = ({
   searchResult,
   avatar,
   roleUser,
-  cookie,
+  // cookie,
 }) => {
   const [isShowSort, setIsShowSort] = useState(false);
   const [sortSelected, setSortSelected] = useState();
   const [keywordSearch, setKeywordSearch] = useState('');
   const router = useRouter();
-  const query = router.query;
+  // const query = router.query;
 
   const onSearching = async (e) => {
     e.preventDefault();
@@ -139,87 +139,6 @@ const VehiclesType = ({
   );
 };
 
-// export async function getServerSideProps(ctx) {
-//   const { query } = ctx;
-
-//   // INITIAL SHOW DATA
-//   const checkQuery = Object.keys(query).length;
-//   if (!checkQuery) {
-//     const dataCategory = await axios
-//       .all([
-//         // Remember to replace the api\_key with a valid one.
-//         axios.get('http://localhost:3030/v1/vehicles?category=popular in town'),
-//         axios.get('http://localhost:3030/v1/vehicles?category=motor'),
-//         axios.get('http://localhost:3030/v1/vehicles?category=cars'),
-//         axios.get('http://localhost:3030/v1/vehicles?category=bike'),
-//       ])
-//       .then(
-//         axios.spread(function (popular, motor, cars, bike) {
-//           //... but this callback will be executed only when all requests are complete.
-//           const dataCategory = [
-//             {
-//               category: 'Popular in town',
-//               data: popular.data.data,
-//             },
-//             {
-//               category: 'Motors',
-//               data: motor.data.data,
-//             },
-//             {
-//               category: 'Cars',
-//               data: cars.data.data,
-//             },
-//             {
-//               category: 'Bikers',
-//               data: bike.data.data,
-//             },
-//           ];
-//           return dataCategory;
-//         })
-//       )
-//       .catch((errors) => {
-//         // console.log(errors.response);
-//       });
-
-//     return { props: { dataCategory } };
-//   }
-
-//   // HAVE QUERY PARAMS
-//   if (checkQuery) {
-//     let searchResult = {};
-//     // SEARCH AND FILTER FOR PAGE VEHICLES TYPE
-//     if (query?.search && query?.sort) {
-//       try {
-//         const resData = await Axios.get(
-//           `/vehicles?src=${query?.search ? query?.search : ''}&field=${
-//             query?.field ? query?.field : 'price'
-//           }&sort=${query?.sort ? query?.sort : 'DESC'}`
-//         );
-//         searchResult = resData.data;
-//         return { props: { searchResult } };
-//       } catch (error) {
-//         // console.log(error.response.data);
-//         searchResult = error.response.data;
-//         return { props: { searchResult } };
-//       }
-//     }
-//     // FILTER FOR PAGE HOME
-//     if (query?.category && query?.location) {
-//       try {
-//         const resData = await Axios.get(
-//           `/vehicles?location=${query?.location}&category=${query?.category}`
-//         );
-//         searchResult = resData.data;
-//         return { props: { searchResult } };
-//       } catch (error) {
-//         // console.log(error.response.data);
-//         searchResult = error.response.data;
-//         return { props: { searchResult } };
-//       }
-//     }
-//   }
-// }
-
 export const getServerSideProps = requireAuthentication(async (context) => {
   try {
     const { req, res, params, query } = context;
@@ -236,11 +155,17 @@ export const getServerSideProps = requireAuthentication(async (context) => {
         .all([
           // Remember to replace the api\_key with a valid one.
           axios.get(
-            'http://localhost:3030/v1/vehicles?category=popular in town'
+            `${process.env.HOST_SERVER}/vehicles?category=popular in town&limit=5`
           ),
-          axios.get('http://localhost:3030/v1/vehicles?category=motor'),
-          axios.get('http://localhost:3030/v1/vehicles?category=cars'),
-          axios.get('http://localhost:3030/v1/vehicles?category=bike'),
+          axios.get(
+            `${process.env.HOST_SERVER}/vehicles?category=motor&limit=5`
+          ),
+          axios.get(
+            `${process.env.HOST_SERVER}/vehicles?category=cars&limit=5`
+          ),
+          axios.get(
+            `${process.env.HOST_SERVER}/vehicles?category=bike&limit=5`
+          ),
         ])
         .then(
           axios.spread(function (popular, motor, cars, bike) {

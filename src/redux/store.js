@@ -10,7 +10,9 @@ const persistConfig = {
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducers);
+
 const middlewares = [thunk];
+
 if (process.env.NODE_ENV === `development`) {
   const { logger } = require(`redux-logger`);
   middlewares.push(logger);
