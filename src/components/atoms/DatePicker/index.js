@@ -18,7 +18,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function DateAndTimePickers({ onChange }) {
   const userState = useSelector((state) => state.user.user);
-  console.log('userState?.born', userState?.born);
 
   const date = new Date(userState?.born);
   const fullDate =

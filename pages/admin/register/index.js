@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { breakpoints, toastify } from '../../../src/utils';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { useForm } from 'react-hook-form';
-import Axios from '../../../src/config/Axios';
 import * as Yup from 'yup';
 import { Form, Formik } from 'formik';
 import { useDispatch } from 'react-redux';

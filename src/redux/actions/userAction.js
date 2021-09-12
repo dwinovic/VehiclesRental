@@ -23,27 +23,33 @@ export const registerUser = (data, router, role) => (dispatch, getState) => {
 };
 
 export const loginUser = (data, router) => (dispatch, getState) => {
+  const defaultImageValue =
+    'https://prairietherapy.ca/wp-content/uploads/2017/03/Blank-Profile-pic.png';
+
   Axios.post('/users/login', data, { withCredentials: true })
     .then((result) => {
       // console.log(result);
+      const dataUser = result.data.data;
+      dataUser.avatar = dataUser.avatar ? dataUser.avatar : defaultImageValue;
       dispatch({ type: dispatchTypes.setUserLogin, payload: result.data.data });
       router.replace('/');
     })
     .catch((err) => {
       console.log('Error:', err.response);
-      if (err.response.status === 501) {
-        const message = err.response.data.error;
-        toastify(message, 'warning');
-      }
+      // if (err.response.status === 501) {
+      const message = err.response.data.error;
+      toastify(message, 'warning');
+      // }
     });
 };
 
 export const updateUser = (data, router, cookie) => (dispatch, getState) => {
   const idUser = getState().user.user.idUser;
   // console.log('cookie', cookie);
-  console.log('dataForm', data);
+  // console.log('dataForm', data);
   const formData = new FormData();
-  if (data.avatar) {
+  if (data.avatar.length !== 0) {
+    console.log('data.avatar.length !== 0', data.avatar.length !== 0);
     formData.append('avatar', data.avatar);
   }
   formData.append('name', data.name);
@@ -52,7 +58,9 @@ export const updateUser = (data, router, cookie) => (dispatch, getState) => {
   }
   formData.append('phone', data.phone);
   formData.append('address', data.address);
-  formData.append('gender', data.gender);
+  if (data.gender) {
+    formData.append('gender', data.gender);
+  }
 
   Axios.patch(`/users/${idUser}`, formData, {
     withCredentials: true,

@@ -115,16 +115,18 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
               </svg>
             </div>
           </div>
-          <h2 className="heading-playfair">{userData.name}</h2>
-          <p className="text-nunito-bold">{userData.email}</p>
-          {userData.phone && (
-            <p className="text-nunito-bold">{userData.phone}</p>
+          <h2 className="heading-playfair">{userState.name}</h2>
+          <p className="text-nunito-bold">{userState.email}</p>
+          {userState.phone && (
+            <p className="text-nunito-bold">{userState.phone}</p>
           )}
           <p className="text-nunito-bold">Has been active since {fullDate}</p>
           <RadioGroup
-            defaultValue={userData.gender}
+            defaultValue={userState.gender}
             className="select-gender"
             onChange={(e) => setGender(e)}
+            // defaultChecked="male"
+            // defaultValue="male"
           >
             <Stack spacing={5} direction="row">
               <Radio name="male" size="lg" colorScheme="orange" value="male">
@@ -143,10 +145,10 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
         </section>
         <Formik
           initialValues={{
-            name: userData.name || '',
-            email: userData.email,
-            address: userData.address || '',
-            phone: userData.phone || '',
+            name: userState.name || '',
+            email: userState.email,
+            address: userState.address || '',
+            phone: userState.phone || '',
           }}
           validationSchema={validate}
           onSubmit={(values, { resetForm }) => {
