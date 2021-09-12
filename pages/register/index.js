@@ -1,9 +1,9 @@
-import { Form, Formik } from 'formik';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { BgImageLayout, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
