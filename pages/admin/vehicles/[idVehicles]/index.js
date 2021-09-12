@@ -24,26 +24,29 @@ import {
   requireAuthenticationAdmin,
   toastify,
 } from '../../../../src/utils';
+import * as Yup from 'yup';
+import { Form, Formik } from 'formik';
 
 const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
   const { data: vehicle, statusCode } = dataVehicle;
-  // console.log('categories', categories);
   const router = useRouter();
   const idVehicles = router.query.idVehicles;
-
   const [totalStock, setTotalStock] = useState(1);
+
+  const validate = Yup.object({
+    name: Yup.string().required('Name is required'),
+    location: Yup.string().required('Location is required'),
+    description: Yup.string().max(150, 'Maximum 150 character'),
+    price: Yup.number('Price must be a number')
+      .required('Price is required')
+      .nullable(),
+    category: Yup.string().required('Category is required'),
+  });
 
   // START = MODAL
   const { isOpen, onOpen, onClose } = useDisclosure();
   // END = MODAL
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-    getValues,
-  } = useForm();
   // START = CATEGORIES
   // END = CATEGORIES
   // START = UPLOAD IMAGE
@@ -51,93 +54,72 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
   const [previewImage1, setpreviewImage1] = useState(vehicle.images[0]);
   const [previewImage2, setpreviewImage2] = useState(vehicle.images[1]);
   const [previewImage3, setpreviewImage3] = useState(vehicle.images[2]);
-  const [deleteActive, setDeleteActive] = useState(false);
-
-  const handleInputImageProduct = async () => {
-    try {
-      const image1 = getValues('image1')[0];
-      const image2 = getValues('image2')[0];
-      const image3 = getValues('image3')[0];
-      const images = [];
-
-      if (image1) {
-        const formData = new FormData();
-        formData.append('avatar', image1);
-        Axios.post(`/vehicles/images`, formData, { withCredentials: true })
-          .then(() => {
-            images.push(image1);
-            setpreviewImage1(URL.createObjectURL(image1));
-          })
-          .catch((err) => {
-            const message = err.response.data.message;
-            toastify(message, 'error');
-          });
-      } else {
-        // images.push(vehicle.images[0]);
-      }
-      if (image2) {
-        const formData = new FormData();
-
-        formData.append('avatar', image2);
-        Axios.post(`/vehicles/images`, formData, { withCredentials: true })
-          .then(() => {
-            images.push(image2);
-            setpreviewImage2(URL.createObjectURL(image2));
-          })
-          .catch((err) => {
-            const message = err.response.data.message;
-            toastify(message, 'error');
-          });
-      } else {
-        // images.push(vehicle.images[1]);
-      }
-      if (image3) {
-        const formData = new FormData();
-
-        formData.append('avatar', image3);
-        Axios.post(`/vehicles/images`, formData, { withCredentials: true })
-          .then(() => {
-            images.push(image3);
-            setpreviewImage3(URL.createObjectURL(image3));
-          })
-          .catch((err) => {
-            const message = err.response.data.message;
-            toastify(message, 'error');
-          });
-      } else {
-        // images.push(vehicle.images[2]);
-      }
-
-      // Check Default Images
-      if (setpreviewImage1) {
-        // console.log('previewImage1', previewImage1);
-        images.push(previewImage1);
-      }
-      if (setpreviewImage2) {
-        // console.log('previewImage2', previewImage2);
-        images.push(previewImage2);
-      }
-      if (setpreviewImage3) {
-        // console.log('previewImage3', previewImage3);
-        images.push(previewImage3);
-      }
-
-      setUploadImage(images);
-    } catch (error) {
-      // console.log(error);
-    }
-  };
+  // const [deleteActive, setDeleteActive] = useState(false);
 
   useEffect(() => {
-    // setUploadImage(vehicle.images);
     setTotalStock(vehicle.stock);
   }, [vehicle.stock]);
 
-  // useEffect(() => {
-  //   setUploadImage(vehicle.images);
-  // }, [vehicle.images]);
-
-  const onSubmit = (data) => {
+  // START = HANDLE UPLOAD IMAGES
+  const handleImage1 = (e) => {
+    if (
+      e.target.files[0].type === 'image/jpeg' ||
+      e.target.files[0].type === 'image/jpg' ||
+      e.target.files[0].type === 'image/png' ||
+      e.target.files[0].type === 'image/gif'
+    ) {
+      if (e.target.files[0].size > 1048576 * 2) {
+        toastify('Max size file is 2 mb', 'error');
+      } else {
+        // images.push(image1);
+        setUploadImage([...uploadImage, e.target.files[0]]);
+        setpreviewImage1(URL.createObjectURL(e.target.files[0]));
+      }
+    } else {
+      toastify('Only image is allowed', 'error');
+      setpreviewImage1(previewImage1 ? previewImage1 : null);
+    }
+  };
+  const handleImage2 = (e) => {
+    if (
+      e.target.files[0].type === 'image/jpeg' ||
+      e.target.files[0].type === 'image/jpg' ||
+      e.target.files[0].type === 'image/png' ||
+      e.target.files[0].type === 'image/gif'
+    ) {
+      if (e.target.files[0].size > 1048576 * 2) {
+        toastify('Max size file is 2 mb', 'error');
+      } else {
+        // images.push(image1);
+        setUploadImage([...uploadImage, e.target.files[0]]);
+        setpreviewImage2(URL.createObjectURL(e.target.files[0]));
+      }
+    } else {
+      toastify('Only image is allowed', 'error');
+      setpreviewImage2(previewImage2 ? previewImage2 : null);
+    }
+  };
+  const handleImage3 = (e) => {
+    if (
+      e.target.files[0].type === 'image/jpeg' ||
+      e.target.files[0].type === 'image/jpg' ||
+      e.target.files[0].type === 'image/png' ||
+      e.target.files[0].type === 'image/gif'
+    ) {
+      if (e.target.files[0].size > 1048576 * 2) {
+        toastify('Max size file is 2 mb', 'error');
+      } else {
+        // images.push(image1);
+        setUploadImage([...uploadImage, e.target.files[0]]);
+        setpreviewImage3(URL.createObjectURL(e.target.files[0]));
+      }
+    } else {
+      toastify('Only image is allowed', 'error');
+      setpreviewImage3(previewImage3 ? previewImage3 : null);
+    }
+  };
+  // END = HANDLE UPLOAD IMAGES
+  const actionSubmitData = (data) => {
     const idVehicles = router.query.idVehicles;
     // console.log('token', token);
     // const checkDataSend = {
@@ -151,6 +133,7 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
     //   capacity: 2,
     //   paymentOption: 'per day',
     //   status: data.status,
+    //   images: uploadImage,
     // };
 
     // console.log('checkDataSend', checkDataSend);
@@ -176,23 +159,26 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
     // } else {
     //   images.push(uploadImage);
     // }
-
     const imagesExist = [];
-
-    uploadImage.forEach((image) => {
-      // console.log('image before', typeof image);
-      if (image !== false && image !== undefined) {
-        formData.append('images', image);
-        imagesExist.push(image);
-        console.log('image true', image);
-      }
-    });
+    if (uploadImage.length > 0) {
+      uploadImage.forEach((image) => {
+        // console.log('image before', typeof image);
+        if (image !== false && image !== undefined) {
+          formData.append('images', image);
+          imagesExist.push(image);
+          // console.log('image true', image);
+        }
+      });
+    } else {
+      formData.append('images', vehicle.images);
+      console.log('vehicle.images', vehicle.images);
+    }
 
     // console.log('uploadImage', uploadImage);
-    // console.log('imagesExist', imagesExist);
-    if (imagesExist.length === 0) {
-      return toastify('Upps, Images required!', 'warning');
-    }
+    console.log('imagesExist', imagesExist);
+    // if (imagesExist.length === 0) {
+    //   return toastify('Upps, Images required!', 'warning');
+    // }
     // console.log('imagesExist.length', imagesExist.length);
     // return;
     return Axios.patch(`/vehicles/${idVehicles}`, formData, {
@@ -209,7 +195,6 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
         const message = err.response.data.error;
         toastify(message, 'warning');
       });
-    console.log(2);
   };
 
   const deleteItem = () => {
@@ -253,28 +238,28 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
   // END = COUNTER STOCK
 
   // START = DELETE IMAGE
-  const deleteImage = (order) => {
-    deleteActive ? setDeleteActive(false) : setDeleteActive(true);
-    switch (order) {
-      case '0':
-        setpreviewImage1(false);
-        break;
-      case '1':
-        setpreviewImage2(false);
-        break;
-      case '2':
-        setpreviewImage3(false);
-        break;
-      default:
-        break;
-    }
-  };
+  // const deleteImage = (order) => {
+  //   deleteActive ? setDeleteActive(false) : setDeleteActive(true);
+  //   switch (order) {
+  //     case '0':
+  //       setpreviewImage1(false);
+  //       break;
+  //     case '1':
+  //       setpreviewImage2(false);
+  //       break;
+  //     case '2':
+  //       setpreviewImage3(false);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
 
   // END = DELETE IMAGE
-  useEffect(() => {
-    handleInputImageProduct();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch('image1'), watch('image2'), watch('image3'), deleteActive]);
+  // useEffect(() => {
+  //   handleInputImageProduct();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [watch('image1'), watch('image2'), watch('image3'), deleteActive]);
 
   const myLoader = ({ src }) => {
     return `${vehicle.images[0]}`;
@@ -293,236 +278,302 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
     >
       <StyledAddingVehiclesPage className="container">
         <GoBackPage titleBack="Add New Item" />
-        <form className="form" onSubmit={handleSubmit(onSubmit)}>
-          <div className="form-content">
-            <div className="galery-wrapper">
-              <div className="main">
-                {!previewImage1 && (
-                  <div className="default">
-                    <Image src={ILCamera} alt="camera" layout="fill" />
-                  </div>
-                )}
-                {previewImage1 && (
-                  <div className="icon-trash">
-                    <Image
-                      width={32}
-                      height={32}
-                      src={ICDelete}
-                      alt="trash"
-                      onClick={() => deleteImage('0')}
-                    />
-                  </div>
-                )}
-                {previewImage1 && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    className="preview-img"
-                    src={previewImage1}
-                    alt="camera"
-                  />
-                )}
-                <input
-                  className="input-upload-file"
-                  type="file"
-                  name="image1"
-                  {...register('image1')}
-                />
-              </div>
-              <div className="item-wrapper">
-                <div className="item">
-                  {!previewImage2 && (
-                    <div>
-                      <div className="icon-wrapper">
+        <Formik
+          initialValues={{
+            name: vehicle.name || '',
+            location: vehicle.location || '',
+            description: vehicle.description || '',
+            price: vehicle.price || '',
+            status: vehicle.status || '',
+            category: vehicle.idCategory || '',
+            description: '',
+          }}
+          validationSchema={validate}
+          onSubmit={(values, { resetForm }) => {
+            actionSubmitData(values);
+          }}
+        >
+          {({
+            values,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isValid,
+            errors,
+          }) => (
+            <Form onSubmit={handleSubmit} className="form">
+              <div className="form-content">
+                <div className="galery-wrapper">
+                  <div className="main">
+                    {!previewImage1 && (
+                      <div className="default">
                         <Image src={ILCamera} alt="camera" layout="fill" />
                       </div>
-                      <p>Click to add image</p>
-                    </div>
-                  )}
-                  {previewImage2 && (
-                    <div
-                      className="icon-trash"
-                      onClick={() => deleteImage('1')}
-                    >
-                      <Image
-                        width={32}
-                        height={32}
-                        src={ICDelete}
-                        alt="trash"
-                      />
-                    </div>
-                  )}
-                  {previewImage2 && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className="preview-img"
-                      src={previewImage2}
-                      alt="camera"
-                    />
-                  )}
-                  <input
-                    className="input-upload-file"
-                    type="file"
-                    name="image2"
-                    {...register('image2')}
-                  />
-                </div>
-                <div className="item">
-                  {!previewImage3 && (
-                    <div>
-                      <div className="icon-wrapper">
-                        <Image src={ICPlusLight} alt="camera" layout="fill" />
+                    )}
+                    {/* {previewImage1 && (
+                      <div className="icon-trash">
+                        <Image
+                          width={32}
+                          height={32}
+                          src={ICDelete}
+                          alt="trash"
+                          onClick={() => deleteImage('0')}
+                        />
                       </div>
-                      <p>Add more</p>
-                    </div>
-                  )}
-                  {previewImage3 && (
-                    <div
-                      className="icon-trash"
-                      onClick={() => deleteImage('2')}
-                    >
-                      <Image
-                        width={32}
-                        height={32}
-                        src={ICDelete}
-                        alt="trash"
+                    )} */}
+                    {previewImage1 && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        className="preview-img"
+                        src={previewImage1}
+                        alt="camera"
+                      />
+                    )}
+                    <input
+                      className="input-upload-file"
+                      type="file"
+                      name="image1"
+                      onChange={(e) => handleImage1(e)}
+                    />
+                  </div>
+                  <div className="item-wrapper">
+                    <div className="item">
+                      {!previewImage2 && (
+                        <div>
+                          <div className="icon-wrapper">
+                            <Image src={ILCamera} alt="camera" layout="fill" />
+                          </div>
+                          <p>Click to add image</p>
+                        </div>
+                      )}
+                      {/* {previewImage2 && (
+                        <div
+                          className="icon-trash"
+                          onClick={() => deleteImage('1')}
+                        >
+                          <Image
+                            width={32}
+                            height={32}
+                            src={ICDelete}
+                            alt="trash"
+                          />
+                        </div>
+                      )} */}
+                      {previewImage2 && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          className="preview-img"
+                          src={previewImage2}
+                          alt="camera"
+                        />
+                      )}
+                      <input
+                        className="input-upload-file"
+                        type="file"
+                        name="image2"
+                        onChange={(e) => handleImage2(e)}
                       />
                     </div>
-                  )}
-                  {previewImage3 && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className="preview-img"
-                      src={previewImage3}
-                      alt="camera"
+                    <div className="item">
+                      {!previewImage3 && (
+                        <div>
+                          <div className="icon-wrapper">
+                            <Image
+                              src={ICPlusLight}
+                              alt="camera"
+                              layout="fill"
+                            />
+                          </div>
+                          <p>Add more</p>
+                        </div>
+                      )}
+                      {/* {previewImage3 && (
+                        <div
+                          className="icon-trash"
+                          onClick={() => deleteImage('2')}
+                        >
+                          <Image
+                            width={32}
+                            height={32}
+                            src={ICDelete}
+                            alt="trash"
+                          />
+                        </div>
+                      )} */}
+                      {previewImage3 && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          className="preview-img"
+                          src={previewImage3}
+                          alt="camera"
+                        />
+                      )}
+                      <input
+                        className="input-upload-file"
+                        type="file"
+                        name="image3"
+                        onChange={(e) => handleImage3(e)}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="input-group-wrapper">
+                  <div className="input-wrapper">
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Name (max up to 50 words)"
+                      // defaultValue={vehicle.name}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.name}
                     />
-                  )}
-                  <input
-                    className="input-upload-file"
-                    type="file"
-                    name="image3"
-                    {...register('image3')}
-                  />
+                    <div className="line" />
+                    {touched.name && errors.name ? (
+                      <div className="input-error">{errors.name}</div>
+                    ) : null}
+                  </div>
+                  <div className="input-wrapper">
+                    <input
+                      type="text"
+                      name="location"
+                      placeholder="Location"
+                      // defaultValue={vehicle.location}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.location}
+                    />
+                    <div className="line" />
+                    {touched.location && errors.location ? (
+                      <div className="input-error">{errors.location}</div>
+                    ) : null}
+                  </div>
+                  <div className="input-wrapper">
+                    <input
+                      type="text"
+                      name="description"
+                      placeholder="Description (max up to 150 words)"
+                      // defaultValue={vehicle.description}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.description}
+                    />
+                    <div className="line" />
+                    {touched.description && errors.description ? (
+                      <div className="input-error">{errors.description}</div>
+                    ) : null}
+                  </div>
+                  <div className="select-wrapper">
+                    <label htmlFor="price">Price :</label>
+                    <input
+                      type="text"
+                      name="price"
+                      placeholder="price"
+                      // defaultValue={vehicle.price}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.price}
+                    />
+                    {touched.price && errors.price ? (
+                      <div className="input-error">{errors.price}</div>
+                    ) : null}
+                  </div>
+                  <div className="select-wrapper">
+                    <label htmlFor="status">Status :</label>
+                    <Select
+                      bg=" rgba(255, 255, 255, 0.5)"
+                      variant="filled"
+                      size="lg"
+                      // defaultValue={vehicle.status}
+                      name="status"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.status}
+                    >
+                      <option value="available">Available</option>
+                      <option value="full-booked">Full Booked</option>
+                    </Select>
+                  </div>
+                  <div className="select-wrapper counter-wrapper">
+                    <label htmlFor="status">Stock :</label>
+                    <div className="counter">
+                      <div className="icon plus" onClick={handleIncrement}>
+                        <svg
+                          width="25"
+                          height="24"
+                          viewBox="0 0 25 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M21.28 9.344C22.08 9.344 22.752 9.616 23.296 10.16C23.84 10.704 24.112 11.376 24.112 12.176C24.112 12.976 23.84 13.664 23.296 14.24C22.752 14.784 22.08 15.056 21.28 15.056H15.232V21.056C15.232 21.856 14.96 22.528 14.416 23.072C13.904 23.616 13.232 23.888 12.4 23.888C11.6 23.888 10.928 23.616 10.384 23.072C9.84 22.528 9.568 21.856 9.568 21.056V15.056H3.52C2.72 15.056 2.048 14.784 1.504 14.24C0.96 13.664 0.688 12.976 0.688 12.176C0.688 11.376 0.96 10.704 1.504 10.16C2.048 9.616 2.72 9.344 3.52 9.344H9.568V3.296C9.568 2.496 9.84 1.824 10.384 1.28C10.928 0.735999 11.6 0.464 12.4 0.464C13.2 0.464 13.872 0.735999 14.416 1.28C14.96 1.824 15.232 2.496 15.232 3.296V9.344H21.28Z"
+                            fill="black"
+                          />
+                        </svg>
+                      </div>
+                      <p className="count">{totalStock}</p>
+                      <div className="icon minus" onClick={handleDecrement}>
+                        <svg
+                          width="18"
+                          height="8"
+                          viewBox="0 0 18 8"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M4.48106 7.448C1.82506 7.448 0.497063 6.328 0.497063 4.088C0.497063 1.88 1.82506 0.775999 4.48106 0.775999H13.5051C14.8491 0.775999 15.8411 1.064 16.4811 1.64C17.1531 2.216 17.4891 3.032 17.4891 4.088C17.4891 5.144 17.1531 5.976 16.4811 6.584C15.8411 7.16 14.8491 7.448 13.5051 7.448H4.48106Z"
+                            fill="black"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="input-group-wrapper">
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Name (max up to 50 words)"
-                  defaultValue={vehicle.name}
-                  {...register('name')}
-                />
-                <div className="line" />
-              </div>
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  name="location"
-                  placeholder="Location"
-                  defaultValue={vehicle.location}
-                  {...register('location')}
-                />
-                <div className="line" />
-              </div>
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  name="description"
-                  placeholder="Description (max up to 150 words)"
-                  defaultValue={vehicle.description}
-                  {...register('description')}
-                />
-                <div className="line" />
-              </div>
-              <div className="select-wrapper">
-                <label htmlFor="price">Price :</label>
-                <input
-                  type="text"
-                  name="price"
-                  placeholder="price"
-                  defaultValue={vehicle.price}
-                  {...register('price')}
-                />
-              </div>
-              <div className="select-wrapper">
-                <label htmlFor="status">Status :</label>
+              <div className="form-action">
                 <Select
                   bg=" rgba(255, 255, 255, 0.5)"
                   variant="filled"
                   size="lg"
-                  defaultValue={vehicle.status}
-                  {...register('status')}
+                  className="add-category"
+                  // placeholder={vehicle.category}
+                  // defaultValue={vehicle.idCategory}
+                  // {...register('category')}
+                  name="category"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.category}
                 >
-                  <option value="available">Available</option>
-                  <option value="full-booked">Full Booked</option>
+                  {categories &&
+                    categories.map((category) => {
+                      return (
+                        <option
+                          key={category.idCategory}
+                          value={category.idCategory}
+                        >
+                          {category.name}
+                        </option>
+                      );
+                    })}
                 </Select>
-              </div>
-              <div className="select-wrapper counter-wrapper">
-                <label htmlFor="status">Stock :</label>
-                <div className="counter">
-                  <div className="icon plus" onClick={handleIncrement}>
-                    <svg
-                      width="25"
-                      height="24"
-                      viewBox="0 0 25 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M21.28 9.344C22.08 9.344 22.752 9.616 23.296 10.16C23.84 10.704 24.112 11.376 24.112 12.176C24.112 12.976 23.84 13.664 23.296 14.24C22.752 14.784 22.08 15.056 21.28 15.056H15.232V21.056C15.232 21.856 14.96 22.528 14.416 23.072C13.904 23.616 13.232 23.888 12.4 23.888C11.6 23.888 10.928 23.616 10.384 23.072C9.84 22.528 9.568 21.856 9.568 21.056V15.056H3.52C2.72 15.056 2.048 14.784 1.504 14.24C0.96 13.664 0.688 12.976 0.688 12.176C0.688 11.376 0.96 10.704 1.504 10.16C2.048 9.616 2.72 9.344 3.52 9.344H9.568V3.296C9.568 2.496 9.84 1.824 10.384 1.28C10.928 0.735999 11.6 0.464 12.4 0.464C13.2 0.464 13.872 0.735999 14.416 1.28C14.96 1.824 15.232 2.496 15.232 3.296V9.344H21.28Z"
-                        fill="black"
-                      />
-                    </svg>
-                  </div>
-                  <p className="count">{totalStock}</p>
-                  <div className="icon minus" onClick={handleDecrement}>
-                    <svg
-                      width="18"
-                      height="8"
-                      viewBox="0 0 18 8"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M4.48106 7.448C1.82506 7.448 0.497063 6.328 0.497063 4.088C0.497063 1.88 1.82506 0.775999 4.48106 0.775999H13.5051C14.8491 0.775999 15.8411 1.064 16.4811 1.64C17.1531 2.216 17.4891 3.032 17.4891 4.088C17.4891 5.144 17.1531 5.976 16.4811 6.584C15.8411 7.16 14.8491 7.448 13.5051 7.448H4.48106Z"
-                        fill="black"
-                      />
-                    </svg>
-                  </div>
+                <Button
+                  disabled={
+                    !isValid ||
+                    (Object.keys(touched).length === 0 &&
+                      touched.constructor === Object)
+                  }
+                  theme="light"
+                >
+                  Save changes
+                </Button>
+                <div className="button-delete-dark" onClick={onOpen}>
+                  Delete
                 </div>
               </div>
-            </div>
-          </div>
-          <div className="form-action">
-            <Select
-              bg=" rgba(255, 255, 255, 0.5)"
-              variant="filled"
-              size="lg"
-              className="add-category"
-              placeholder={vehicle.category}
-              defaultValue={vehicle.idCategory}
-              {...register('category')}
-            >
-              {categories &&
-                categories.map((category) => {
-                  return (
-                    <option
-                      key={category.idCategory}
-                      value={category.idCategory}
-                    >
-                      {category.name}
-                    </option>
-                  );
-                })}
-            </Select>
-            <Button theme="light">Save changes</Button>
-            <div className="button-delete-dark" onClick={onOpen}>
-              Delete
-            </div>
-          </div>
-        </form>
+            </Form>
+          )}
+        </Formik>
         <CustomModal
           closeOnOverlayClick={false}
           isOpen={isOpen}
@@ -827,6 +878,10 @@ const StyledAddingVehiclesPage = styled.div`
           cursor: pointer;
         }
       }
+    }
+    .input-error {
+      color: red;
+      margin-top: 8px;
     }
   }
 `;

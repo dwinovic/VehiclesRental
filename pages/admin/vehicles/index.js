@@ -18,13 +18,14 @@ import {
 const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
   const router = useRouter();
   const validate = Yup.object({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string()
+      .required('Name is required')
+      .max(50, 'Maximum 50 character'),
     location: Yup.string().required('Location is required'),
     description: Yup.string().max(150, 'Maximum 150 character'),
     price: Yup.number('Price must be a number')
       .required('Price is required')
       .nullable(),
-    category: Yup.string().required('Category is required'),
   });
 
   const [totalStock, setTotalStock] = useState(1);
@@ -117,6 +118,7 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
       setpreviewImage1(previewImage1 ? previewImage1 : null);
     }
   };
+
   const handleImage2 = (e) => {
     if (
       e.target.files[0].type === 'image/jpeg' ||
@@ -438,23 +440,6 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
                   Save item
                 </Button>
               </div>
-              {/* <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Create your account</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody pb={6}>
-                <p>Modal</p>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button colorScheme="blue" mr={3}>
-                  Save
-                </Button>
-                <Button onClick={onClose}>Cancel</Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal> */}
             </Form>
           )}
         </Formik>
