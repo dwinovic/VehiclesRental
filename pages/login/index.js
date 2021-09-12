@@ -138,11 +138,11 @@ const LoginPage = ({ data }) => {
                       value={values.password}
                     />
                   </div>
-                  <div className="form-input forgot-password-wrapper">
+                  {/* <div className="form-input forgot-password-wrapper">
                     <Link href="#">
                       <a className="forgot-password">Forgot password?</a>
                     </Link>
-                  </div>
+                  </div> */}
                   <div className="btn-wrapper">
                     <Button
                       disabled={
