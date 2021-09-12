@@ -8,7 +8,7 @@ import { fetcher } from '../../../src/config/fetcher';
 import Axios from '../../../src/config/Axios';
 
 const VehiclesType = ({ categories }) => {
-  console.log('categories client', categories);
+  // console.log('categories client', categories);
   const router = useRouter();
   const { type } = router.query;
   const [dataVehiclesType, setDataVehiclesType] = useState();

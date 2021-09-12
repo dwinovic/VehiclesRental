@@ -264,7 +264,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
     });
     const dataResponse = result.data.data[0];
 
-    console.log('dataResponse server', dataResponse);
+    // console.log('dataResponse server', dataResponse);
 
     return {
       props: {

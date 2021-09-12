@@ -254,7 +254,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
       headers: context.req ? { cookie: context.req.headers.cookie } : undefined,
     });
     dataVehicle = resDataVehicle.data;
-    console.log('resDataVehicle', dataVehicle);
+    // console.log('resDataVehicle', dataVehicle);
     // Pass post data to the page via props
     return {
       props: {
@@ -264,7 +264,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
       },
     };
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     dataVehicle = error.response;
     return { props: { dataVehicle } };
   }

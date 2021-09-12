@@ -1,13 +1,10 @@
-import { SearchInput, SectionCard } from '../../src/components';
-import { MainLayout } from '../../src/components/layout';
-import styled from 'styled-components';
-import { useEffect, useState } from 'react';
-import useSWR from 'swr';
-import { fetcher } from '../../src/config/fetcher';
-import { useForm } from 'react-hook-form';
-import Axios from '../../src/config/Axios';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
+import styled from 'styled-components';
+import { SearchInput, SectionCard } from '../../src/components';
+import { MainLayout } from '../../src/components/layout';
+import Axios from '../../src/config/Axios';
 import { requireAuthentication } from '../../src/utils';
 
 const VehiclesType = ({
@@ -19,32 +16,18 @@ const VehiclesType = ({
 }) => {
   const [isShowSort, setIsShowSort] = useState(false);
   const [sortSelected, setSortSelected] = useState();
+  const [keywordSearch, setKeywordSearch] = useState('');
   const router = useRouter();
   const query = router.query;
-  // console.log(query);
-  // START = SEARCHING FEATURE
-  const {
-    register,
-    handleSubmit,
-    watch,
-    getValues,
-    formState: { errors },
-  } = useForm();
 
-  // useEffect(() => {
-  //   // setDataVehiclesType(data?.data);
-  //   // onSearching();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [getValues('search')]);
-
-  const onSearching = async () => {
-    const keyword = getValues('search');
+  const onSearching = async (e) => {
+    e.preventDefault();
     const sort = sortSelected?.split(' ');
-    if (sort && keyword) {
+    if (sort && keywordSearch) {
       return router.push({
         pathname: `/vehicles-type`,
         query: {
-          search: keyword,
+          search: keywordSearch,
           field: sort[0],
           sort: sort[1],
         },
@@ -59,17 +42,16 @@ const VehiclesType = ({
         },
       });
     }
-    if (keyword) {
+    if (keywordSearch) {
       return router.push({
         pathname: `/vehicles-type`,
         query: {
-          search: keyword,
+          search: keywordSearch,
         },
       });
     }
   };
 
-  // console.log('searchResult:', searchResult);
   // END = SEARCHING FEATURE
   // START = HANDLE SORT SELECTED
   const sortHandle = (target) => {
@@ -85,11 +67,11 @@ const VehiclesType = ({
     >
       <StyledVehiclesType>
         <section className="container">
-          <form className="search-wrapper">
+          <form className="search-wrapper" onSubmit={onSearching}>
             <SearchInput
               placeholder="Search"
-              {...register('search')}
-              onClick={handleSubmit(onSearching)}
+              onChange={(e) => setKeywordSearch(e.target.value)}
+              onClick={(e) => onSearching(e)}
             />
             <div
               className="sort-wrapper"
@@ -304,7 +286,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
             { withCredentials: true }
           );
           searchResult = resData.data;
-          console.log('searchResult', searchResult);
+          // console.log('searchResult', searchResult);
           return {
             props: {
               searchResult: searchResult,

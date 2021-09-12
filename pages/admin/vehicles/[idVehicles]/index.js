@@ -11,12 +11,13 @@ import {
   Select,
   useDisclosure,
 } from '@chakra-ui/react';
+import { Form, Formik } from 'formik';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
-import { ICDelete, ICPlusLight, ILCamera } from '../../../../src/assets';
+import * as Yup from 'yup';
+import { ICPlusLight, ILCamera } from '../../../../src/assets';
 import { Button, GoBackPage, MainLayout } from '../../../../src/components';
 import Axios from '../../../../src/config/Axios';
 import {
@@ -24,8 +25,6 @@ import {
   requireAuthenticationAdmin,
   toastify,
 } from '../../../../src/utils';
-import * as Yup from 'yup';
-import { Form, Formik } from 'formik';
 
 const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
   const { data: vehicle, statusCode } = dataVehicle;
@@ -171,11 +170,11 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
       });
     } else {
       formData.append('images', vehicle.images);
-      console.log('vehicle.images', vehicle.images);
+      // console.log('vehicle.images', vehicle.images);
     }
 
     // console.log('uploadImage', uploadImage);
-    console.log('imagesExist', imagesExist);
+    // console.log('imagesExist', imagesExist);
     // if (imagesExist.length === 0) {
     //   return toastify('Upps, Images required!', 'warning');
     // }
