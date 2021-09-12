@@ -132,7 +132,7 @@ const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
             </div>
           </div>
         </div>
-        <Button type="light">Pay now : Rp. {totalPrice}</Button>
+        <Button theme="light">Pay now : Rp. {totalPrice}</Button>
       </StyledReservationVehicle>
     </MainLayout>
   );

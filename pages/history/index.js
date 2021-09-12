@@ -59,7 +59,7 @@ const History = ({ avatar, roleUser }) => {
                   <p className="text-nunito-regular green">Has been returned</p>
                 </div>
                 <div className="btn-delete-wrapper">
-                  <Button type="light" className="btn-delete">
+                  <Button theme="light" className="btn-delete">
                     Delete
                   </Button>
                 </div>

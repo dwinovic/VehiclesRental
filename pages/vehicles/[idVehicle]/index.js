@@ -194,11 +194,11 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
         </section>
         {roleUser === 'customer' && (
           <section className=" button-action-wrapper">
-            <Button type="dark" className="btn">
+            <Button theme="dark" className="btn">
               Chat Admin
             </Button>
             <Button
-              type="light"
+              theme="light"
               className="btn"
               onClick={() => {
                 return router.push(
@@ -208,7 +208,7 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
             >
               Reservation
             </Button>
-            <Button type="dark" className="btn small">
+            <Button theme="dark" className="btn small">
               Like
             </Button>
           </section>
@@ -216,7 +216,7 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
         {roleUser === 'admin' && (
           <section className=" button-action-wrapper">
             <Button
-              type="dark"
+              theme="dark"
               className="btn"
               onClick={() => {
                 return router.push('/');
@@ -225,7 +225,7 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
               Add to home page
             </Button>
             <Button
-              type="light"
+              theme="light"
               className="btn"
               onClick={() => {
                 return router.push(`/admin/vehicles/${vehicle.idVehicles}`);

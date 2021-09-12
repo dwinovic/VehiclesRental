@@ -152,8 +152,8 @@ const ProfileUserPage = ({ userData }) => {
             </div>
           </div>
           <div className="action-button">
-            <Button type="light">Save Change</Button>
-            <Button type="dark">Edit Password</Button>
+            <Button theme="light">Save Change</Button>
+            <Button theme="dark">Edit Password</Button>
             <Button>Cancel</Button>
           </div>
         </form>

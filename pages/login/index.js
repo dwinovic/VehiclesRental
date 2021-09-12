@@ -150,7 +150,7 @@ const LoginPage = ({ data }) => {
                         (Object.keys(touched).length === 0 &&
                           touched.constructor === Object)
                       }
-                      type="light"
+                      theme="light"
                     >
                       Login
                     </Button>

@@ -517,7 +517,7 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
                   );
                 })}
             </Select>
-            <Button type="light">Save changes</Button>
+            <Button theme="light">Save changes</Button>
             <div className="button-delete-dark" onClick={onOpen}>
               Delete
             </div>

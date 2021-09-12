@@ -33,7 +33,7 @@ const RegisterCustomerPage = () => {
               <h1 className="heading">Le’ts Explore The World</h1>
               <p className="sign-up">Have account?</p>
               <Button
-                type="dark"
+                theme="dark"
                 className="btn"
                 onClick={() => {
                   return router.push('/login');
@@ -173,7 +173,7 @@ const RegisterCustomerPage = () => {
                           (Object.keys(touched).length === 0 &&
                             touched.constructor === Object)
                         }
-                        type="light"
+                        theme="light"
                         className="btn"
                       >
                         Sign Up

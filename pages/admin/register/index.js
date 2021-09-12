@@ -35,7 +35,7 @@ const RegisterAdminPage = () => {
               <h1 className="heading">Make Money with your vehicles</h1>
               <p className="sign-up">Have account?</p>
               <Button
-                type="dark"
+                theme="dark"
                 className="btn"
                 onClick={() => {
                   return router.push('/login');
@@ -172,7 +172,7 @@ const RegisterAdminPage = () => {
                         (Object.keys(touched).length === 0 &&
                           touched.constructor === Object)
                       }
-                      type="light"
+                      theme="light"
                       className="btn"
                     >
                       Sign Up

@@ -402,7 +402,7 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
                   );
                 })}
             </Select>
-            <Button type="light">Save item</Button>
+            <Button theme="light">Save item</Button>
           </div>
           {/* <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />

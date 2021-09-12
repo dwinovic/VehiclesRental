@@ -2,7 +2,6 @@ import { dispatchTypes } from '../../utils';
 
 const initialState = {
   user: {},
-  auth: false,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -11,19 +10,17 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         user: action.payload,
-        auth: true,
+      };
+    case dispatchTypes.setUpdateUser:
+      return {
+        ...state,
+        user: { ...state.user, ...action.payload },
       };
     case 'LOGOUT':
       return {
         ...state,
         user: action.payload,
         auth: false,
-      };
-    case 'PROFILE':
-      return {
-        ...state,
-        user: action.payload,
-        auth: true,
       };
     default:
       return state;

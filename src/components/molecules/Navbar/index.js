@@ -1,19 +1,21 @@
+/* eslint-disable @next/next/no-img-element */
+import getConfig from 'next/config';
 import Image from 'next/image';
 import Link from 'next/link';
-import styled from 'styled-components';
-import { breakpoints } from '../../../utils/Breakpoints';
-import { LogoBrand } from '../../atoms';
-import { AVADefault } from '../../../assets';
-import { ICEmail } from '../../../assets/icons';
+import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { AVADefault } from '../../../assets';
+import { ICEmail } from '../../../assets/icons';
 import Axios from '../../../config/Axios';
-import getConfig from 'next/config';
+import { breakpoints } from '../../../utils/Breakpoints';
+import { LogoBrand } from '../../atoms';
 const { publicRuntimeConfig } = getConfig();
-import { useCookie } from 'next-cookie';
 
-const Navbar = ({ session, avatar }) => {
+const Navbar = ({ session }) => {
+  const userState = useSelector((state) => state.user.user);
   const [collapse, setCollapse] = useState(false);
   const [avatarPop, setAvatarPop] = useState(false);
   const router = useRouter();
@@ -29,11 +31,11 @@ const Navbar = ({ session, avatar }) => {
         console.log(err.response);
       });
   };
-  if (avatar) {
-    // console.log('avatar in navbar', avatar);
-  } else {
-    // console.log('false');
-  }
+  // if (avatar) {
+  //   // console.log('avatar in navbar', avatar);
+  // } else {
+  //   // console.log('false');
+  // }
   return (
     <>
       <StyledNavbar>
@@ -93,15 +95,10 @@ const Navbar = ({ session, avatar }) => {
                     // return router.push(`/profile/${idUser}`);
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <Image
-                    src={
-                      avatar
-                        ? `${publicRuntimeConfig.imagesServer}${avatar}`
-                        : AVADefault
-                    }
+                  <img
+                    className="avatar"
+                    src={userState.avatar ? userState.avatar : AVADefault}
                     alt="user profile"
-                    layout="fill"
                   />
                 </div>
                 {avatarPop && (
@@ -379,6 +376,13 @@ const StyledNavbar = styled.nav`
               font-style: normal;
               font-weight: bold;
               color: #393939;
+            }
+          }
+          &.avatar {
+            img {
+              border-radius: 100%;
+              width: 100%;
+              height: 100%;
             }
           }
         }

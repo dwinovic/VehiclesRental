@@ -1,14 +1,21 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-const Button = ({ children, type, onClick, className, disabled, ...props }) => {
+const Button = ({
+  children,
+  theme,
+  onClick,
+  className,
+  disabled,
+  ...props
+}) => {
   // console.log(disabled);
   return (
     <StyledButton
-      type={type}
       onClick={onClick}
       className={className}
       disabled={disabled}
+      theme={theme}
       {...props}
     >
       {children}
@@ -29,15 +36,15 @@ Button.defaultProps = {
 export default Button;
 
 const StyledButton = styled.button`
-  background-color: ${({ type, disabled }) => {
+  background-color: ${({ theme, disabled }) => {
     if (disabled) return '#aaaaaa';
-    if (type === 'light') return '#FFCD61';
-    if (type === 'light-outline') return 'transparent';
-    if (type === 'dark') return '#393939';
+    if (theme === 'light') return '#FFCD61';
+    if (theme === 'light-outline') return 'transparent';
+    if (theme === 'dark') return '#393939';
     return '#FFFFFF';
   }};
-  border-color: ${({ type }) => {
-    switch (type) {
+  border-color: ${({ theme }) => {
+    switch (theme) {
       case 'light':
         return '#FFCD61';
       case 'light-outline':
@@ -48,8 +55,8 @@ const StyledButton = styled.button`
         return '#FFFFFF';
     }
   }};
-  border: ${({ type }) => {
-    switch (type) {
+  border: ${({ theme }) => {
+    switch (theme) {
       case 'light':
         return 0;
       case 'light-outline':
@@ -60,8 +67,8 @@ const StyledButton = styled.button`
         return 1;
     }
   }}px;
-  color: ${({ type }) => {
-    switch (type) {
+  color: ${({ theme }) => {
+    switch (theme) {
       case 'light':
         return '#393939';
       case 'light-outline':
@@ -72,8 +79,8 @@ const StyledButton = styled.button`
         return '#393939';
     }
   }};
-  box-shadow: ${({ type }) => {
-    switch (type) {
+  box-shadow: ${({ theme }) => {
+    switch (theme) {
       case 'light':
         return '0px 0px 20px rgba(248, 161, 112, 0.47)';
       case 'dark':
