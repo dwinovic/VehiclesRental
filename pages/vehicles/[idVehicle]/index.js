@@ -1,22 +1,16 @@
-import {
-  AVADefault,
-  ILCamera,
-  IMGDefault,
-  IMGJogja,
-} from '../../../src/assets';
-import { Button, GoBackPage, MainLayout } from '../../../src/components';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import useSWR from 'swr';
 import { useRouter } from 'next/router';
-import { fetcher } from '../../../src/config/fetcher';
-import styled from 'styled-components';
-import { breakpoints, requireAuthentication } from '../../../src/utils';
 import NumberFormat from 'react-number-format';
+import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
+import { ILCamera } from '../../../src/assets';
+import { Button, GoBackPage, MainLayout } from '../../../src/components';
 import Axios from '../../../src/config/Axios';
-
-const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
+import { reservationAction } from '../../../src/redux/actions/reservationAction';
+import { breakpoints, requireAuthentication } from '../../../src/utils';
+const DetailVehicle = ({ dataVehicle, roleUser }) => {
   const { data: vehicle, statusCode } = dataVehicle;
+  const dispatch = useDispatch();
   const router = useRouter();
 
   if (statusCode !== 200) {
@@ -33,11 +27,15 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
     return `${vehicle?.images[2]}`;
   };
 
+  const actionReservation = () => {
+    dispatch(reservationAction(dataVehicle.data, router));
+    // return router.push(`/payments/${vehicle.idVehicles}`);
+  };
+
   return (
     <MainLayout
       bgFooter="gray"
       title={vehicle.name}
-      avatar={avatar}
       session={roleUser ? 'login' : false}
     >
       <StyledDetailVehicle className="container">
@@ -194,21 +192,13 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
         </section>
         {roleUser === 'customer' && (
           <section className=" button-action-wrapper">
-            <Button type="dark" className="btn">
+            <Button theme="dark" className="btn">
               Chat Admin
             </Button>
-            <Button
-              type="light"
-              className="btn"
-              onClick={() => {
-                return router.push(
-                  `/vehicles/${vehicle.idVehicles}/reservation`
-                );
-              }}
-            >
+            <Button theme="light" className="btn" onClick={actionReservation}>
               Reservation
             </Button>
-            <Button type="dark" className="btn small">
+            <Button theme="dark" className="btn small">
               Like
             </Button>
           </section>
@@ -216,7 +206,7 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
         {roleUser === 'admin' && (
           <section className=" button-action-wrapper">
             <Button
-              type="dark"
+              theme="dark"
               className="btn"
               onClick={() => {
                 return router.push('/');
@@ -225,7 +215,7 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
               Add to home page
             </Button>
             <Button
-              type="light"
+              theme="light"
               className="btn"
               onClick={() => {
                 return router.push(`/admin/vehicles/${vehicle.idVehicles}`);
@@ -240,6 +230,7 @@ const DetailVehicle = ({ dataVehicle, roleUser, avatar }) => {
   );
 };
 
+// // START = SERVER SIDE PROPS
 export const getServerSideProps = requireAuthentication(async (context) => {
   let dataVehicle;
   try {
@@ -253,21 +244,24 @@ export const getServerSideProps = requireAuthentication(async (context) => {
       headers: context.req ? { cookie: context.req.headers.cookie } : undefined,
     });
     dataVehicle = resDataVehicle.data;
-    console.log('resDataVehicle', dataVehicle);
+    // console.log('resDataVehicle', dataVehicle);
     // Pass post data to the page via props
     return {
       props: {
         dataVehicle,
-        avatar,
+        avatar: avatar ? avatar : null,
         roleUser,
       },
     };
   } catch (error) {
+    // console.log(error);
     dataVehicle = error.response;
     return { props: { dataVehicle } };
   }
 });
+// // END = SERVER SIDE PROPS
 
+// START = STATIC GENERATION
 // export async function getStaticPaths() {
 //   const res = await Axios.get('/vehicles');
 
@@ -276,16 +270,21 @@ export const getServerSideProps = requireAuthentication(async (context) => {
 //   }));
 //   // console.log(paths);
 
-//   return { paths, fallback: false };
+//   return { paths, fallback: true };
 // }
 
-// export async function getStaticProps({ params }) {
+// export async function getStaticProps(context) {
+//   const { req, res, params } = context;
+//   // eslint-disable-next-line react-hooks/rules-of-hooks
+//   // const cookie = useCookie(context);
+//   // const token = cookie.get('token');
+//   // console.log('token', token);
 //   let dataVehicle;
 //   // console.log(params.idVehicle);
 //   try {
-//     const res = await Axios(`/vehicles/${params.idVehicle}`);
+//     const res = await Axios(`/vehicles/static/${params.idVehicle}`);
 //     dataVehicle = res.data;
-//     // console.log(dataVehicle);
+//     console.log('dataVehicle in server', dataVehicle);
 //     // Pass post data to the page via props
 //     return { props: { dataVehicle } };
 //   } catch (error) {
@@ -294,6 +293,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
 //     return { props: { dataVehicle } };
 //   }
 // }
+// END = STATIC GENERATION
 
 // STYLING CURRENT PAGE
 const StyledDetailVehicle = styled.div`

@@ -9,7 +9,6 @@ import { Button } from '../src/components/atoms';
 import { BgImageLayout, MainLayout } from '../src/components/layout';
 import Axios from '../src/config/Axios';
 import { breakpoints, getCookies, requireAuthentication } from '../src/utils';
-import { useForm } from 'react-hook-form';
 
 function Home({
   vehiclePopular,
@@ -19,34 +18,29 @@ function Home({
   roleUser,
   avatarUser,
 }) {
-  // console.log('vehiclePopular', vehiclePopular);
-  const [dataUser, setDataUser] = useState();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [filterForm, setFilterForm] = useState({
+    location: '',
+    category: '',
+  });
+  // const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const roleLocal = localStorage.getItem('role');
-    if (roleLocal === 'admin') {
-      setIsAdmin(true);
-    }
-  }, []);
-
-  // console.log(dataUser);
+  // useEffect(() => {
+  // const roleLocal = localStorage.getItem('role');
+  // if (roleLocal === 'admin') {
+  // setIsAdmin(true);
+  // }
+  // }, []);
 
   // START = HANDLE FILTER VEHICLES FINDER
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
-  const onSubmit = (data) => {
-    // console.log(data);
+  const actionFilterForm = (event) => {
+    event.preventDefault();
+    // console.log('filterForm', filterForm);
     router.push({
       pathname: `/vehicles-type`,
       query: {
-        category: data.category,
-        location: data.location,
+        category: filterForm.category,
+        location: filterForm.location,
       },
     });
   };
@@ -72,12 +66,15 @@ function Home({
                 <h4>Vehicle Finder</h4>
                 <div className="line"></div>
               </div>
-              <form className="form" onSubmit={handleSubmit(onSubmit)}>
+              <form className="form" onSubmit={actionFilterForm}>
                 <div className="input-group">
                   <Select
                     variant="filled"
                     placeholder="Location"
-                    {...register('location')}
+                    value={filterForm.location}
+                    onChange={(e) =>
+                      setFilterForm({ ...filterForm, location: e.target.value })
+                    }
                   >
                     {listLocation &&
                       listLocation.map((item, index) => (
@@ -89,7 +86,10 @@ function Home({
                   <Select
                     variant="filled"
                     placeholder="Type"
-                    {...register('category')}
+                    value={filterForm.category}
+                    onChange={(e) =>
+                      setFilterForm({ ...filterForm, category: e.target.value })
+                    }
                   >
                     {listCategories &&
                       listCategories.map((item) => (
@@ -109,13 +109,13 @@ function Home({
             <SectionCard
               heading={vehiclePopular.meta.category}
               data={vehiclePopular.data}
-              anchor="vehicles-type/category"
+              anchor={`vehicles-type/${vehiclePopular.meta.category}`}
             />
           )}
           {roleUser === 'admin' && (
             <div className="container add-new-item">
               <Button
-                type="dark"
+                theme="dark"
                 onClick={() => {
                   return router.push('/admin/vehicles');
                 }}
@@ -376,9 +376,15 @@ export async function getServerSideProps(ctx) {
     let roleUser = '';
     let avatarUser = '';
     let token = '';
+
     if (req.headers.cookie) {
       token = getCookies(req, 'token');
-      avatarUser = getCookies(req, 'avatar');
+      const getAvatar = getCookies(req, 'avatar');
+      if (getAvatar) {
+        avatarUser = getAvatar.split('%').pop();
+      }
+      console.log('getAvatar', getAvatar);
+      console.log('avatarUser', avatarUser);
       roleUser = getCookies(req, 'role');
     }
 
@@ -405,10 +411,11 @@ export async function getServerSideProps(ctx) {
       },
     };
   } catch (error) {
-    const errorResponse = error.response.data;
+    console.log('error home:', error);
+    // const errorResponse = error.response.data;
     return {
       props: {
-        errorResponse,
+        errorResponse: null,
       },
     };
   }

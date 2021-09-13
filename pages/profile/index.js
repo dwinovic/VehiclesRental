@@ -1,33 +1,38 @@
 import { Radio, RadioGroup, Stack } from '@chakra-ui/react';
+import { Form, Formik } from 'formik';
 import Image from 'next/image';
 import router from 'next/router';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import * as Yup from 'yup';
 import { AVADefault } from '../../src/assets';
 import { Button, DatePicker, MainLayout } from '../../src/components';
 import Axios from '../../src/config/Axios';
-import { breakpoints, requireAuthentication, toastify } from '../../src/utils';
+import { updateUser } from '../../src/redux/actions/userAction';
+import {
+  breakpoints,
+  phoneRegExp,
+  requireAuthentication,
+  toastify,
+} from '../../src/utils';
 
 const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
-  // console.log('userData', userData);
-  const [value, setValue] = useState();
+  const dispatch = useDispatch();
+  const userState = useSelector((state) => state.user.user);
   const [uploadImage, setUploadImage] = useState([]);
   const [dateBorn, setDateBorn] = useState('');
-  const [previewImage, setpreviewImage] = useState(userData?.avatar);
-  // console.log(userData);
-
-  // START = HANDLE FORM
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-    getValues,
-    reset,
-  } = useForm();
-  // END = HANDLE FORM
-  // console.log(userData?.avatar, 3);
+  const [gender, setGender] = useState();
+  const [previewImage, setpreviewImage] = useState();
+  const validate = Yup.object({
+    name: Yup.string().required('Name is required'),
+    address: Yup.string().required('Address is required'),
+    phone: Yup.string()
+      .matches(phoneRegExp, 'Phone number is not valid')
+      .required('Phone number is required')
+      .min(11, 'Password must be at least 11 charaters')
+      .max(13, 'Password must be less than 13 charaters'),
+  });
 
   const date = new Date(userData?.createdAt);
   const fullDate =
@@ -36,97 +41,34 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
     (date.getMonth() > 8 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1)) +
     '/' +
     date.getFullYear();
-  // console.log(userData);
+
   // HANDLE CHANGE IMAGES
   const changeAvatar = (e) => {
     const file = e.target.files[0];
-    console.log(file);
-    const formData = new FormData();
-    formData.append('avatar', file);
-    // console.log(file);
-    Axios.post(`/vehicles/images`, formData, { withCredentials: true })
-      .then(() => {
+    if (
+      file.type === 'image/jpeg' ||
+      file.type === 'image/jpg' ||
+      file.type === 'image/png' ||
+      file.type === 'image/gif'
+    ) {
+      if (file.size > 1048576 * 2) {
+        toastify('Max size file is 2 mb', 'error');
+      } else {
         setUploadImage(file);
         setpreviewImage(URL.createObjectURL(file));
-      })
-      .catch((err) => {
-        const message = err.response.data.message;
-        toastify(message, 'error');
-      });
+      }
+    } else {
+      toastify('Only image is allowed', 'error');
+    }
+    // console.log(file);
   };
 
   // START = SUBMIT CHANGES
 
-  const onSubmit = (data) => {
-    // console.log('token', token);
-    // const checkDataSend = {
-    //   idUser,
-    //   avatar: uploadImage,
-    //   address: data.address,
-    //   phone: data.phone,
-    //   born: dateBorn,
-    //   name: data.name,
-    // };
-    // console.log('checkDataSend', checkDataSend);
-    const formData = new FormData();
-    // formData.append('avatar', uploadImage);
-    formData.append('name', data.name);
-    // formData.append('born', dateBorn);
-    // formData.append('phone', data.phone);
-    // formData.append('address', data.address);
-
-    if (uploadImage) {
-      formData.append('avatar', uploadImage);
-    }
-
-    // console.log('uploadImage', uploadImage);
-    // console.log('imagesExist', imagesExist);
-
-    // console.log('imagesExist.length', imagesExist.length);
-    // return;
-    // console.log('cookie', cookie);
-    // console.log(checkDataSend);
-    // console.log(1);
-    Axios.patch(`/users/${idUser}`, formData, {
-      withCredentials: true,
-      cookie: cookie,
-    })
-      .then((result) => {
-        // console.log(result);
-        toastify('Success update user', 'success');
-        router.replace(`/profile`);
-      })
-      .catch((err) => {
-        console.log('Error:', err);
-        return;
-        // const message = err.response.data.error;
-        toastify('message', 'warning');
-      });
-    // console.log(2);
-  };
-  // END = SUBMIT CHANGES
-
-  // START = CANCEL STATE
-  // useEffect(() => {
-  //   reset(userData);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [reset]);
-
-  const cancelChanges = () => {
-    return reset({
-      avatar: userData.avatar,
-      address: userData.address,
-      phone: userData.phone,
-      born: userData.born,
-      name: userData.name,
-    });
-  };
-  // END = CANCEL STATE
-
   if (!userData) {
     return null;
   }
-  console.log('previewImage', previewImage);
+  // console.log('userData', userData);
   return (
     <MainLayout
       bgFooter="gray"
@@ -138,12 +80,16 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
         <h1 className="heading-page">Profile</h1>
         <section className="profile-section">
           <div className="avatar-wrapper">
-            {!previewImage && (
+            {!previewImage && !userState && (
               <Image src={AVADefault} alt="username" layout="fill" />
             )}
-            {previewImage && (
+            {(previewImage || userState) && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img className="preview-img" src={previewImage} alt="camera" />
+              <img
+                className="preview-img"
+                src={previewImage ? previewImage : userState.avatar}
+                alt="camera"
+              />
             )}
 
             <div className="edit-avatar">
@@ -169,13 +115,19 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
               </svg>
             </div>
           </div>
-          <h2 className="heading-playfair">{userData.name}</h2>
-          <p className="text-nunito-bold">{userData.email}</p>
-          {userData.phone && (
-            <p className="text-nunito-bold">{userData.phone}</p>
+          <h2 className="heading-playfair">{userState.name}</h2>
+          <p className="text-nunito-bold">{userState.email}</p>
+          {userState.phone && (
+            <p className="text-nunito-bold">{userState.phone}</p>
           )}
           <p className="text-nunito-bold">Has been active since {fullDate}</p>
-          <RadioGroup defaultValue={userData.gender} className="select-gender">
+          <RadioGroup
+            defaultValue={userState.gender}
+            className="select-gender"
+            onChange={(e) => setGender(e)}
+            // defaultChecked="male"
+            // defaultValue="male"
+          >
             <Stack spacing={5} direction="row">
               <Radio name="male" size="lg" colorScheme="orange" value="male">
                 Male
@@ -191,93 +143,105 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
             </Stack>
           </RadioGroup>
         </section>
-        <form className="profile-update">
-          <h4 className="heading-section-form">Contacts</h4>
-          <div className="input-group">
-            <label htmlFor="born">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              defaultValue={userData.name}
-              placeholder="Your date of birth"
-              {...register('name')}
-            />
-            <div className="line" />
-          </div>
-          <div className="input-group">
-            <label htmlFor="email">Email address:</label>
-            <input
-              id="email"
-              name="email"
-              type="text"
-              defaultValue={userData.email}
-              disabled
-            />
-            <div className="line" />
-          </div>
-          <div className="input-group">
-            <label htmlFor="address">Adress :</label>
-            <input
-              id="address"
-              type="text"
-              name="address"
-              defaultValue={userData.address}
-              placeholder="Your address"
-              {...register('address')}
-            />
-            <div className="line" />
-          </div>
-          <div className="input-group">
-            <label htmlFor="phone">Mobile number :</label>
-            <input
-              type="text"
-              id="phone"
-              name="phone"
-              defaultValue={userData.phone}
-              placeholder="Your phone number"
-              {...register('phone')}
-            />
-            <div className="line" />
-          </div>
-          {/* <h4 className="heading-section-form">Identity</h4> */}
-          <div className="input-group-two">
-            {/* <div className="input-group">
-              <label htmlFor="username">Display name :</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                placeholder="zulaikha"
-              />
-              <div className="line" />
-            </div> */}
-            <div className="input-group">
-              <label htmlFor="born">DD/MM/YY</label>
-              {/* <input
-                type="text"
-                id="born"
-                name="born"
-                defaultValue={userData.born}
-                placeholder="Your date of birth"
-                {...register('born')}
-              /> */}
-              <DatePicker
-                onChange={(e) => {
-                  setDateBorn(e.target.value);
-                }}
-              />
-              {/* <div className="line" /> */}
-            </div>
-          </div>
-        </form>
-        <div className="action-button">
-          <Button type="light" onClick={handleSubmit(onSubmit)}>
-            Save Change
-          </Button>
-          <Button type="dark">Edit Password</Button>
-          <Button onClick={cancelChanges}>Cancel</Button>
-        </div>
+        <Formik
+          initialValues={{
+            name: userState.name || '',
+            email: userState.email,
+            address: userState.address || '',
+            phone: userState.phone || '',
+          }}
+          validationSchema={validate}
+          onSubmit={(values, { resetForm }) => {
+            const dataForm = {
+              avatar: uploadImage,
+              gender,
+              birth: dateBorn,
+              ...values,
+            };
+            dispatch(updateUser(dataForm, router, cookie));
+            resetForm();
+          }}
+        >
+          {(formik) => (
+            <Form onSubmit={formik.handleSubmit}>
+              <div className="profile-update">
+                <h4 className="heading-section-form">Contacts</h4>
+                <div className="input-group">
+                  <label htmlFor="born">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Type your name"
+                    {...formik.getFieldProps('name')}
+                  />
+                  <div className="line" />
+                  {formik.touched.name && formik.errors.name ? (
+                    <div className="input-error">{formik.errors.name}</div>
+                  ) : null}
+                </div>
+                <div className="input-group">
+                  <label htmlFor="email">Email address:</label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="text"
+                    disabled
+                    {...formik.getFieldProps('email')}
+                  />
+                  <div className="line" />
+                </div>
+                <div className="input-group">
+                  <label htmlFor="address">Adress :</label>
+                  <input
+                    id="address"
+                    type="text"
+                    name="address"
+                    placeholder="Your address"
+                    {...formik.getFieldProps('address')}
+                  />
+                  <div className="line" />
+                  {formik.touched.address && formik.errors.address ? (
+                    <div className="input-error">{formik.errors.address}</div>
+                  ) : null}
+                </div>
+                <div className="input-group">
+                  <label htmlFor="phone">Mobile number :</label>
+                  <input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    placeholder="Your phone number"
+                    {...formik.getFieldProps('phone')}
+                  />
+                  <div className="line" />
+                  {formik.touched.phone && formik.errors.phone ? (
+                    <div className="input-error">{formik.errors.phone}</div>
+                  ) : null}
+                </div>
+                <div className="input-group">
+                  <div className="input-group">
+                    <label htmlFor="born">DD/MM/YY</label>
+                    <DatePicker
+                      onChange={(e) => {
+                        setDateBorn(e.target.value);
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="action-button">
+                <Button theme="light" type="submit">
+                  Save Change
+                </Button>
+                {/* <Button theme="dark">Edit Password</Button> */}
+                <Button theme="dark" onClick={formik.handleReset}>
+                  Cancel
+                </Button>
+              </div>
+            </Form>
+          )}
+        </Formik>
       </StyledProfileUser>
     </MainLayout>
   );
@@ -286,7 +250,10 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
 export const getServerSideProps = requireAuthentication(async (context) => {
   try {
     const { req, res, params } = context;
-    const avatar = res.avatar;
+    let avatar = null;
+    if (res.avatar) {
+      avatar = res.avatar;
+    }
     const idUser = res.idUser;
     const roleUser = res.role;
     const cookie = context.req.headers.cookie;
@@ -297,7 +264,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
     });
     const dataResponse = result.data.data[0];
 
-    console.log('dataResponse server', dataResponse);
+    // console.log('dataResponse server', dataResponse);
 
     return {
       props: {
@@ -378,7 +345,7 @@ const StyledProfileUser = styled.div`
       margin-top: 2rem;
     }
   }
-  form.profile-update {
+  .profile-update {
     .heading-section-form {
       font-family: Nunito;
       font-style: normal;
@@ -416,6 +383,10 @@ const StyledProfileUser = styled.div`
       }
       .line {
         border: 1px solid #9f9f9f;
+      }
+      .input-error {
+        color: red;
+        font-weight: 500;
       }
     }
   }

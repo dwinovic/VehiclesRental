@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const SearchInput = ({
-  onChane,
+  onChange,
   value,
   placeholder,
   onClick,
@@ -13,7 +13,7 @@ const SearchInput = ({
     <StyledSearchInput className={className}>
       <input
         type="text"
-        onChange={onChane}
+        onChange={onChange}
         value={value}
         placeholder={placeholder}
         {...props}

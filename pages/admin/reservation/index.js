@@ -73,7 +73,7 @@ const AdminReservationVehicle = () => {
             </div>
           </div>
         </div>
-        <Button type="light">Pay now : Rp. 178.000</Button>
+        <Button theme="light">Pay now : Rp. 178.000</Button>
       </StyledReservationVehicle>
     </MainLayout>
   );

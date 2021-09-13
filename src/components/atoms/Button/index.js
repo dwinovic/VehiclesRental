@@ -1,9 +1,23 @@
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
-const Button = ({ children, type, onClick, className }) => {
+const Button = ({
+  children,
+  theme,
+  onClick,
+  className,
+  disabled,
+  ...props
+}) => {
+  // console.log(disabled);
   return (
-    <StyledButton type={type} onClick={onClick} className={className}>
+    <StyledButton
+      onClick={onClick}
+      className={className}
+      disabled={disabled}
+      theme={theme}
+      {...props}
+    >
       {children}
     </StyledButton>
   );
@@ -22,8 +36,15 @@ Button.defaultProps = {
 export default Button;
 
 const StyledButton = styled.button`
-  background-color: ${({ type }) => {
-    switch (type) {
+  background-color: ${({ theme, disabled }) => {
+    if (disabled) return '#aaaaaa';
+    if (theme === 'light') return '#FFCD61';
+    if (theme === 'light-outline') return 'transparent';
+    if (theme === 'dark') return '#393939';
+    return '#FFFFFF';
+  }};
+  border-color: ${({ theme }) => {
+    switch (theme) {
       case 'light':
         return '#FFCD61';
       case 'light-outline':
@@ -34,20 +55,8 @@ const StyledButton = styled.button`
         return '#FFFFFF';
     }
   }};
-  border-color: ${({ type }) => {
-    switch (type) {
-      case 'light':
-        return '#FFCD61';
-      case 'light-outline':
-        return 'transparent';
-      case 'dark':
-        return '#393939';
-      default:
-        return '#FFFFFF';
-    }
-  }};
-  border: ${({ type }) => {
-    switch (type) {
+  border: ${({ theme }) => {
+    switch (theme) {
       case 'light':
         return 0;
       case 'light-outline':
@@ -58,8 +67,8 @@ const StyledButton = styled.button`
         return 1;
     }
   }}px;
-  color: ${({ type }) => {
-    switch (type) {
+  color: ${({ theme }) => {
+    switch (theme) {
       case 'light':
         return '#393939';
       case 'light-outline':
@@ -70,8 +79,8 @@ const StyledButton = styled.button`
         return '#393939';
     }
   }};
-  box-shadow: ${({ type }) => {
-    switch (type) {
+  box-shadow: ${({ theme }) => {
+    switch (theme) {
       case 'light':
         return '0px 0px 20px rgba(248, 161, 112, 0.47)';
       case 'dark':
@@ -91,7 +100,11 @@ const StyledButton = styled.button`
   font-size: 24px;
   line-height: 33px;
   &:hover {
-    opacity: 0.8;
-    cursor: pointer;
+    opacity: ${({ disabled }) => {
+      disabled ? 1 : 0.8;
+    }};
+    cursor: ${({ disabled }) => {
+      disabled ? 'default' : 'pointer';
+    }};
   }
 `;

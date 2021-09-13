@@ -1,45 +1,24 @@
+import { Form, Formik } from 'formik';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import * as Yup from 'yup';
 import { BgImageLayout, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
-import Link from 'next/link';
-import {
-  breakpoints,
-  getCookies,
-  isLoginAuthentication,
-  requireAuthentication,
-  toastify,
-} from '../../src/utils';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
-import { useForm } from 'react-hook-form';
-import Axios from '../../src/config/Axios';
-import Router from 'next/router';
+import { loginUser } from '../../src/redux/actions/userAction';
+import { breakpoints, isLoginAuthentication } from '../../src/utils';
 
 const LoginPage = ({ data }) => {
+  const dispatch = useDispatch();
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = (data) => {
-    const dataSend = {
-      email: data.email,
-      password: data.password,
-    };
-    Axios.post('/users/login', dataSend, { withCredentials: true })
-      .then((result) => {
-        console.log(result);
-        router.replace('/');
-      })
-      .catch((err) => {
-        console.log('Error:', err.response);
-        const message = err.response.data.error;
-        toastify(message, 'warning');
-      });
-  };
+  const validate = Yup.object({
+    email: Yup.string().email('Email is invalid').required('Email is required'),
+    password: Yup.string()
+      .min(8, 'Password must be at least 8 charaters')
+      .required('Password is required'),
+  });
 
   return (
     <>
@@ -116,34 +95,69 @@ const LoginPage = ({ data }) => {
                 />
               </svg>
             </div>
-            <form className="right" onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-input">
-                <Input
-                  theme="text-white"
-                  name="email"
-                  type="text"
-                  placeholder="Email"
-                  {...register('email')}
-                />
-              </div>
-              <div className="form-input">
-                <Input
-                  theme="text-white"
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  {...register('password')}
-                />
-              </div>
-              <div className="form-input forgot-password-wrapper">
-                <Link href="#">
-                  <a className="forgot-password">Forgot password?</a>
-                </Link>
-              </div>
-              <div className="btn-wrapper">
-                <Button type="light">Login</Button>
-              </div>
-            </form>
+            <Formik
+              initialValues={{
+                email: '',
+                password: '',
+              }}
+              validationSchema={validate}
+              onSubmit={(values, { resetForm }) => {
+                // console.log(values);
+                dispatch(loginUser(values, router));
+                resetForm();
+              }}
+            >
+              {({
+                values,
+                touched,
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                isValid,
+              }) => (
+                <Form onSubmit={handleSubmit} className="right">
+                  <div className="form-input">
+                    <Input
+                      theme="text-white"
+                      name="email"
+                      type="text"
+                      placeholder="Email"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.email}
+                    />
+                  </div>
+                  <div className="form-input">
+                    <Input
+                      theme="text-white"
+                      name="password"
+                      type="password"
+                      placeholder="Password"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.password}
+                    />
+                  </div>
+                  {/* <div className="form-input forgot-password-wrapper">
+                    <Link href="#">
+                      <a className="forgot-password">Forgot password?</a>
+                    </Link>
+                  </div> */}
+                  <div className="btn-wrapper">
+                    <Button
+                      disabled={
+                        !isValid ||
+                        (Object.keys(touched).length === 0 &&
+                          touched.constructor === Object)
+                      }
+                      theme="light"
+                    >
+                      Login
+                    </Button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
           </div>
         </StyledContent>
       </BgImageLayout>

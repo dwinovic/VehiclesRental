@@ -1,44 +1,32 @@
+/* eslint-disable @next/next/no-img-element */
 import { Select } from '@chakra-ui/react';
+import { Form, Formik } from 'formik';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import styled from 'styled-components';
-import useSWR from 'swr';
+import * as Yup from 'yup';
 import { ICPlusLight, ILCamera } from '../../../src/assets';
 import { Button, GoBackPage, Input, MainLayout } from '../../../src/components';
 import Axios from '../../../src/config/Axios';
-import { fetcher } from '../../../src/config/fetcher';
 import {
   breakpoints,
-  requireAuthentication,
   requireAuthenticationAdmin,
   toastify,
 } from '../../../src/utils';
-// import { useDisclosure } from '@chakra-ui/react';
-// import {
-//   Modal,
-//   ModalOverlay,
-//   ModalContent,
-//   ModalHeader,
-//   ModalFooter,
-//   ModalBody,
-//   ModalCloseButton,
-// } from '@chakra-ui/react';
 
 const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-    getValues,
-  } = useForm();
-
-  // START = MODAL
-  // const { isOpen, onOpen, onClose } = useDisclosure();
-  // END = MODAL
+  const validate = Yup.object({
+    name: Yup.string()
+      .required('Name is required')
+      .max(50, 'Maximum 50 character'),
+    location: Yup.string().required('Location is required'),
+    description: Yup.string().max(150, 'Maximum 150 character'),
+    price: Yup.number('Price must be a number')
+      .required('Price is required')
+      .nullable(),
+  });
 
   const [totalStock, setTotalStock] = useState(1);
   // START = UPLOAD IMAGE
@@ -47,82 +35,9 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
   const [previewImage2, setpreviewImage2] = useState();
   const [previewImage3, setpreviewImage3] = useState();
 
-  const handleInputImageProduct = async () => {
-    try {
-      const image1 = getValues('image1')[0];
-      const image2 = getValues('image2')[0];
-      const image3 = getValues('image3')[0];
-      const images = [];
-
-      if (image1) {
-        const formData = new FormData();
-        formData.append('avatar', image1);
-        Axios.post(`/vehicles/images`, formData, {
-          withCredentials: true,
-          cookie: cookie,
-        })
-          .then(() => {
-            images.push(image1);
-            setpreviewImage1(URL.createObjectURL(image1));
-          })
-          .catch((err) => {
-            console.log(err);
-            // const message = err.response.data.message;
-            // toastify(message, 'error');
-            setpreviewImage1('');
-          });
-      }
-      if (image2) {
-        const formData = new FormData();
-
-        formData.append('avatar', image2);
-        Axios.post(`/vehicles/images`, formData, {
-          withCredentials: true,
-          cookie: cookie,
-        })
-          .then(() => {
-            images.push(image2);
-            setpreviewImage2(URL.createObjectURL(image2));
-          })
-          .catch((err) => {
-            const message = err.response.data.message;
-            toastify(message, 'error');
-            setpreviewImage2('');
-          });
-      }
-      if (image3) {
-        const formData = new FormData();
-
-        formData.append('avatar', image3);
-        Axios.post(`/vehicles/images`, formData, {
-          withCredentials: true,
-          cookie: cookie,
-        })
-          .then(() => {
-            images.push(image3);
-            setpreviewImage3(URL.createObjectURL(image3));
-          })
-          .catch((err) => {
-            const message = err.response.data.message;
-            toastify(message, 'error');
-            setpreviewImage3('');
-          });
-      }
-
-      setUploadImage(images);
-    } catch (error) {
-      // console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    handleInputImageProduct();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch('image1'), watch('image2'), watch('image3')]);
   // START = UPLOAD IMAGE
 
-  const onSubmit = (data) => {
+  const actionSubmitData = (data) => {
     const formData = new FormData();
 
     // console.log({
@@ -133,9 +48,8 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
     //   price: data.price,
     //   category: data.category,
     //   stock: totalStock,
-    //   status: data.status,
+    //   status: 'available',
     // });
-    // return;
     formData.append('idOwner', idUser);
     formData.append('name', data.name);
     formData.append('location', data.location);
@@ -145,7 +59,7 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
     formData.append('stock', totalStock);
     formData.append('capacity', 2);
     formData.append('paymentOption', 'per day');
-    formData.append('status', data.status);
+    formData.append('status', 'available');
     // formData.append('images', uploadImage);
 
     // console.log('data.image1', data.image1);
@@ -157,7 +71,7 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
       if (image !== false && image !== undefined) {
         formData.append('images', image);
         imagesExist.push(image);
-        console.log('image true', image);
+        // console.log('image true', image);
       }
     });
 
@@ -185,6 +99,65 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
       });
   };
 
+  const handleImage1 = (e) => {
+    if (
+      e.target.files[0].type === 'image/jpeg' ||
+      e.target.files[0].type === 'image/jpg' ||
+      e.target.files[0].type === 'image/png' ||
+      e.target.files[0].type === 'image/gif'
+    ) {
+      if (e.target.files[0].size > 1048576 * 2) {
+        toastify('Max size file is 2 mb', 'error');
+      } else {
+        // images.push(image1);
+        setUploadImage([...uploadImage, e.target.files[0]]);
+        setpreviewImage1(URL.createObjectURL(e.target.files[0]));
+      }
+    } else {
+      toastify('Only image is allowed', 'error');
+      setpreviewImage1(previewImage1 ? previewImage1 : null);
+    }
+  };
+
+  const handleImage2 = (e) => {
+    if (
+      e.target.files[0].type === 'image/jpeg' ||
+      e.target.files[0].type === 'image/jpg' ||
+      e.target.files[0].type === 'image/png' ||
+      e.target.files[0].type === 'image/gif'
+    ) {
+      if (e.target.files[0].size > 1048576 * 2) {
+        toastify('Max size file is 2 mb', 'error');
+      } else {
+        // images.push(image1);
+        setUploadImage([...uploadImage, e.target.files[0]]);
+        setpreviewImage2(URL.createObjectURL(e.target.files[0]));
+      }
+    } else {
+      toastify('Only image is allowed', 'error');
+      setpreviewImage2(previewImage2 ? previewImage2 : null);
+    }
+  };
+  const handleImage3 = (e) => {
+    if (
+      e.target.files[0].type === 'image/jpeg' ||
+      e.target.files[0].type === 'image/jpg' ||
+      e.target.files[0].type === 'image/png' ||
+      e.target.files[0].type === 'image/gif'
+    ) {
+      if (e.target.files[0].size > 1048576 * 2) {
+        toastify('Max size file is 2 mb', 'error');
+      } else {
+        // images.push(image1);
+        setUploadImage([...uploadImage, e.target.files[0]]);
+        setpreviewImage3(URL.createObjectURL(e.target.files[0]));
+      }
+    } else {
+      toastify('Only image is allowed', 'error');
+      setpreviewImage3(previewImage3 ? previewImage3 : null);
+    }
+  };
+
   // START = COUNTER STOCK
 
   const handleIncrement = () => {
@@ -203,7 +176,6 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
     }
   };
   // END = COUNTER STOCK
-
   return (
     <MainLayout
       bgFooter="gray"
@@ -213,176 +185,228 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
     >
       <StyledAddingVehiclesPage className="container">
         <GoBackPage titleBack="Add New Item" />
-        <form className="form" onSubmit={handleSubmit(onSubmit)}>
-          <div className="form-content">
-            <div className="galery-wrapper">
-              <div className="main">
-                {!previewImage1 && (
-                  <div className="default">
-                    <Image src={ILCamera} alt="camera" layout="fill" />
-                  </div>
-                )}
-                {previewImage1 && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    className="preview-img"
-                    src={previewImage1}
-                    alt="camera"
-                  />
-                )}
-                <input
-                  className="input-upload-file"
-                  type="file"
-                  name="image1"
-                  {...register('image1')}
-                />
-              </div>
-              <div className="item-wrapper">
-                <div className="item">
-                  {!previewImage2 && (
-                    <div className="default-wrapper">
-                      <div className="icon-wrapper">
+        <Formik
+          initialValues={{
+            name: '',
+            location: '',
+            description: '',
+            price: '',
+            status: '',
+            category: '',
+            description: '',
+          }}
+          validationSchema={validate}
+          onSubmit={(values, { resetForm }) => {
+            actionSubmitData(values);
+          }}
+        >
+          {({
+            values,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isValid,
+            errors,
+          }) => (
+            <Form onSubmit={handleSubmit} className="form">
+              <div className="form-content">
+                <div className="galery-wrapper">
+                  <div className="main">
+                    {!previewImage1 && (
+                      <div className="default">
                         <Image src={ILCamera} alt="camera" layout="fill" />
                       </div>
-                      <p>Click to add image</p>
-                    </div>
-                  )}
-                  {previewImage2 && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className="preview-img"
-                      src={previewImage2}
-                      alt="camera"
+                    )}
+                    {previewImage1 && (
+                      <img
+                        className="preview-img"
+                        src={previewImage1}
+                        alt="camera"
+                      />
+                    )}
+                    <input
+                      className="input-upload-file"
+                      type="file"
+                      name="image1"
+                      onChange={(e) => handleImage1(e)}
                     />
-                  )}
-                  <input
-                    className="input-upload-file"
-                    type="file"
-                    name="image2"
-                    {...register('image2')}
-                  />
+                  </div>
+                  <div className="item-wrapper">
+                    <div className="item">
+                      {!previewImage2 && (
+                        <div className="default-wrapper">
+                          <div className="icon-wrapper">
+                            <Image src={ILCamera} alt="camera" layout="fill" />
+                          </div>
+                          <p>Click to add image</p>
+                        </div>
+                      )}
+                      {previewImage2 && (
+                        <img
+                          className="preview-img"
+                          src={previewImage2}
+                          alt="camera"
+                        />
+                      )}
+                      <input
+                        className="input-upload-file"
+                        type="file"
+                        name="image2"
+                        onChange={(e) => handleImage2(e)}
+                      />
+                    </div>
+                    <div className="item">
+                      {!previewImage3 && (
+                        <div className="default-wrapper">
+                          <div className="icon-wrapper">
+                            <Image
+                              src={ICPlusLight}
+                              alt="camera"
+                              layout="fill"
+                            />
+                          </div>
+                          <p>Add more</p>
+                        </div>
+                      )}
+                      {previewImage3 && (
+                        <img
+                          className="preview-img"
+                          src={previewImage3}
+                          alt="camera"
+                        />
+                      )}
+                      <input
+                        className="input-upload-file"
+                        type="file"
+                        name="image3"
+                        onChange={(e) => handleImage3(e)}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="item">
-                  {!previewImage3 && (
-                    <div className="default-wrapper">
-                      <div className="icon-wrapper">
-                        <Image src={ICPlusLight} alt="camera" layout="fill" />
+                <div className="input-group-wrapper">
+                  <div className="input-wrapper">
+                    <input
+                      className="input-data"
+                      type="text"
+                      name="name"
+                      placeholder="Name (max up to 50 words)"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.name}
+                    />
+                    <div className="line" />
+                    {touched.name && errors.name ? (
+                      <div className="input-error">{errors.name}</div>
+                    ) : null}
+                  </div>
+                  <div className="input-wrapper">
+                    <input
+                      type="text"
+                      name="location"
+                      placeholder="Location"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.location}
+                    />
+                    <div className="line" />
+                    {touched.location && errors.location ? (
+                      <div className="input-error">{errors.location}</div>
+                    ) : null}
+                  </div>
+                  <div className="input-wrapper">
+                    <input
+                      type="text"
+                      name="description"
+                      placeholder="Description (max up to 150 words)"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.description}
+                    />
+                    <div className="line" />
+                    {touched.description && errors.description ? (
+                      <div className="input-error">{errors.description}</div>
+                    ) : null}
+                  </div>
+                  <div className="select-wrapper">
+                    <label htmlFor="price">Price :</label>
+                    <Input
+                      name="price"
+                      type="text"
+                      placeholder="Price"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.price}
+                    />
+                    {touched.price && errors.price ? (
+                      <div className="input-error">{errors.price}</div>
+                    ) : null}
+                  </div>
+                  <div className="select-wrapper">
+                    <label htmlFor="status">Status :</label>
+                    <Select
+                      bg=" rgba(255, 255, 255, 0.5)"
+                      variant="filled"
+                      size="lg"
+                      defaultValue="available"
+                      name="status"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.status}
+                    >
+                      <option value="available">Available</option>
+                    </Select>
+                  </div>
+                  <div className="select-wrapper counter-wrapper">
+                    <label htmlFor="status">Stock :</label>
+                    <div className="counter">
+                      <div className="icon plus" onClick={handleIncrement}>
+                        <svg
+                          width="25"
+                          height="24"
+                          viewBox="0 0 25 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M21.28 9.344C22.08 9.344 22.752 9.616 23.296 10.16C23.84 10.704 24.112 11.376 24.112 12.176C24.112 12.976 23.84 13.664 23.296 14.24C22.752 14.784 22.08 15.056 21.28 15.056H15.232V21.056C15.232 21.856 14.96 22.528 14.416 23.072C13.904 23.616 13.232 23.888 12.4 23.888C11.6 23.888 10.928 23.616 10.384 23.072C9.84 22.528 9.568 21.856 9.568 21.056V15.056H3.52C2.72 15.056 2.048 14.784 1.504 14.24C0.96 13.664 0.688 12.976 0.688 12.176C0.688 11.376 0.96 10.704 1.504 10.16C2.048 9.616 2.72 9.344 3.52 9.344H9.568V3.296C9.568 2.496 9.84 1.824 10.384 1.28C10.928 0.735999 11.6 0.464 12.4 0.464C13.2 0.464 13.872 0.735999 14.416 1.28C14.96 1.824 15.232 2.496 15.232 3.296V9.344H21.28Z"
+                            fill="black"
+                          />
+                        </svg>
                       </div>
-                      <p>Add more</p>
+                      <p className="count">{totalStock}</p>
+                      <div className="icon minus" onClick={handleDecrement}>
+                        <svg
+                          width="18"
+                          height="8"
+                          viewBox="0 0 18 8"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M4.48106 7.448C1.82506 7.448 0.497063 6.328 0.497063 4.088C0.497063 1.88 1.82506 0.775999 4.48106 0.775999H13.5051C14.8491 0.775999 15.8411 1.064 16.4811 1.64C17.1531 2.216 17.4891 3.032 17.4891 4.088C17.4891 5.144 17.1531 5.976 16.4811 6.584C15.8411 7.16 14.8491 7.448 13.5051 7.448H4.48106Z"
+                            fill="black"
+                          />
+                        </svg>
+                      </div>
                     </div>
-                  )}
-                  {previewImage3 && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className="preview-img"
-                      src={previewImage3}
-                      alt="camera"
-                    />
-                  )}
-                  <input
-                    className="input-upload-file"
-                    type="file"
-                    name="image3"
-                    {...register('image3')}
-                  />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="input-group-wrapper">
-              <div className="input-wrapper">
-                <input
-                  className="input-data"
-                  type="text"
-                  name="name"
-                  placeholder="Name (max up to 50 words)"
-                  {...register('name')}
-                />
-                <div className="line" />
-              </div>
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  name="location"
-                  placeholder="Location"
-                  {...register('location')}
-                />
-                <div className="line" />
-              </div>
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  name="description"
-                  placeholder="Description (max up to 150 words)"
-                  {...register('description')}
-                />
-                <div className="line" />
-              </div>
-              <div className="select-wrapper">
-                <label htmlFor="price">Price :</label>
-                <Input
-                  name="price"
-                  type="text"
-                  placeholder="Price"
-                  {...register('price')}
-                />
-              </div>
-              <div className="select-wrapper">
-                <label htmlFor="status">Status :</label>
+              <div className="form-action">
                 <Select
                   bg=" rgba(255, 255, 255, 0.5)"
                   variant="filled"
                   size="lg"
-                  defaultValue="available"
-                  {...register('status')}
+                  className="add-category"
+                  // {...register('category')}
+                  name="category"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.category}
                 >
-                  <option value="available">Available</option>
-                </Select>
-              </div>
-              <div className="select-wrapper counter-wrapper">
-                <label htmlFor="status">Stock :</label>
-                <div className="counter">
-                  <div className="icon plus" onClick={handleIncrement}>
-                    <svg
-                      width="25"
-                      height="24"
-                      viewBox="0 0 25 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M21.28 9.344C22.08 9.344 22.752 9.616 23.296 10.16C23.84 10.704 24.112 11.376 24.112 12.176C24.112 12.976 23.84 13.664 23.296 14.24C22.752 14.784 22.08 15.056 21.28 15.056H15.232V21.056C15.232 21.856 14.96 22.528 14.416 23.072C13.904 23.616 13.232 23.888 12.4 23.888C11.6 23.888 10.928 23.616 10.384 23.072C9.84 22.528 9.568 21.856 9.568 21.056V15.056H3.52C2.72 15.056 2.048 14.784 1.504 14.24C0.96 13.664 0.688 12.976 0.688 12.176C0.688 11.376 0.96 10.704 1.504 10.16C2.048 9.616 2.72 9.344 3.52 9.344H9.568V3.296C9.568 2.496 9.84 1.824 10.384 1.28C10.928 0.735999 11.6 0.464 12.4 0.464C13.2 0.464 13.872 0.735999 14.416 1.28C14.96 1.824 15.232 2.496 15.232 3.296V9.344H21.28Z"
-                        fill="black"
-                      />
-                    </svg>
-                  </div>
-                  <p className="count">{totalStock}</p>
-                  <div className="icon minus" onClick={handleDecrement}>
-                    <svg
-                      width="18"
-                      height="8"
-                      viewBox="0 0 18 8"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M4.48106 7.448C1.82506 7.448 0.497063 6.328 0.497063 4.088C0.497063 1.88 1.82506 0.775999 4.48106 0.775999H13.5051C14.8491 0.775999 15.8411 1.064 16.4811 1.64C17.1531 2.216 17.4891 3.032 17.4891 4.088C17.4891 5.144 17.1531 5.976 16.4811 6.584C15.8411 7.16 14.8491 7.448 13.5051 7.448H4.48106Z"
-                        fill="black"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="form-action">
-            <Select
-              bg=" rgba(255, 255, 255, 0.5)"
-              variant="filled"
-              size="lg"
-              className="add-category"
-              {...register('category')}
-            >
-              {/* <option
+                  {/* <option
                 onClick={() => {
                   console.log('open');
                   return onOpen;
@@ -390,38 +414,35 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
               >
                 Add item to
               </option> */}
-              {categories &&
-                categories.map((category) => {
-                  return (
-                    <option
-                      key={category.idCategory}
-                      value={category.idCategory}
-                    >
-                      {category.name}
-                    </option>
-                  );
-                })}
-            </Select>
-            <Button type="light">Save item</Button>
-          </div>
-          {/* <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Create your account</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody pb={6}>
-                <p>Modal</p>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button colorScheme="blue" mr={3}>
-                  Save
+                  {categories &&
+                    categories.map((category) => {
+                      return (
+                        <option
+                          key={category.idCategory}
+                          value={category.idCategory}
+                        >
+                          {category.name}
+                        </option>
+                      );
+                    })}
+                </Select>
+                {touched.category && errors.category ? (
+                  <div className="input-error">{errors.category}</div>
+                ) : null}
+                <Button
+                  disabled={
+                    !isValid ||
+                    (Object.keys(touched).length === 0 &&
+                      touched.constructor === Object)
+                  }
+                  theme="light"
+                >
+                  Save item
                 </Button>
-                <Button onClick={onClose}>Cancel</Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal> */}
-        </form>
+              </div>
+            </Form>
+          )}
+        </Formik>
       </StyledAddingVehiclesPage>
     </MainLayout>
   );
@@ -680,6 +701,10 @@ const StyledAddingVehiclesPage = styled.div`
         color: #ffcd61;
         height: 80px;
       }
+    }
+    .input-error {
+      color: red;
+      margin-top: 8px;
     }
   }
 `;

@@ -1,13 +1,10 @@
-import { SearchInput, SectionCard } from '../../src/components';
-import { MainLayout } from '../../src/components/layout';
-import styled from 'styled-components';
-import { useEffect, useState } from 'react';
-import useSWR from 'swr';
-import { fetcher } from '../../src/config/fetcher';
-import { useForm } from 'react-hook-form';
-import Axios from '../../src/config/Axios';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
+import styled from 'styled-components';
+import { SearchInput, SectionCard } from '../../src/components';
+import { MainLayout } from '../../src/components/layout';
+import Axios from '../../src/config/Axios';
 import { requireAuthentication } from '../../src/utils';
 
 const VehiclesType = ({
@@ -15,34 +12,22 @@ const VehiclesType = ({
   searchResult,
   avatar,
   roleUser,
-  cookie,
+  // cookie,
 }) => {
   const [isShowSort, setIsShowSort] = useState(false);
   const [sortSelected, setSortSelected] = useState();
+  const [keywordSearch, setKeywordSearch] = useState('');
   const router = useRouter();
-  // START = SEARCHING FEATURE
-  const {
-    register,
-    handleSubmit,
-    watch,
-    getValues,
-    formState: { errors },
-  } = useForm();
+  // const query = router.query;
 
-  // useEffect(() => {
-  //   // setDataVehiclesType(data?.data);
-  //   // onSearching();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [getValues('search')]);
-
-  const onSearching = async () => {
-    const keyword = getValues('search');
+  const onSearching = async (e) => {
+    e.preventDefault();
     const sort = sortSelected?.split(' ');
-    if (sort && keyword) {
+    if (sort && keywordSearch) {
       return router.push({
         pathname: `/vehicles-type`,
         query: {
-          search: keyword,
+          search: keywordSearch,
           field: sort[0],
           sort: sort[1],
         },
@@ -57,17 +42,16 @@ const VehiclesType = ({
         },
       });
     }
-    if (keyword) {
+    if (keywordSearch) {
       return router.push({
         pathname: `/vehicles-type`,
         query: {
-          search: keyword,
+          search: keywordSearch,
         },
       });
     }
   };
 
-  console.log('searchResult:', searchResult);
   // END = SEARCHING FEATURE
   // START = HANDLE SORT SELECTED
   const sortHandle = (target) => {
@@ -83,11 +67,11 @@ const VehiclesType = ({
     >
       <StyledVehiclesType>
         <section className="container">
-          <form className="search-wrapper">
+          <form className="search-wrapper" onSubmit={onSearching}>
             <SearchInput
               placeholder="Search"
-              {...register('search')}
-              onClick={handleSubmit(onSearching)}
+              onChange={(e) => setKeywordSearch(e.target.value)}
+              onClick={(e) => onSearching(e)}
             />
             <div
               className="sort-wrapper"
@@ -142,7 +126,10 @@ const VehiclesType = ({
         {searchResult?.statusCode === 200 && (
           <>
             <h1 className="container header-result">
-              Showing results for {searchResult?.meta.keyword}
+              Showing results for{' '}
+              {searchResult?.meta.keyword
+                ? searchResult?.meta.keyword
+                : `${router.query.category} in ${router.query.location}`}
             </h1>
             <SectionCard data={searchResult.data} />
           </>
@@ -152,91 +139,13 @@ const VehiclesType = ({
   );
 };
 
-// export async function getServerSideProps(ctx) {
-//   const { query } = ctx;
-
-//   // INITIAL SHOW DATA
-//   const checkQuery = Object.keys(query).length;
-//   if (!checkQuery) {
-//     const dataCategory = await axios
-//       .all([
-//         // Remember to replace the api\_key with a valid one.
-//         axios.get('http://localhost:3030/v1/vehicles?category=popular in town'),
-//         axios.get('http://localhost:3030/v1/vehicles?category=motor'),
-//         axios.get('http://localhost:3030/v1/vehicles?category=cars'),
-//         axios.get('http://localhost:3030/v1/vehicles?category=bike'),
-//       ])
-//       .then(
-//         axios.spread(function (popular, motor, cars, bike) {
-//           //... but this callback will be executed only when all requests are complete.
-//           const dataCategory = [
-//             {
-//               category: 'Popular in town',
-//               data: popular.data.data,
-//             },
-//             {
-//               category: 'Motors',
-//               data: motor.data.data,
-//             },
-//             {
-//               category: 'Cars',
-//               data: cars.data.data,
-//             },
-//             {
-//               category: 'Bikers',
-//               data: bike.data.data,
-//             },
-//           ];
-//           return dataCategory;
-//         })
-//       )
-//       .catch((errors) => {
-//         // console.log(errors.response);
-//       });
-
-//     return { props: { dataCategory } };
-//   }
-
-//   // HAVE QUERY PARAMS
-//   if (checkQuery) {
-//     let searchResult = {};
-//     // SEARCH AND FILTER FOR PAGE VEHICLES TYPE
-//     if (query?.search && query?.sort) {
-//       try {
-//         const resData = await Axios.get(
-//           `/vehicles?src=${query?.search ? query?.search : ''}&field=${
-//             query?.field ? query?.field : 'price'
-//           }&sort=${query?.sort ? query?.sort : 'DESC'}`
-//         );
-//         searchResult = resData.data;
-//         return { props: { searchResult } };
-//       } catch (error) {
-//         // console.log(error.response.data);
-//         searchResult = error.response.data;
-//         return { props: { searchResult } };
-//       }
-//     }
-//     // FILTER FOR PAGE HOME
-//     if (query?.category && query?.location) {
-//       try {
-//         const resData = await Axios.get(
-//           `/vehicles?location=${query?.location}&category=${query?.category}`
-//         );
-//         searchResult = resData.data;
-//         return { props: { searchResult } };
-//       } catch (error) {
-//         // console.log(error.response.data);
-//         searchResult = error.response.data;
-//         return { props: { searchResult } };
-//       }
-//     }
-//   }
-// }
-
 export const getServerSideProps = requireAuthentication(async (context) => {
   try {
     const { req, res, params, query } = context;
-    const avatar = res.avatar;
+    let avatar = '';
+    if (res.avatar) {
+      avatar = res.avatar;
+    }
     const roleUser = res.role;
     const cookie = context.req.headers.cookie;
     // INITIAL SHOW DATA
@@ -246,18 +155,24 @@ export const getServerSideProps = requireAuthentication(async (context) => {
         .all([
           // Remember to replace the api\_key with a valid one.
           axios.get(
-            'http://localhost:3030/v1/vehicles?category=popular in town'
+            `${process.env.HOST_SERVER}/vehicles?category=popular in town&limit=5`
           ),
-          axios.get('http://localhost:3030/v1/vehicles?category=motor'),
-          axios.get('http://localhost:3030/v1/vehicles?category=cars'),
-          axios.get('http://localhost:3030/v1/vehicles?category=bike'),
+          axios.get(
+            `${process.env.HOST_SERVER}/vehicles?category=motor&limit=5`
+          ),
+          axios.get(
+            `${process.env.HOST_SERVER}/vehicles?category=cars&limit=5`
+          ),
+          axios.get(
+            `${process.env.HOST_SERVER}/vehicles?category=bike&limit=5`
+          ),
         ])
         .then(
           axios.spread(function (popular, motor, cars, bike) {
             //... but this callback will be executed only when all requests are complete.
             const dataCategory = [
               {
-                category: 'Popular in town',
+                category: 'Popular In Town',
                 data: popular.data.data,
               },
               {
@@ -296,7 +211,7 @@ export const getServerSideProps = requireAuthentication(async (context) => {
             { withCredentials: true }
           );
           searchResult = resData.data;
-          console.log('searchResult', searchResult);
+          // console.log('searchResult', searchResult);
           return {
             props: {
               searchResult: searchResult,

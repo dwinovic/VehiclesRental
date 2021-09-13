@@ -6,12 +6,13 @@ import styled from 'styled-components';
 import useSWR from 'swr';
 import { fetcher } from '../../../src/config/fetcher';
 import Axios from '../../../src/config/Axios';
+import { requireAuthentication } from '../../../src/utils';
 
-const VehiclesType = ({ categories }) => {
-  console.log('categories client', categories);
+const VehiclesType = ({ categories, roleUser }) => {
+  // console.log('categories client', categories);
   const router = useRouter();
   const { type } = router.query;
-  const [dataVehiclesType, setDataVehiclesType] = useState();
+  const [dataVehiclesType, setDataVehiclesType] = useState(categories?.data);
   const [totalPage, setTotalPage] = useState();
 
   const titlePage = type?.split('-').join(' ');
@@ -19,7 +20,7 @@ const VehiclesType = ({ categories }) => {
   // START = PAGINATION CONTROL
   const [page, setPage] = useState(1);
   const handleChange = (event, value) => {
-    Axios.get(`/vehicles?page=${value}&limit=3`)
+    Axios.get(`/vehicles?page=${value}&limit=5`)
       .then((result) => {
         console.log('pagination', result);
         setDataVehiclesType(result.data.data);
@@ -32,20 +33,24 @@ const VehiclesType = ({ categories }) => {
 
   // START = PAGINATION CONTROL
 
-  useEffect(() => {
-    Axios.get(`/vehicles?limit=3`)
-      .then((result) => {
-        setDataVehiclesType(result.data.data);
-        setTotalPage(result.data.meta);
-      })
-      .catch((err) => {
-        console.log(err.response);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  // useEffect(() => {
+  //   Axios.get(`/vehicles?limit=3`)
+  //     .then((result) => {
+  //       setDataVehiclesType(result.data.data);
+  //       setTotalPage(result.data.meta);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err.response);
+  //     });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+  // console.log('categories', categories);
   return (
-    <MainLayout bgFooter="gray" title={titlePage}>
+    <MainLayout
+      bgFooter="gray"
+      title={titlePage}
+      session={roleUser ? 'login' : false}
+    >
       <StyledDetailTypes>
         <header className="container">
           <h1 className="heading-page">{categories?.meta.category}</h1>
@@ -53,11 +58,11 @@ const VehiclesType = ({ categories }) => {
             Click item to see details and reservation
           </p>
         </header>
-        <SectionCard data={categories?.data} anchor="vehicles-type/category" />
+        <SectionCard data={dataVehiclesType} anchor="vehicles-type/category" />
         <section className="container pagination-wrapper">
           <Pagination
             count={categories?.meta.totalPage}
-            page={categories?.meta.currentPage}
+            page={page}
             onChange={handleChange}
           />
         </section>
@@ -67,32 +72,68 @@ const VehiclesType = ({ categories }) => {
   );
 };
 
-export async function getStaticPaths() {
-  const res = await Axios.get('/category');
-
-  const paths = res.data.data.map((category) => ({
-    params: { type: category.name },
-  }));
-  console.log(paths);
-
-  return { paths, fallback: false };
-}
-
-export async function getStaticProps({ params }) {
+// // START = SERVER SIDE PROPS
+export const getServerSideProps = requireAuthentication(async (context) => {
   let categories;
-  console.log(params.type);
   try {
-    const res = await Axios(`/vehicles?category=${params.type}`);
-    categories = res.data;
+    const { req, res, params } = context;
+    const roleUser = res.role;
+
+    // const resCategory = await Axios.get('/category');
+    const resCategory = await Axios(
+      `/vehicles?category=${params.type}&limit=5`
+    );
+    categories = resCategory.data;
     console.log(categories);
+
+    // const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicle}`, {
+    //   withCredentials: true,
+    //   headers: context.req ? { cookie: context.req.headers.cookie } : undefined,
+    // });
+    // console.log('resDataVehicle', dataVehicle);
     // Pass post data to the page via props
-    return { props: { categories } };
+    return {
+      props: {
+        categories,
+        roleUser,
+      },
+    };
   } catch (error) {
-    categories = error.response;
-    console.log(categories);
-    return { props: { categories: dataResponse } };
+    // console.log(error);
+    dataVehicle = error.response;
+    return { props: { categories } };
   }
-}
+});
+// // END = SERVER SIDE PROPS
+
+// START = STATIC GENERATION
+// export async function getStaticPaths() {
+//   const res = await Axios.get('/category');
+
+//   const paths = res.data.data.map((category) => ({
+//     params: { type: category.name },
+//   }));
+//   console.log(paths);
+
+//   return { paths, fallback: false };
+// }
+
+// export async function getStaticProps({ params }) {
+//   let categories;
+//   console.log(params.type);
+//   try {
+//     const res = await Axios(`/vehicles?category=${params.type}&limit=5`);
+//     categories = res.data;
+//     console.log(categories);
+//     // Pass post data to the page via props
+//     return { props: { categories } };
+//   } catch (error) {
+//     categories = error.response;
+//     console.log(categories);
+//     return { props: { categories } };
+//   }
+// }
+// END = STATIC GENERATION
 
 // START = STYLING THIS PAGE
 const StyledDetailTypes = styled.div`

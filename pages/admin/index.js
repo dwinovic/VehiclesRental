@@ -56,7 +56,7 @@ const AdminHomepage = () => {
         </BgImageLayout>
         <SectionCard heading="Popular in town" />
         <div className="container button-wrapper">
-          <Button type="dark">Add new item</Button>
+          <Button theme="dark">Add new item</Button>
         </div>
         <section className="container testimonials-sections">
           <div className="heading-section">

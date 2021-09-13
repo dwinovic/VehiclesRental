@@ -10,7 +10,8 @@ export function requireAuthenticationAdmin(gssp) {
     //   if (parts.length === 2) return parts.pop().split(';').shift();
     // };
     const token = await getCookies(req, 'token');
-    const avatar = await getCookies(req, 'avatar');
+    const resAvatar = await getCookies(req, 'avatar');
+    const avatar = resAvatar.split('%').pop();
     const role = await getCookies(req, 'role');
     const idUser = await getCookies(req, 'idUser');
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import styled from 'styled-components';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -16,14 +17,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function DateAndTimePickers({ onChange }) {
-  const classes = useStyles();
+  const userState = useSelector((state) => state.user.user);
 
+  const date = new Date(userState?.born);
+  const fullDate =
+    date.getFullYear() +
+    '-' +
+    (date.getMonth() > 8 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1)) +
+    '-' +
+    (date.getDate() > 9 ? date.getDate() : '0' + date.getDate());
   return (
     <DatePickerStyled noValidate>
       <TextField
-        id="datetime-local"
-        type="datetime-local"
-        defaultValue="0000-00-24T00:00"
+        id="date"
+        type="date"
+        defaultValue={fullDate ? fullDate : '00'}
         className="textField"
         InputLabelProps={{
           shrink: true,
