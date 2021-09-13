@@ -66,25 +66,24 @@ export const StyledSectionCard = styled.section`
     justify-content: space-between;
     gap: 2rem;
     ${breakpoints.lessThan('2xl')`
-          grid-template-columns: 280px 280px 280px 280px; 
-        `}
-    ${breakpoints.lessThan('xl')`
-          grid-template-columns: 33% 33% 33% ; 
-        `}
-        ${breakpoints.lessThan('lg')`
-         grid-template-columns: 33% 33% 33% ; 
-          justify-content: flex-start;
-        `}
-        ${breakpoints.lessThan('md')`
-          grid-template-columns: 45% 45%  ; 
-          justify-content: center;
-        `}
-        ${breakpoints.lessThan('xsm')`
-          grid-template-columns: 95%  ; 
-          justify-content: center;
-        `}
-
-        .card {
+      grid-template-columns: 280px 280px 280px 280px; 
+    `}
+    ${breakpoints.lessThan('xl')` 
+      grid-template-columns: 33% 33% 33% ; 
+    `}
+    ${breakpoints.lessThan('lg')`
+      grid-template-columns: 33% 33% 33% ; 
+      justify-content: flex-start; 
+    `} 
+    ${breakpoints.lessThan('md')`
+      grid-template-columns: 45% 45%  ; 
+      justify-content: center; 
+    `}
+    ${breakpoints.lessThan('xsm')`
+      grid-template-columns: 95%  ; 
+      justify-content: center;
+    `} 
+    .card {
       position: relative;
       height: 337px;
       filter: drop-shadow(0px 7px 15px rgba(0, 0, 0, 0.05));
@@ -94,10 +93,10 @@ export const StyledSectionCard = styled.section`
       }
       ${breakpoints.lessThan('lg')`
           height: 250px;
-
         `}
       img {
         border-radius: 20px;
+        object-fit: cover;
       }
       .description {
         position: absolute;

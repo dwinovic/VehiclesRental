@@ -8,35 +8,16 @@ import { fetcher } from '../../../config/fetcher';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import Cookies from 'js-cookie';
 
-const MainLayout = ({ title, children, bgFooter }) => {
-  const [localStrg, setLocalStrg] = useState({
-    token: '',
-    idUser: '',
-  });
-
-  const { data, error } = useSWR(
-    [`/users/${localStrg.idUser}`, localStrg.token],
-    fetcher
-  );
-
-  const dataUser = data?.data[0];
-  const session = dataUser ? 'login' : false;
-
-  useEffect(() => {
-    setLocalStrg({
-      token: localStorage.getItem('token'),
-      idUser: localStorage.getItem('idUser'),
-    });
-  }, []);
-
+const MainLayout = ({ title, children, bgFooter, session }) => {
   return (
     <StyledMainLayout>
       <Head>
         <title>{title}</title>
       </Head>
-      <Navbar session={session} data={dataUser} />
-      {children}
+      <Navbar session={session} />
+      <main className="main">{children}</main>
       <Footer bgFooter={bgFooter} />
     </StyledMainLayout>
   );
@@ -60,6 +41,12 @@ const StyledMainLayout = styled.div`
   }
   /* END = CONTAINER */
 
+  /* START = MAIN CHILDREN */
+  .main {
+    padding-top: 120px;
+  }
+  /* END = MAIN CHILDREN */
+
   /* START = TYPHOGRAPHY */
   .heading-page {
     font-family: Nunito;
@@ -76,6 +63,13 @@ const StyledMainLayout = styled.div`
     font-size: 48px;
     line-height: 24px;
     color: #000000;
+  }
+  .text-playfair {
+    font-family: Playfair Display;
+    font-weight: 900;
+    font-size: 24px;
+    line-height: 180%;
+    color: #393939;
   }
   .text-nunito-bold {
     font-family: Nunito;
@@ -144,4 +138,10 @@ const StyledMainLayout = styled.div`
     color: #000000;
   }
   /* END = TYPHOGRAPHY */
+
+  /* START = COLOR */
+  .green {
+    color: #087e0d !important;
+  }
+  /* END = COLOR */
 `;

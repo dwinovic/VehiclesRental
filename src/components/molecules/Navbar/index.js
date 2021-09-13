@@ -1,28 +1,41 @@
+/* eslint-disable @next/next/no-img-element */
+import getConfig from 'next/config';
 import Image from 'next/image';
 import Link from 'next/link';
-import styled from 'styled-components';
-import { breakpoints } from '../../../utils/Breakpoints';
-import { LogoBrand } from '../../atoms';
-import { AVADefault } from '../../../assets';
-import { ICEmail } from '../../../assets/icons';
+import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { AVADefault } from '../../../assets';
+import { ICEmail } from '../../../assets/icons';
+import Axios from '../../../config/Axios';
+import { breakpoints } from '../../../utils/Breakpoints';
+import { LogoBrand } from '../../atoms';
+const { publicRuntimeConfig } = getConfig();
 
-const Navbar = ({ session, data }) => {
+const Navbar = ({ session }) => {
+  const userState = useSelector((state) => state.user.user);
   const [collapse, setCollapse] = useState(false);
   const [avatarPop, setAvatarPop] = useState(false);
   const router = useRouter();
   const pathActive = router.pathname.split('/')[1];
-  const idUser = data?.idUser;
 
   const handleLogout = () => {
-    localStorage.removeItem('idUser');
-    localStorage.removeItem('token');
-    router.push('/login');
+    Axios.get('/users/logout', { withCredentials: true })
+      .then((res) => {
+        // console.log(res);
+        router.replace('/login');
+      })
+      .catch((err) => {
+        console.log(err.response);
+      });
   };
-
-  // console.log('data in Navbar', idUser);
+  // if (avatar) {
+  //   // console.log('avatar in navbar', avatar);
+  // } else {
+  //   // console.log('false');
+  // }
   return (
     <>
       <StyledNavbar>
@@ -45,7 +58,7 @@ const Navbar = ({ session, data }) => {
                   History
                 </a>
               </Link>
-              <Link href="/about">
+              <Link href="/">
                 <a className={pathActive === 'about' ? 'active' : ''}>About</a>
               </Link>
             </div>
@@ -82,14 +95,18 @@ const Navbar = ({ session, data }) => {
                     // return router.push(`/profile/${idUser}`);
                   }}
                 >
-                  <Image src={AVADefault} alt="user profile" layout="fill" />
+                  <img
+                    className="avatar"
+                    src={userState.avatar ? userState.avatar : AVADefault}
+                    alt="user profile"
+                  />
                 </div>
                 {avatarPop && (
                   <div className="avatar-popup">
                     <div
                       className="row"
                       onClick={() => {
-                        return router.push(`/profile/${idUser}`);
+                        return router.push(`/profile`);
                       }}
                     >
                       <p>Edit Profile</p>
@@ -226,7 +243,7 @@ const Navbar = ({ session, data }) => {
 };
 
 Navbar.propTypes = {
-  session: PropTypes.string,
+  session: PropTypes.bool,
 };
 
 Navbar.defaultProps = {
@@ -237,6 +254,10 @@ export default Navbar;
 
 const StyledNavbar = styled.nav`
   padding: 40px 0;
+  position: fixed;
+  width: 100vw;
+  background: #ffffff;
+  z-index: 9;
   .content {
     width: 1500px;
     margin: 0 auto;
@@ -355,6 +376,13 @@ const StyledNavbar = styled.nav`
               font-style: normal;
               font-weight: bold;
               color: #393939;
+            }
+          }
+          &.avatar {
+            img {
+              border-radius: 100%;
+              width: 100%;
+              height: 100%;
             }
           }
         }

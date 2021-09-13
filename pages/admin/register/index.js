@@ -5,44 +5,21 @@ import Link from 'next/link';
 import { breakpoints, toastify } from '../../../src/utils';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { useForm } from 'react-hook-form';
-import Axios from '../../../src/config/Axios';
+import * as Yup from 'yup';
+import { Form, Formik } from 'formik';
+import { useDispatch } from 'react-redux';
+import { registerUser } from '../../../src/redux/actions/userAction';
 
 const RegisterAdminPage = () => {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = (data) => {
-    const dataSend = {
-      email: data.email,
-      password: data.password,
-      name: data.name,
-      role: 'admin',
-    };
-    console.log(data);
-    Axios.post('/users/register', dataSend)
-      .then((result) => {
-        const idUser = result.data.data.idUser;
-        const token = result.data.data.token;
-        const role = result.data.data.role;
-        localStorage.setItem('token', token);
-        localStorage.setItem('idUser', idUser);
-        localStorage.setItem('role', role);
-        router.push('/');
-      })
-      .catch((err) => {
-        console.log('Error:', err.response);
-        if (err.response.status === 501) {
-          const message = err.response.data.error;
-          toastify(message, 'warning');
-        }
-      });
-  };
+  const dispatch = useDispatch();
+  const validate = Yup.object({
+    name: Yup.string().required('Name is required'),
+    email: Yup.string().email('Email is invalid').required('Email is required'),
+    password: Yup.string()
+      .min(8, 'Password must be at least 8 charaters')
+      .required('Password is required'),
+  });
 
   return (
     <>
@@ -56,7 +33,7 @@ const RegisterAdminPage = () => {
               <h1 className="heading">Make Money with your vehicles</h1>
               <p className="sign-up">Have account?</p>
               <Button
-                type="dark"
+                theme="dark"
                 className="btn"
                 onClick={() => {
                   return router.push('/login');
@@ -86,7 +63,7 @@ const RegisterAdminPage = () => {
                   y2="558.795"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle cx="10" cy="10" r="10" fill="white" />
                 <circle cx="10" cy="557" r="10" fill="white" />
@@ -106,7 +83,7 @@ const RegisterAdminPage = () => {
                   y2="10.5"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle
                   cx="557"
@@ -124,45 +101,84 @@ const RegisterAdminPage = () => {
                 />
               </svg>
             </div>
-            <form className="right" onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-input">
-                <Input
-                  name="name"
-                  type="text"
-                  placeholder="Name"
-                  className="input"
-                  {...register('name')}
-                />
-              </div>
-              <div className="form-input">
-                <Input
-                  name="email"
-                  type="text"
-                  placeholder="Email"
-                  className="input"
-                  {...register('email')}
-                />
-              </div>
-              <div className="form-input">
-                <Input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  className="input"
-                  {...register('password')}
-                />
-              </div>
-              <div className="form-input forgot-password-wrapper">
-                <Link href="#">
-                  <a className="forgot-password">Forgot password?</a>
-                </Link>
-              </div>
-              <div className="btn-wrapper">
-                <Button type="light" className="btn">
-                  Sign Up
-                </Button>
-              </div>
-            </form>
+            <Formik
+              initialValues={{
+                name: '',
+                email: '',
+                password: '',
+              }}
+              validationSchema={validate}
+              onSubmit={(values, { resetForm }) => {
+                dispatch(registerUser(values, router, 'admin'));
+                resetForm();
+              }}
+            >
+              {({
+                values,
+                touched,
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                isValid,
+              }) => (
+                <Form onSubmit={handleSubmit} className="right">
+                  <div className="form-input">
+                    <Input
+                      name="name"
+                      type="text"
+                      theme="text-white"
+                      placeholder="Name"
+                      className="input"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.name}
+                    />
+                  </div>
+                  <div className="form-input">
+                    <Input
+                      name="email"
+                      theme="text-white"
+                      type="text"
+                      placeholder="Email"
+                      className="input"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.email}
+                    />
+                  </div>
+                  <div className="form-input">
+                    <Input
+                      name="password"
+                      theme="text-white"
+                      type="password"
+                      placeholder="Password"
+                      className="input"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.password}
+                    />
+                  </div>
+                  <div className="form-input forgot-password-wrapper">
+                    <Link href="#">
+                      <a className="forgot-password">Forgot password?</a>
+                    </Link>
+                  </div>
+                  <div className="btn-wrapper">
+                    <Button
+                      disabled={
+                        !isValid ||
+                        (Object.keys(touched).length === 0 &&
+                          touched.constructor === Object)
+                      }
+                      theme="light"
+                      className="btn"
+                    >
+                      Sign Up
+                    </Button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
           </div>
         </StyledContent>
       </BgImageLayout>
@@ -170,8 +186,6 @@ const RegisterAdminPage = () => {
     </>
   );
 };
-
-export default RegisterAdminPage;
 
 const StyledContent = styled.div`
   width: 100%;
@@ -290,3 +304,4 @@ const StyledContent = styled.div`
     }
   }
 `;
+export default RegisterAdminPage;

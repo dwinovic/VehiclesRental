@@ -1,38 +1,62 @@
 import { Select } from '@chakra-ui/react';
 import Image from 'next/image';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ILCircle, ILPlus, IMGBGhome, IMGDMUser } from '../src/assets';
 import { SectionCard } from '../src/components';
 import { Button } from '../src/components/atoms';
 import { BgImageLayout, MainLayout } from '../src/components/layout';
-import { breakpoints } from '../src/utils';
-import useSWR from 'swr';
-import { fetcher } from '../src/config/fetcher';
-import { useRouter } from 'next/router';
 import Axios from '../src/config/Axios';
+import { breakpoints, getCookies, requireAuthentication } from '../src/utils';
 
-function Home(props) {
-  console.log('PROPS', props);
-  const [dataUser, setDataUser] = useState();
-  const [isAdmin, setIsAdmin] = useState(false);
+function Home({
+  vehiclePopular,
+  listLocation,
+  listCategories,
+  errorResponse,
+  roleUser,
+  avatarUser,
+}) {
+  const [filterForm, setFilterForm] = useState({
+    location: '',
+    category: '',
+  });
+  // const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
-  const { data, error } = useSWR('/vehicles?limit=5', fetcher);
-  const dataVehicles = data?.data;
+  // useEffect(() => {
+  // const roleLocal = localStorage.getItem('role');
+  // if (roleLocal === 'admin') {
+  // setIsAdmin(true);
+  // }
+  // }, []);
 
-  useEffect(() => {
-    const roleLocal = localStorage.getItem('role');
-    if (roleLocal === 'admin') {
-      setIsAdmin(true);
-    }
-  }, []);
+  // START = HANDLE FILTER VEHICLES FINDER
+  const actionFilterForm = (event) => {
+    event.preventDefault();
+    // console.log('filterForm', filterForm);
+    router.push({
+      pathname: `/vehicles-type`,
+      query: {
+        category: filterForm.category,
+        location: filterForm.location,
+      },
+    });
+  };
+  // START = HANDLE FILTER VEHICLES FINDER
 
-  console.log(dataUser);
+  if (errorResponse) {
+    return <h1>Error in server</h1>;
+  }
 
   return (
-    <MainLayout bgFooter="gray" title="Home">
+    <MainLayout
+      bgFooter="gray"
+      title="Home"
+      session={roleUser ? 'login' : false}
+      avatar={avatarUser}
+    >
       <StyledHomepage>
         <header>
           <BgImageLayout imageBg={IMGBGhome}>
@@ -42,45 +66,37 @@ function Home(props) {
                 <h4>Vehicle Finder</h4>
                 <div className="line"></div>
               </div>
-              <form className="form">
+              <form className="form" onSubmit={actionFilterForm}>
                 <div className="input-group">
                   <Select
-                    bg=" rgba(255, 255, 255, 0.5)"
                     variant="filled"
                     placeholder="Location"
+                    value={filterForm.location}
+                    onChange={(e) =>
+                      setFilterForm({ ...filterForm, location: e.target.value })
+                    }
                   >
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
+                    {listLocation &&
+                      listLocation.map((item, index) => (
+                        <option key={index} value={item}>
+                          {item}
+                        </option>
+                      ))}
                   </Select>
                   <Select
-                    bg=" rgba(255, 255, 255, 0.5)"
                     variant="filled"
                     placeholder="Type"
+                    value={filterForm.category}
+                    onChange={(e) =>
+                      setFilterForm({ ...filterForm, category: e.target.value })
+                    }
                   >
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
-                  </Select>
-                </div>
-                <div className="input-group">
-                  <Select
-                    bg=" rgba(255, 255, 255, 0.5)"
-                    variant="filled"
-                    placeholder="Payment"
-                  >
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
-                  </Select>
-                  <Select
-                    bg=" rgba(255, 255, 255, 0.5)"
-                    variant="filled"
-                    placeholder="Date"
-                  >
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                    <option value="option3">Option 3</option>
+                    {listCategories &&
+                      listCategories.map((item) => (
+                        <option key={item.idCategory} value={item.name}>
+                          {item.name}
+                        </option>
+                      ))}
                   </Select>
                 </div>
                 <Button className="btn-action">Explore</Button>
@@ -89,11 +105,17 @@ function Home(props) {
           </BgImageLayout>
         </header>
         <main>
-          <SectionCard heading="Popular in town" data={dataVehicles} />
-          {isAdmin && (
+          {vehiclePopular && (
+            <SectionCard
+              heading={vehiclePopular.meta.category}
+              data={vehiclePopular.data}
+              anchor={`vehicles-type/${vehiclePopular.meta.category}`}
+            />
+          )}
+          {roleUser === 'admin' && (
             <div className="container add-new-item">
               <Button
-                type="dark"
+                theme="dark"
                 onClick={() => {
                   return router.push('/admin/vehicles');
                 }}
@@ -310,14 +332,97 @@ function Home(props) {
   );
 }
 
-// export async function getServerSideProps() {
-//   const res = Axios.get('/vehicles');
-//   const data = res.data;
+// export const getServerSideProps = requireAuthentication(async (context) => {
+//   try {
+//     const { req, res } = context;
+//     //
+//     const avatarUser = res.avatar;
+//     const roleUser = res.role;
 
-//   // Pass data to the page via props
-//   return { props: { data } };
-// }
+//     // GET VEHICLE POPULAR BY CATEGORY
+//     const { data } = await Axios.get(`/vehicles?category=Popular In Town`);
+//     const vehiclePopular = data;
+//     // GET LIST OF LOCATION
+//     const getAllData = await Axios.get(`/vehicles`);
+//     const listLocation = [
+//       ...new Set(getAllData.data.data.map((item) => item.location)),
+//     ];
+//     // GET LIST OF CATEGORIES
+//     const { data: categories } = await Axios.get(`/category`);
+//     const listCategories = categories.data;
+
+//     return {
+//       props: {
+//         vehiclePopular,
+//         listLocation,
+//         listCategories,
+//         roleUser,
+//         avatarUser,
+//       },
+//     };
+//   } catch (error) {
+//     const errorResponse = error.response.data;
+//     return {
+//       props: {
+//         errorResponse,
+//       },
+//     };
+//   }
+// });
+
+export async function getServerSideProps(ctx) {
+  try {
+    const { req, res } = ctx;
+    let roleUser = '';
+    let avatarUser = '';
+    let token = '';
+
+    if (req.headers.cookie) {
+      token = getCookies(req, 'token');
+      const getAvatar = getCookies(req, 'avatar');
+      if (getAvatar) {
+        avatarUser = getAvatar.split('%').pop();
+      }
+      console.log('getAvatar', getAvatar);
+      console.log('avatarUser', avatarUser);
+      roleUser = getCookies(req, 'role');
+    }
+
+    // GET VEHICLE POPULAR BY CATEGORY
+    const { data } = await Axios.get(`/vehicles?category=Popular In Town`);
+    const vehiclePopular = data;
+    // GET LIST OF LOCATION
+    const getAllData = await Axios.get(`/vehicles`);
+    const listLocation = [
+      ...new Set(getAllData.data.data.map((item) => item.location)),
+    ];
+    // GET LIST OF CATEGORIES
+    const { data: categories } = await Axios.get(`/category`);
+    const listCategories = categories.data;
+
+    return {
+      props: {
+        vehiclePopular,
+        listLocation,
+        listCategories,
+        roleUser: roleUser ? roleUser : null,
+        avatarUser: avatarUser ? avatarUser : null,
+        token: token ? token : null,
+      },
+    };
+  } catch (error) {
+    console.log('error home:', error);
+    // const errorResponse = error.response.data;
+    return {
+      props: {
+        errorResponse: null,
+      },
+    };
+  }
+}
+
 export default Home;
+
 // STYLING = HOMEPAGE
 
 const StyledHomepage = styled.div`
@@ -423,12 +528,24 @@ const StyledHomepage = styled.div`
       `}
       .input-group {
         display: flex;
-        gap: 30px;
+        flex-direction: column;
+        gap: 25px;
         margin-bottom: 35px;
+        select {
+          background-color: rgba(245, 245, 245, 0.5);
+          height: 50px;
+          &:focus {
+            background-color: rgba(245, 245, 245, 0.911);
+          }
+          &:hover {
+            cursor: pointer;
+            background-color: rgba(245, 245, 245, 0.911);
+          }
+        }
       }
       .btn-action {
         width: 200px;
-        height: 40px;
+        height: 50px;
         font-size: 18px;
         ${breakpoints.lessThan('md')`
         width: 100%;

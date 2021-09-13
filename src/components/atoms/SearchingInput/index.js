@@ -1,15 +1,24 @@
 import styled from 'styled-components';
 
-const SearchInput = ({ onChane, value, placeholder, onClick }) => {
+const SearchInput = ({
+  onChange,
+  value,
+  placeholder,
+  onClick,
+  className,
+  type,
+  ...props
+}) => {
   return (
-    <StyledSearchInput>
+    <StyledSearchInput className={className}>
       <input
         type="text"
-        onChange={onChane}
+        onChange={onChange}
         value={value}
         placeholder={placeholder}
+        {...props}
       />
-      <div className="btn-action">
+      <div className="btn-action" onClick={onClick}>
         <svg
           width="36"
           height="36"
@@ -68,6 +77,7 @@ const StyledSearchInput = styled.div`
     box-sizing: border-box;
     &:hover {
       stroke: #ffcd61;
+      cursor: pointer;
     }
   }
 `;

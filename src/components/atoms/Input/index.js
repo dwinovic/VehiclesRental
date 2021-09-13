@@ -1,27 +1,22 @@
-import styled from 'styled-components';
+import { useField } from 'formik';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
-const Input = ({
-  placeholder,
-  name,
-  onChange,
-  value,
-  type,
-  className,
-  label,
-  theme,
-  ...props
-}) => {
+const Input = ({ label, theme, ...props }) => {
+  const [field, meta, helpers] = useField(props);
+
   return (
-    <StyledInput
-      className={className}
-      placeholder={placeholder}
-      type={type}
-      name={name}
-      onChange={onChange}
-      value={value}
-      {...props}
-    />
+    <>
+      <StyledInput
+        className={props.className}
+        theme={theme}
+        {...props}
+        {...field}
+      />
+      {meta.touched && meta.error ? (
+        <ErrorInput className="error">{meta.error}</ErrorInput>
+      ) : null}
+    </>
   );
 };
 
@@ -52,13 +47,34 @@ const StyledInput = styled.input`
   font-weight: bold;
   font-size: 24px;
   line-height: 33px;
-  color: #ffffff;
+  color: ${({ theme }) => {
+    switch (theme) {
+      case 'text-white':
+        return '#ffffff';
+      default:
+        break;
+    }
+  }};
+
   border: 0;
   &:focus {
     outline: 0;
     /* background: rgba(255, 255, 255, 0.582); */
   }
   &::placeholder {
-    color: #ffffff;
+    color: ${({ theme }) => {
+      switch (theme) {
+        case 'text-white':
+          return '#c7c7c7';
+        default:
+          break;
+      }
+    }};
   }
+`;
+
+const ErrorInput = styled.p`
+  margin-top: 8px;
+  color: #ffffffff;
+  font-weight: 600;
 `;

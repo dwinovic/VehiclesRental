@@ -42,6 +42,11 @@ const StyledGoBackPage = styled.div`
   align-items: center;
   gap: 2rem;
   margin-bottom: 50px;
+  .back-controll {
+    &:hover {
+      cursor: pointer;
+    }
+  }
   .detail-nav {
     font-family: Nunito;
     font-style: normal;

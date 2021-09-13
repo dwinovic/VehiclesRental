@@ -1,48 +1,67 @@
-import { AVADefault, IMGDefault, IMGJogja } from '../../../src/assets';
-import { Button, GoBackPage, MainLayout } from '../../../src/components';
-import { StyledDetailVehicle } from './styled';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import useSWR from 'swr';
 import { useRouter } from 'next/router';
-import { fetcher } from '../../../src/config/fetcher';
-
-const DetailVehicle = () => {
-  const [dataUser, setDataUser] = useState();
-  const [role, setRole] = useState('');
+import NumberFormat from 'react-number-format';
+import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
+import { ILCamera } from '../../../src/assets';
+import { Button, GoBackPage, MainLayout } from '../../../src/components';
+import Axios from '../../../src/config/Axios';
+import { reservationAction } from '../../../src/redux/actions/reservationAction';
+import { breakpoints, requireAuthentication } from '../../../src/utils';
+const DetailVehicle = ({ dataVehicle, roleUser }) => {
+  const { data: vehicle, statusCode } = dataVehicle;
+  const dispatch = useDispatch();
   const router = useRouter();
-  const idVehicles = router.query.idVehicle;
 
-  const { data, error } = useSWR(`/vehicles/${idVehicles}`, fetcher);
-  const dataVehicles = data?.data;
-
-  useEffect(() => {
-    const roleLocal = localStorage.getItem('role');
-    setRole(roleLocal);
-  }, []);
-
-  if (!dataVehicles) {
+  if (statusCode !== 200) {
     return <h1>Kooosong</h1>;
   }
 
   const myLoader = ({ src }) => {
-    return `${dataVehicles.images[0]}`;
+    return `${vehicle?.images[0]}`;
+  };
+  const myLoader2 = ({ src }) => {
+    return `${vehicle?.images[1]}`;
+  };
+  const myLoader3 = ({ src }) => {
+    return `${vehicle?.images[2]}`;
+  };
+
+  const actionReservation = () => {
+    dispatch(reservationAction(dataVehicle.data, router));
+    // return router.push(`/payments/${vehicle.idVehicles}`);
   };
 
   return (
-    <MainLayout bgFooter="gray" title="Fixie - Gray Only">
+    <MainLayout
+      bgFooter="gray"
+      title={vehicle.name}
+      session={roleUser ? 'login' : false}
+    >
       <StyledDetailVehicle className="container">
         <GoBackPage titleBack="Detail" />
         <section className=" detail-vehicle">
           <div className="galery-wrapper">
-            <div className="image-main">
-              <Image
-                src={dataVehicles.images[0]}
-                loader={myLoader}
-                alt={dataVehicles.name}
-                layout="fill"
-              />
-            </div>
+            {vehicle?.images[0] && (
+              <div className="image-main">
+                <Image
+                  src={vehicle?.images[0]}
+                  loader={myLoader}
+                  alt={vehicle.name}
+                  layout="fill"
+                />
+              </div>
+            )}
+            {!vehicle?.images[0] && (
+              <div className="image-main">
+                <Image
+                  src={ILCamera}
+                  loader={myLoader}
+                  alt={vehicle.name}
+                  layout="fill"
+                />
+              </div>
+            )}
             <div className="item-wrapper">
               <div className="control prev">
                 <svg
@@ -70,12 +89,26 @@ const DetailVehicle = () => {
                 </svg>
               </div>
               <div className="item-main">
-                <div className="item">
-                  <Image src={IMGDefault} alt="vehicle" layout="fill" />
-                </div>
-                <div className="item">
-                  <Image src={IMGDefault} alt="vehicle" layout="fill" />
-                </div>
+                {vehicle?.images[1] !== undefined && (
+                  <div className="item">
+                    <Image
+                      src={vehicle?.images[1]}
+                      loader={myLoader2}
+                      alt="vehicle"
+                      layout="fill"
+                    />
+                  </div>
+                )}
+                {vehicle?.images[2] !== undefined && (
+                  <div className="item">
+                    <Image
+                      src={vehicle?.images[2]}
+                      loader={myLoader3}
+                      alt="vehicle"
+                      layout="fill"
+                    />
+                  </div>
+                )}
               </div>
               <div className="control next">
                 <svg
@@ -104,16 +137,26 @@ const DetailVehicle = () => {
             </div>
           </div>
           <div className="detail-info">
-            <h1 className="title-vehicle">{dataVehicles.name}</h1>
-            <p className="location">{dataVehicles.location}</p>
-            <p className="status green">{dataVehicles.status}</p>
-            <p className="paymentOption red">{dataVehicles.paymentOption}</p>
+            <h1 className="title-vehicle">{vehicle.name}</h1>
+            <p className="location">{vehicle.location}</p>
+            <p className="status green">{vehicle.status}</p>
+            <p className="paymentOption red">{vehicle.paymentOption}</p>
             <p className="detail">Capacity : 1 person</p>
             <p className="detail">
-              Type : {dataVehicles.type ? dataVehicles.type : 'Motor'}
+              Type : {vehicle.category ? vehicle.type : 'Motor'}
             </p>
-            <p className="detail">{dataVehicles.description}</p>
-            <p className="price">Rp. {dataVehicles.price}/day</p>
+            <p className="detail">{vehicle.description}</p>
+            <div className="price-wrapper">
+              <NumberFormat
+                className="price"
+                value={vehicle.price}
+                displayType={'text'}
+                thousandSeparator={true}
+                prefix={'Rp. '}
+              />
+              <p className="price kouta">Kouta: {vehicle.stock}</p>
+            </div>
+            <div></div>
             <div className="amount-wrapper">
               <button className="btn primary">
                 <svg
@@ -129,7 +172,7 @@ const DetailVehicle = () => {
                   />
                 </svg>
               </button>
-              <p className="btn count">2</p>
+              <p className="btn count">2s</p>
               <button className="btn secondary">
                 <svg
                   width="18"
@@ -147,23 +190,23 @@ const DetailVehicle = () => {
             </div>
           </div>
         </section>
-        {role === 'customer' && (
+        {roleUser === 'customer' && (
           <section className=" button-action-wrapper">
-            <Button type="dark" className="btn">
+            <Button theme="dark" className="btn">
               Chat Admin
             </Button>
-            <Button type="light" className="btn">
+            <Button theme="light" className="btn" onClick={actionReservation}>
               Reservation
             </Button>
-            <Button type="dark" className="btn small">
+            <Button theme="dark" className="btn small">
               Like
             </Button>
           </section>
         )}
-        {role === 'admin' && (
+        {roleUser === 'admin' && (
           <section className=" button-action-wrapper">
             <Button
-              type="dark"
+              theme="dark"
               className="btn"
               onClick={() => {
                 return router.push('/');
@@ -172,12 +215,10 @@ const DetailVehicle = () => {
               Add to home page
             </Button>
             <Button
-              type="light"
+              theme="light"
               className="btn"
               onClick={() => {
-                return router.push(
-                  `/admin/vehicles/${dataVehicles.idVehicles}`
-                );
+                return router.push(`/admin/vehicles/${vehicle.idVehicles}`);
               }}
             >
               Edit item
@@ -189,4 +230,279 @@ const DetailVehicle = () => {
   );
 };
 
+// // START = SERVER SIDE PROPS
+export const getServerSideProps = requireAuthentication(async (context) => {
+  let dataVehicle;
+  try {
+    const { req, res, params } = context;
+    const avatar = res.avatar;
+    const roleUser = res.role;
+    const token = res.token;
+
+    const resDataVehicle = await Axios.get(`/vehicles/${params.idVehicle}`, {
+      withCredentials: true,
+      headers: context.req ? { cookie: context.req.headers.cookie } : undefined,
+    });
+    dataVehicle = resDataVehicle.data;
+    // console.log('resDataVehicle', dataVehicle);
+    // Pass post data to the page via props
+    return {
+      props: {
+        dataVehicle,
+        avatar: avatar ? avatar : null,
+        roleUser,
+      },
+    };
+  } catch (error) {
+    // console.log(error);
+    dataVehicle = error.response;
+    return { props: { dataVehicle } };
+  }
+});
+// // END = SERVER SIDE PROPS
+
+// START = STATIC GENERATION
+// export async function getStaticPaths() {
+//   const res = await Axios.get('/vehicles');
+
+//   const paths = res.data.data.map((item) => ({
+//     params: { idVehicle: item.idVehicles },
+//   }));
+//   // console.log(paths);
+
+//   return { paths, fallback: true };
+// }
+
+// export async function getStaticProps(context) {
+//   const { req, res, params } = context;
+//   // eslint-disable-next-line react-hooks/rules-of-hooks
+//   // const cookie = useCookie(context);
+//   // const token = cookie.get('token');
+//   // console.log('token', token);
+//   let dataVehicle;
+//   // console.log(params.idVehicle);
+//   try {
+//     const res = await Axios(`/vehicles/static/${params.idVehicle}`);
+//     dataVehicle = res.data;
+//     console.log('dataVehicle in server', dataVehicle);
+//     // Pass post data to the page via props
+//     return { props: { dataVehicle } };
+//   } catch (error) {
+//     dataVehicle = error.response;
+//     // console.log(dataVehicle);
+//     return { props: { dataVehicle } };
+//   }
+// }
+// END = STATIC GENERATION
+
+// STYLING CURRENT PAGE
+const StyledDetailVehicle = styled.div`
+  /* ${breakpoints.lessThan('2xl')`
+      background-color: yellow;
+    `}
+  ${breakpoints.lessThan('xl')`
+      background-color: blue;
+    `}
+    ${breakpoints.lessThan('lg')`
+      background-color: cyan;
+    `}
+    ${breakpoints.lessThan('md')`
+      background-color: pink;
+    `}
+    ${breakpoints.lessThan('sm')`
+      background-color: green;
+    `}
+    ${breakpoints.lessThan('xsm')`
+      background-color: pink;
+    `} */
+
+  padding-top: 40px;
+
+  /* START = DETAIL VEHICLES  */
+  .detail-vehicle {
+    display: flex;
+    gap: 3rem;
+    margin-bottom: 80px;
+    ${breakpoints.lessThan('md')`
+      margin-bottom: 50px; 
+    `}
+    ${breakpoints.lessThan('md')` 
+      flex-direction: column; 
+    `}
+    .galery-wrapper {
+      width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      ${breakpoints.lessThan('2xl')`
+        width: 500px; 
+      `}
+      ${breakpoints.lessThan('xl')`
+        width: 400px; 
+      `}
+      ${breakpoints.lessThan('md')` 
+        width: 100%; 
+        height: 500px; 
+      `}
+      .image-main {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        img {
+          border-radius: 10px;
+          filter: drop-shadow(0px 7px 15px rgba(0, 0, 0, 0.05));
+          object-fit: cover;
+        }
+      }
+      .item-wrapper {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        .control {
+          width: max-content;
+          display: flex;
+          align-items: center;
+          display: none;
+        }
+        .item-main {
+          display: flex;
+          gap: 1rem;
+          width: 100%;
+          .item {
+            position: relative;
+            width: 50%;
+            height: 150px;
+            ${breakpoints.lessThan('2xl')`
+            width: 50%;
+            `}
+            ${breakpoints.lessThan('md')`
+                  width: 50%;
+            `}
+            
+            ${breakpoints.lessThan('xsm')`
+              display: none; 
+            `}
+            img {
+              border-radius: 10px;
+              filter: drop-shadow(0px 7px 15px rgba(0, 0, 0, 0.05));
+              object-fit: cover;
+            }
+          }
+        }
+      }
+    }
+    .detail-info {
+      flex: 1;
+      position: relative;
+      /* .title-vehicle {
+        font-family: Playfair Display;
+        font-style: normal;
+        font-weight: 900;
+        font-size: 48px;
+        color: #042521;
+        margin-bottom: 1rem;
+      }
+      .location {
+        font-family: Playfair Display;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 36px;
+        line-height: 24px;
+        color: #393939;
+        mix-blend-mode: normal;
+        margin-bottom: 2rem;
+      } */
+      /* .status {
+        font-family: Nunito;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 24px;
+        line-height: 25px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        &.green {
+          color: #087e0d;
+        }
+      } */
+      .paymentOption {
+        font-family: Nunito;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 24px;
+        line-height: 24px;
+        margin-bottom: 2rem;
+        &.red {
+          color: #9b0a0a;
+        }
+      }
+      .detail {
+        font-family: Nunito;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 24px;
+        line-height: 24px;
+        color: #393939;
+        margin-bottom: 1rem;
+      }
+      .price-wrapper {
+        text-align: right;
+        .kouta {
+          margin-top: 1rem;
+          font-size: 26px;
+        }
+      }
+      .amount-wrapper {
+        display: flex;
+        justify-content: space-around;
+        position: absolute;
+        ${breakpoints.lessThan('md')`
+          position: relative;
+          margin-top: 2rem;
+        `}
+        bottom: 0;
+        width: 100%;
+        .btn {
+          display: none;
+          border: 0;
+          box-sizing: content-box;
+          padding: 27px;
+          border-radius: 10px;
+          &.count {
+            font-family: Nunito;
+            font-style: normal;
+            font-weight: 900;
+            font-size: 48px;
+            line-height: 25px;
+            color: #000000;
+          }
+          &.primary {
+            background: #ffcd61;
+          }
+          &.secondary {
+            background: rgba(203, 203, 212, 0.2);
+          }
+        }
+      }
+    }
+  }
+  /* END = DETAIL VEHICLES  */
+
+  /* START = BUTTON ACTION  */
+  .button-action-wrapper {
+    display: flex;
+    gap: 2rem;
+    ${breakpoints.lessThan('sm')`
+      flex-direction: column; 
+      gap: 1rem; 
+    `}
+    .btn.small {
+      width: 50%;
+      ${breakpoints.lessThan('sm')`
+      width: 100%;
+    `}
+    }
+  }
+  /* END = BUTTON ACTION  */
+`;
 export default DetailVehicle;

@@ -1,20 +1,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { IMGJogja, IMGKalimantan, IMGMalang } from '../../../assets';
-import { StyledSectionCard } from './styled';
-import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
+import PropTypes from 'prop-types';
+import { StyledSectionCard } from './styled';
 
 const SectionCard = ({ heading, data, anchor }) => {
   const router = useRouter();
-  console.log(data);
+  // console.log(data);
   return (
     <StyledSectionCard className="container">
       {heading && (
         <div className="heading-section">
           <h2>{heading}</h2>
           <Link href={`/${anchor}`}>
-            <a className="anchor">Viewe all</a>
+            <a className="anchor">View all</a>
           </Link>
         </div>
       )}
@@ -40,6 +39,7 @@ const SectionCard = ({ heading, data, anchor }) => {
                   src={item.images}
                   alt={item.name}
                   layout="fill"
+                  unoptimized
                 />
                 <div className="description">
                   <h5>{item.name}</h5>
@@ -57,7 +57,7 @@ const SectionCard = ({ heading, data, anchor }) => {
 SectionCard.propTypes = {
   heading: PropTypes.string,
   anchor: PropTypes.string,
-  data: PropTypes.object,
+  data: PropTypes.array,
 };
 
 SectionCard.defaultProps = {};

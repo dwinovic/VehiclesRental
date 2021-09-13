@@ -1,43 +1,24 @@
+import { Form, Formik } from 'formik';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import * as Yup from 'yup';
 import { BgImageLayout, Button, Input } from '../../src/components';
 import Footer from '../../src/components/molecules/Footer';
-import Link from 'next/link';
-import { breakpoints, toastify } from '../../src/utils';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
-import { useForm } from 'react-hook-form';
-import Axios from '../../src/config/Axios';
+import { loginUser } from '../../src/redux/actions/userAction';
+import { breakpoints, isLoginAuthentication } from '../../src/utils';
 
-const LoginPage = () => {
+const LoginPage = ({ data }) => {
+  const dispatch = useDispatch();
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = (data) => {
-    const dataSend = {
-      email: data.email,
-      password: data.password,
-    };
-    Axios.post('/users/login', dataSend)
-      .then((result) => {
-        const idUser = result.data.data.idUser;
-        const token = result.data.data.token;
-        const role = result.data.data.role;
-        localStorage.setItem('token', token);
-        localStorage.setItem('idUser', idUser);
-        localStorage.setItem('role', role);
-        router.push('/');
-      })
-      .catch((err) => {
-        console.log('Error:', err.response);
-        const message = err.response.data.error;
-        toastify(message, 'warning');
-      });
-  };
+  const validate = Yup.object({
+    email: Yup.string().email('Email is invalid').required('Email is required'),
+    password: Yup.string()
+      .min(8, 'Password must be at least 8 charaters')
+      .required('Password is required'),
+  });
 
   return (
     <>
@@ -76,7 +57,7 @@ const LoginPage = () => {
                   y2="558.795"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle cx="10" cy="10" r="10" fill="white" />
                 <circle cx="10" cy="557" r="10" fill="white" />
@@ -96,7 +77,7 @@ const LoginPage = () => {
                   y2="10.5"
                   stroke="white"
                   // eslint-disable-next-line react/no-unknown-property
-                  stroke-linecap="round"
+                  strokeLinecap="round"
                 />
                 <circle
                   cx="557"
@@ -114,32 +95,69 @@ const LoginPage = () => {
                 />
               </svg>
             </div>
-            <form className="right" onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-input">
-                <Input
-                  name="email"
-                  type="text"
-                  placeholder="Email"
-                  {...register('email')}
-                />
-              </div>
-              <div className="form-input">
-                <Input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  {...register('password')}
-                />
-              </div>
-              <div className="form-input forgot-password-wrapper">
-                <Link href="#">
-                  <a className="forgot-password">Forgot password?</a>
-                </Link>
-              </div>
-              <div className="btn-wrapper">
-                <Button type="light">Login</Button>
-              </div>
-            </form>
+            <Formik
+              initialValues={{
+                email: '',
+                password: '',
+              }}
+              validationSchema={validate}
+              onSubmit={(values, { resetForm }) => {
+                // console.log(values);
+                dispatch(loginUser(values, router));
+                resetForm();
+              }}
+            >
+              {({
+                values,
+                touched,
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                isValid,
+              }) => (
+                <Form onSubmit={handleSubmit} className="right">
+                  <div className="form-input">
+                    <Input
+                      theme="text-white"
+                      name="email"
+                      type="text"
+                      placeholder="Email"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.email}
+                    />
+                  </div>
+                  <div className="form-input">
+                    <Input
+                      theme="text-white"
+                      name="password"
+                      type="password"
+                      placeholder="Password"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.password}
+                    />
+                  </div>
+                  {/* <div className="form-input forgot-password-wrapper">
+                    <Link href="#">
+                      <a className="forgot-password">Forgot password?</a>
+                    </Link>
+                  </div> */}
+                  <div className="btn-wrapper">
+                    <Button
+                      disabled={
+                        !isValid ||
+                        (Object.keys(touched).length === 0 &&
+                          touched.constructor === Object)
+                      }
+                      theme="light"
+                    >
+                      Login
+                    </Button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
           </div>
         </StyledContent>
       </BgImageLayout>
@@ -148,7 +166,32 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+LoginPage.getInitialProps = isLoginAuthentication(async (ctx) => {
+  return { data: null };
+});
+
+// LoginPage.getInitialProps = async (ctx) => {
+//   const { req, res } = ctx;
+
+//   const getCookies = (name) => {
+//     const value = `; ${req.headers.cookie}`;
+//     const parts = value.split(`; ${name}=`);
+//     if (parts.length === 2) return parts.pop().split(';').shift();
+//   };
+
+//   const token = await getCookies('token');
+
+//   if (token) {
+//     // Redirect homepage
+//     res.writeHead(302, {
+//       // or 301
+//       Location: '/',
+//     });
+//     res.end();
+//   } else {
+//     return { stars: null };
+//   }
+// };
 
 const StyledContent = styled.div`
   width: 100%;
@@ -222,9 +265,10 @@ const StyledContent = styled.div`
       .form-input {
         margin-bottom: 34px;
         width: 447px;
+
         ${breakpoints.lessThan('lg')`
-      width: 100%;
-    `}
+          width: 100%;
+        `}
         &.forgot-password-wrapper {
           margin-top: -25px;
           .forgot-password {
@@ -241,3 +285,4 @@ const StyledContent = styled.div`
     }
   }
 `;
+export default LoginPage;
