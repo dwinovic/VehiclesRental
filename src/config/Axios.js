@@ -4,6 +4,7 @@ const { publicRuntimeConfig } = getConfig();
 
 const Axios = axios.create({
   baseURL: publicRuntimeConfig.backendUrl,
+  withCredentials: true,
 });
 
 export default Axios;
