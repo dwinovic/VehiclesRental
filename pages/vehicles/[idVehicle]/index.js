@@ -1,22 +1,16 @@
-import {
-  AVADefault,
-  ILCamera,
-  IMGDefault,
-  IMGJogja,
-} from '../../../src/assets';
-import { Button, GoBackPage, MainLayout } from '../../../src/components';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import useSWR from 'swr';
 import { useRouter } from 'next/router';
-import { fetcher } from '../../../src/config/fetcher';
-import styled from 'styled-components';
-import { breakpoints, requireAuthentication } from '../../../src/utils';
 import NumberFormat from 'react-number-format';
+import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
+import { ILCamera } from '../../../src/assets';
+import { Button, GoBackPage, MainLayout } from '../../../src/components';
 import Axios from '../../../src/config/Axios';
-import { useCookie } from 'next-cookie';
+import { reservationAction } from '../../../src/redux/actions/reservationAction';
+import { breakpoints, requireAuthentication } from '../../../src/utils';
 const DetailVehicle = ({ dataVehicle, roleUser }) => {
   const { data: vehicle, statusCode } = dataVehicle;
+  const dispatch = useDispatch();
   const router = useRouter();
 
   if (statusCode !== 200) {
@@ -31,6 +25,11 @@ const DetailVehicle = ({ dataVehicle, roleUser }) => {
   };
   const myLoader3 = ({ src }) => {
     return `${vehicle?.images[2]}`;
+  };
+
+  const actionReservation = () => {
+    dispatch(reservationAction(dataVehicle.data, router));
+    // return router.push(`/payments/${vehicle.idVehicles}`);
   };
 
   return (
@@ -196,15 +195,7 @@ const DetailVehicle = ({ dataVehicle, roleUser }) => {
             <Button theme="dark" className="btn">
               Chat Admin
             </Button>
-            <Button
-              theme="light"
-              className="btn"
-              onClick={() => {
-                return router.push(
-                  `/vehicles/${vehicle.idVehicles}/reservation`
-                );
-              }}
-            >
+            <Button theme="light" className="btn" onClick={actionReservation}>
               Reservation
             </Button>
             <Button theme="dark" className="btn small">
