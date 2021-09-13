@@ -15,7 +15,14 @@ import {
   toastify,
 } from '../../../src/utils';
 
-const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
+const AddVehicles = ({
+  roleUser,
+  avatar,
+  cookie,
+  categories,
+  idUser,
+  errorResponse,
+}) => {
   const router = useRouter();
   const validate = Yup.object({
     name: Yup.string()
@@ -34,7 +41,9 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
   const [previewImage1, setpreviewImage1] = useState();
   const [previewImage2, setpreviewImage2] = useState();
   const [previewImage3, setpreviewImage3] = useState();
-
+  if (errorResponse) {
+    return <h1>Error in server</h1>;
+  }
   // START = UPLOAD IMAGE
 
   const actionSubmitData = (data) => {
@@ -176,6 +185,7 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
     }
   };
   // END = COUNTER STOCK
+
   return (
     <MainLayout
       bgFooter="gray"
@@ -469,7 +479,15 @@ export const getServerSideProps = requireAuthenticationAdmin(
           idUser,
         },
       };
-    } catch (error) {}
+    } catch (error) {
+      console.log('error home:', error);
+      // const errorResponse = error.response.data;
+      return {
+        props: {
+          errorResponse: null,
+        },
+      };
+    }
   }
 );
 

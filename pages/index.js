@@ -383,8 +383,8 @@ export async function getServerSideProps(ctx) {
       if (getAvatar) {
         avatarUser = getAvatar.split('%').pop();
       }
-      console.log('getAvatar', getAvatar);
-      console.log('avatarUser', avatarUser);
+      // console.log('getAvatar', getAvatar);
+      // console.log('avatarUser', avatarUser);
       roleUser = getCookies(req, 'role');
     }
 
