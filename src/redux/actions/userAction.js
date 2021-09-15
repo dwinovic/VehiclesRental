@@ -28,7 +28,7 @@ export const loginUser = (data, router) => (dispatch, getState) => {
     'https://prairietherapy.ca/wp-content/uploads/2017/03/Blank-Profile-pic.png';
 
   axios
-    .post(`http://localhost:3000/api/login`, data, {
+    .post(`https://vehicles-rental.vercel.app/api/login`, data, {
       withCredentials: true,
     })
     .then((result) => {
