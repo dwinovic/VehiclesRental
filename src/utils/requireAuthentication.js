@@ -18,7 +18,7 @@ export function requireAuthentication(gssp) {
 
     const role = await getCookies(req, 'role');
     const idUser = await getCookies(req, 'idUser');
-    console.log('avatar in private', avatar);
+    // console.log('avatar in private', avatar);
     if (!token) {
       // Redirect to login page
       return {

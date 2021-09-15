@@ -383,13 +383,15 @@ export async function getServerSideProps(ctx) {
       if (getAvatar) {
         avatarUser = getAvatar.split('%').pop();
       }
-      console.log('getAvatar', getAvatar);
-      console.log('avatarUser', avatarUser);
+      // console.log('getAvatar', getAvatar);
+      // console.log('avatarUser', avatarUser);
       roleUser = getCookies(req, 'role');
     }
 
     // GET VEHICLE POPULAR BY CATEGORY
-    const { data } = await Axios.get(`/vehicles?category=Popular In Town`);
+    const { data } = await Axios.get(
+      `/vehicles?category=Popular In Town&limit=5`
+    );
     const vehiclePopular = data;
     // GET LIST OF LOCATION
     const getAllData = await Axios.get(`/vehicles`);
@@ -411,7 +413,7 @@ export async function getServerSideProps(ctx) {
       },
     };
   } catch (error) {
-    console.log('error home:', error);
+    // console.log('error home:', error);
     // const errorResponse = error.response.data;
     return {
       props: {
