@@ -58,6 +58,8 @@ const VehiclesType = ({
     setSortSelected(target);
     setIsShowSort(false);
   };
+
+  // console.log('dataCategory', dataCategory);
   return (
     <MainLayout
       bgFooter="gray"

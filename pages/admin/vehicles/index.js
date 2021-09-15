@@ -418,7 +418,7 @@ const AddVehicles = ({
                 >
                   {/* <option
                 onClick={() => {
-                  console.log('open');
+                  // console.log('open');
                   return onOpen;
                 }}
               >
