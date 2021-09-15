@@ -15,11 +15,13 @@ import { Form, Formik } from 'formik';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { ICPlusLight, ILCamera } from '../../../../src/assets';
 import { Button, GoBackPage, MainLayout } from '../../../../src/components';
 import Axios from '../../../../src/config/Axios';
+import { showLoading } from '../../../../src/redux/actions/loadingAction';
 import {
   breakpoints,
   requireAuthenticationAdmin,
@@ -31,7 +33,7 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
   const router = useRouter();
   const idVehicles = router.query.idVehicles;
   const [totalStock, setTotalStock] = useState(1);
-
+  const dispatch = useDispatch();
   const validate = Yup.object({
     name: Yup.string().required('Name is required'),
     location: Yup.string().required('Location is required'),
@@ -566,7 +568,13 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
                 >
                   Save changes
                 </Button>
-                <div className="button-delete-dark" onClick={onOpen}>
+                <div
+                  className="button-delete-dark"
+                  onClick={onOpen}
+                  // onClick={() => {
+                  //   dispatch(showLoading(false));
+                  // }}
+                >
                   Delete
                 </div>
               </div>
@@ -761,6 +769,7 @@ const StyledAddingVehiclesPage = styled.div`
         .input-wrapper {
           margin-bottom: 1rem;
           input {
+            width: 100%;
             font-family: Nunito;
             font-style: normal;
             font-weight: 300;

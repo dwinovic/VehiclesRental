@@ -408,7 +408,7 @@ const AddVehicles = ({ roleUser, avatar, cookie, categories, idUser }) => {
                 >
                   {/* <option
                 onClick={() => {
-                  console.log('open');
+                  // console.log('open');
                   return onOpen;
                 }}
               >
