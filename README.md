@@ -1,34 +1,115 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
+  <a href="https://github.com/dwinovic/VehiclesRental">
+    <img src="https://res.cloudinary.com/dnv-images/image/upload/v1631957118/VehicleRental/ewallet_2_ktkxde.svg" alt="Logo" width="180" height="180">
+  </a>
+
+  <h3 align="center">Vehicle Rental</h3>
+
+  <p align="center">
+    Blalala Blalala Blalala <br> Blalala Blalala Blalala Blalala Blalala
+    <br />
+    <a href="https://github.com/dwinovic/VehiclesRental"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://vehicles-rental.vercel.app/">View Demo</a>
+    ·
+    <a href="https://github.com/dwinovic/VehiclesRental">Report Bug</a>
+    ·
+    <a href="https://github.com/dwinovic/VehiclesRental">Request Feature</a>
+  </p>
+</p>
+
+<!-- TABLE OF CONTENTS -->
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+        <ol>
+            <li>
+                <a href="#build-with">Build With</a>
+            </li>
+        </ol>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ol>
+        <li>
+          <a href="#installation">Installation</a>
+        </li>
+        <li>
+          <a href="#prerequisites">Prerequisites</a>
+        </li>
+        <li>
+          <a href="#related-project">Related Project</a>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#screenshots">Screenshots</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ol>
+</details>
+
+## About The Project
+
+<b>Vehicle Rental</b> is a Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala
+
+### Build With
+* [JavaScript](https://www.javascript.com/)
+* [React Js](https://reactjs.org/)
+* [Redux](https://redux.js.org/)
+* [Styled Components](https://styled-components.com/)
+* [Formik](https://formik.org/)
+* [React Bootstrap](https://react-bootstrap.github.io/)
+* [Material UI](https://material-ui.com/)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
+This is an example of how to list things you need to use the software and how to install them.
+* [Node Js](https://nodejs.org/en/download/)
+
+### Installation
+
+1. Clone These 2 Repos (Backend and Frontend)
+```sh
+git clone https://github.com/dwinovic/VehiclesRental
+```
+2. Go To Folder Repo
+```sh
+cd VehiclesRental
+```
+3. Install Module
+```sh
+npm install
+```
+4. Add .env file at root folder project, and add following
+```sh
+HOST_SERVER=[BACKEND_API]
+HOST_URL_FRONTEND = [URL_FRONTEND]
+```
+5. Start website
+```sh
 npm run dev
-# or
-yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Related Project
+* [`Frontend Vehicle Rental`](https://github.com/dwinovic/VehiclesRental)
+* [`Backend Vehicle Rental`](https://github.com/dwinovic/backend-vehicleRental)
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+## Screenshots
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+<div align="center">
+    <img width="350" src="https://www.bastiaanmulder.nl/wp-content/uploads/2013/11/dummy-image-portrait.jpg">   
+    <img width="350" src="https://www.bastiaanmulder.nl/wp-content/uploads/2013/11/dummy-image-portrait.jpg">
+</div>
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-## Learn More
+## Contact
+My Email : novidwicahya19@gmail.com
 
-To learn more about Next.js, take a look at the following resources:
+Project Link: [https://github.com/dwinovic/zwallet](https://github.com/dwinovic/zwallet)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
