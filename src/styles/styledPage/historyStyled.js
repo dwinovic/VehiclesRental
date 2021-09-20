@@ -74,8 +74,10 @@ export const HistoryStyled = styled.div`
           .btn-delete-wrapper {
             flex: 1;
             display: flex;
-            justify-content: flex-end;
             align-items: center;
+            gap: 10px;
+            justify-content: center;
+            flex-direction: column;
             .btn-delete {
               width: 150px;
               height: 50px;
@@ -124,6 +126,8 @@ export const HistoryStyled = styled.div`
         `}
         img {
           border-radius: 20px;
+          width: 100%;
+          height: 100%;
           object-fit: cover;
         }
         .description {
@@ -153,5 +157,17 @@ export const HistoryStyled = styled.div`
       align-items: center;
       gap: 1rem;
     }
+  }
+  .red {
+    color: red;
+  }
+  .orange {
+    color: orange;
+  }
+  .blue {
+    color: blue;
+  }
+  .green {
+    color: green;
   }
 `;

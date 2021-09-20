@@ -192,7 +192,7 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
         router.replace(`/vehicles/${idVehicles}`);
       })
       .catch((err) => {
-        console.log('Error:', err);
+        // console.log('Error:', err);
         const message = err.response.data.error;
         toastify(message, 'warning');
       });

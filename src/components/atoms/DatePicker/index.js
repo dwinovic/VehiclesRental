@@ -17,19 +17,22 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function DateAndTimePickers({ onChange }) {
+  const userState = useSelector((state) => state.user.user);
+
+  const date = new Date(userState?.born);
+  const fullDate =
+    date.getFullYear() +
+    '-' +
+    (date.getMonth() > 8 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1)) +
+    '-' +
+    (date.getDate() > 9 ? date.getDate() : '0' + date.getDate());
   return (
     <DatePickerStyled noValidate>
       <TextField
         InputProps={{ inputProps: { min: '2020-05-01', max: '2020-05-04' } }}
         id="date"
         type="date"
-        defaultValue={
-          new Date().getDate() +
-          '-' +
-          (new Date().getMonth() + 1) +
-          '-' +
-          new Date().getFullYear()
-        }
+        defaultValue={fullDate ? fullDate : '00-00-00'}
         className="textField"
         InputLabelProps={{
           shrink: true,

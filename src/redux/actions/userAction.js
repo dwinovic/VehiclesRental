@@ -91,7 +91,7 @@ export const updateUser = (data, router, cookie) => (dispatch, getState) => {
 export const logoutUser = (router) => (dispatch) => {
   Axios.get('/users/logout', { withCredentials: true })
     .then((res) => {
-      console.log(res);
+      // console.log(res);
       dispatch({ type: dispatchTypes.setUserLogout });
       router.replace('/login');
     })

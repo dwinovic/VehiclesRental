@@ -1,16 +1,50 @@
-import { Button, MainLayout, SearchInput } from '../../src/components';
-import { HistoryStyled } from '../../src/styles/styledPage';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @next/next/no-img-element */
 import { Select } from '@chakra-ui/react';
-import Image from 'next/image';
-import { IMGJogja } from '../../src/assets';
-import { requireAuthentication } from '../../src/utils';
+import * as moment from 'moment';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button, MainLayout, SearchInput } from '../../src/components';
+import Axios from '../../src/config/Axios';
+import { deleteReservation } from '../../src/redux/actions/reservationAction';
+import { HistoryStyled } from '../../src/styles/styledPage';
+import {
+  moneyFormatter,
+  requireAuthentication,
+  toastify,
+} from '../../src/utils';
 
-const History = ({ avatar, roleUser }) => {
+const History = ({ roleUser, dataHistory, cookie, newArrival }) => {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const [history, setHistory] = useState(dataHistory);
+  const userState = useSelector((state) => state.user.user);
+
+  const actionDeleteHistory = (idReservation, status) => {
+    if (status === 'paid off' || status === 'used') {
+      return toastify('Sorry item cannot delete', 'warning');
+    }
+    dispatch(deleteReservation(idReservation));
+  };
+
+  useEffect(() => {
+    Axios.get(`/reservations/customer/${userState.idUser}`, {
+      withCredentials: true,
+      headers: cookie ? { cookie: cookie } : undefined,
+    })
+      .then((res) => {
+        console.log('data', res);
+      })
+      .catch((err) => {
+        console.log(err.response);
+      });
+  }, [history]);
+
   return (
     <MainLayout
       bgFooter="gray"
       title="History"
-      avatar={avatar}
       session={roleUser ? 'login' : false}
     >
       <HistoryStyled className="container">
@@ -19,6 +53,12 @@ const History = ({ avatar, roleUser }) => {
             <SearchInput
               className="search-input"
               placeholder="Search history"
+              onClick={() => {
+                return toastify(
+                  'Sorry this feature is under development.',
+                  'warning'
+                );
+              }}
             />
             <div className="filter-wrapper">
               <Select
@@ -35,83 +75,120 @@ const History = ({ avatar, roleUser }) => {
           <div className="days-section">
             <h4 className="heading-section text-nunito-regular">Today</h4>
             <h4 className="text-nunito-bold dark">
-              Please finish your payment for vespa for Vespa Rental Jogja
+              {dataHistory.data.length === 0
+                ? 'You have no history. Please an order of our service'
+                : 'Please finish your payment for vespa for Vespa Rental Jogja'}
             </h4>
             <div className="divider" />
-            <h4 className="text-nunito-bold dark">
+            {/* <h4 className="text-nunito-bold dark">
               Your payment has been confirmed!
-            </h4>
-            <div className="divider" />
+            </h4> */}
+            {/* <div className="divider" /> */}
           </div>
           <div className="days-section">
-            <h4 className="heading-section text-nunito-regular">A week ago</h4>
+            <h4 className="heading-section text-nunito-regular">
+              {dataHistory.data.length > 0 && 'Your History Reservation'}
+            </h4>
             <div className="history-wrapper">
-              <div className="history-item">
-                <div className="image-wrapper">
-                  <Image src={IMGJogja} alt="history" layout="fill" />
-                </div>
-                <div className="desc">
-                  <h5 className="text-nunito-bold dark">Vespa Matic</h5>
-                  <p className="text-nunito-regular">Jan 18 to 21 2021</p>
-                  <p className="text-nunito-bold dark">
-                    Prepayment : Rp. 245.000
-                  </p>
-                  <p className="text-nunito-regular green">Has been returned</p>
-                </div>
-                <div className="btn-delete-wrapper">
-                  <Button theme="light" className="btn-delete">
-                    Delete
-                  </Button>
-                </div>
-              </div>
+              {history?.data.length > 0 &&
+                history?.data.map((item) => {
+                  return (
+                    <div className="history-item" key={item.idReservation}>
+                      <div className="image-wrapper">
+                        <img src={item.images} alt="history" />
+                      </div>
+                      <div className="desc">
+                        <h5 className="text-nunito-bold dark">{item.name}</h5>
+                        <p className="text-nunito-regular">
+                          {moment(item.reservationStartDate).format('D, MMM')} -{' '}
+                          {moment(item.reservationEndDate).format(
+                            'D, MMM, YYYY'
+                          )}
+                        </p>
+                        <p className="text-nunito-bold dark">
+                          Prepayment : Rp. Rp.{' '}
+                          {moneyFormatter.format(item.priceTotal)}
+                        </p>
+                        {item.status === 'pending' && (
+                          <p className="text-nunito-regular red">
+                            Finish payment
+                          </p>
+                        )}
+                        {item.status === 'paid off' && (
+                          <p className="text-nunito-regular orange">
+                            Has been paid off and waiting confirmation
+                          </p>
+                        )}
+                        {item.status === 'used' && (
+                          <p className="text-nunito-regular blue">
+                            Happy using
+                          </p>
+                        )}
+                        {item.status === 'returned' && (
+                          <p className="text-nunito-regular green">
+                            Has been returned
+                          </p>
+                        )}
+                      </div>
+                      <div className="btn-delete-wrapper">
+                        <Button
+                          theme="light"
+                          className="btn-delete"
+                          onClick={() =>
+                            actionDeleteHistory(item.idReservation, item.status)
+                          }
+                        >
+                          Delete
+                        </Button>
+                        {roleUser === 'admin' && (
+                          <Button
+                            theme="dark"
+                            className="btn-delete"
+                            onClick={() =>
+                              router.push(`/payments/${item.idReservation}`)
+                            }
+                          >
+                            Approve
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         </div>
         <div className="right-section">
           <h3 className="text-playfair">New Arrival</h3>
           <div className="content">
-            <div
-              className="card"
-              // key={item.idVehicles}
-              // onClick={() => {
-              //   return router.push({
-              //     pathname: `/vehicles/${item.idVehicles}`,
-              //   });
-              // }}
-            >
-              <Image
-                // loader={myLoader}
-                src={IMGJogja}
-                alt="image"
-                layout="fill"
-                unoptimized
-              />
-              <div className="description">
-                <h5>Lamborghini</h5>
-                <p className="text-regular">South Jakarta</p>
-              </div>
-            </div>
-            <div
-              className="card"
-              // key={item.idVehicles}
-              // onClick={() => {
-              //   return router.push({
-              //     pathname: `/vehicles/${item.idVehicles}`,
-              //   });
-              // }}
-            >
-              <Image
-                // loader={myLoader}
-                src={IMGJogja}
-                alt="image"
-                layout="fill"
-                unoptimized
-              />
-              <div className="description">
-                <h5>Lamborghini</h5>
-                <p className="text-regular">South Jakarta</p>
-              </div>
-            </div>
+            {newArrival?.data &&
+              newArrival?.data.map((newItem) => {
+                return (
+                  <>
+                    <div
+                      className="card"
+                      key={newItem.idVehicles}
+                      onClick={() => {
+                        return router.push({
+                          pathname: `/vehicles/${newItem.idVehicles}`,
+                        });
+                      }}
+                    >
+                      <img
+                        // loader={myLoader}
+                        src={newItem.images}
+                        alt="image"
+                        // layout="fill"
+                        // unoptimized
+                      />
+                      <div className="description">
+                        <h5>{newItem.name}</h5>
+                        <p className="text-regular">{newItem.location}</p>
+                      </div>
+                    </div>
+                  </>
+                );
+              })}
           </div>
           <div className="view-more">
             <p>View more</p>
@@ -138,21 +215,39 @@ export const getServerSideProps = requireAuthentication(async (context) => {
   try {
     const { req, res, params, query } = context;
 
-    let avatar = null;
-    if (res.avatar) {
-      avatar = res.avatar;
-    }
     const roleUser = res.role;
+    const idUser = res.idUser;
     const cookie = context.req.headers.cookie;
+    const { data } = await Axios.post(
+      `/reservations/history/${idUser}`,
+      { role: roleUser },
+      {
+        withCredentials: true,
+        headers: req ? { cookie: cookie } : undefined,
+      }
+    );
+
+    const { data: newArrival } = await Axios.get(`/vehicles?limit=2`, {
+      withCredentials: true,
+      headers: req ? { cookie: cookie } : undefined,
+    });
+    console.log('newArrival', newArrival);
 
     return {
       props: {
-        avatar: avatar,
-        roleUser: roleUser,
-        cookie: cookie,
+        roleUser: roleUser ? roleUser : null,
+        cookie: cookie ? cookie : null,
+        dataHistory: data ? data : null,
+        newArrival: newArrival ? newArrival : null,
       },
     };
-  } catch (error) {}
+  } catch (error) {
+    return {
+      props: {
+        error: error ? error : null,
+      },
+    };
+  }
 });
 
 export default History;

@@ -327,7 +327,7 @@ export async function getServerSideProps(ctx) {
     const { req, res } = ctx;
     const parseCookie = parseCookies(req);
     const { role: roleUser, token } = parseCookie;
-    console.log('parseCookie', parseCookie);
+    // console.log('parseCookie', parseCookie);k
 
     // GET VEHICLE POPULAR BY CATEGORY
     const { data } = await Axios.get(

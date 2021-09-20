@@ -11,6 +11,7 @@ import {
   breakpoints,
   moneyFormatter,
   requireAuthentication,
+  toastify,
 } from '../../../src/utils';
 
 const DetailVehicle = ({ dataVehicle, roleUser }) => {
@@ -212,13 +213,25 @@ const DetailVehicle = ({ dataVehicle, roleUser }) => {
         </section>
         {roleUser === 'customer' && (
           <section className=" button-action-wrapper">
-            <Button theme="dark" className="btn">
+            <Button
+              theme="dark"
+              className="btn"
+              onClick={() => {
+                toastify('Sorry this feature is under development.', 'warning');
+              }}
+            >
               Chat Admin
             </Button>
             <Button theme="light" className="btn" onClick={actionReservation}>
               Reservation
             </Button>
-            <Button theme="dark" className="btn small">
+            <Button
+              theme="dark"
+              className="btn small"
+              onClick={() => {
+                toastify('Sorry this feature is under development.', 'warning');
+              }}
+            >
               Like
             </Button>
           </section>

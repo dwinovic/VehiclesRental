@@ -7,7 +7,7 @@ import { StyledSectionCard } from './styled';
 
 const SectionCard = ({ heading, data, anchor }) => {
   const router = useRouter();
-  console.log('SectionCard:', data);
+  // console.log('SectionCard:', data);
   return (
     <StyledSectionCard className="container">
       {heading && (

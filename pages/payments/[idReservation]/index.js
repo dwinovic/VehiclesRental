@@ -23,8 +23,16 @@ const PaymentReservation = ({ session, reservationItem }) => {
   const actionFinishPayment = () => {
     const reservationDataUpdate = {
       idReservation: reservationItem.idReservation,
-      status: 1,
+      status: 'paid off',
       payment_method: paymentMethod,
+    };
+    dispatch(finishPaymentAction(reservationDataUpdate, router));
+  };
+
+  const actionApprovePayment = () => {
+    const reservationDataUpdate = {
+      idReservation: reservationItem.idReservation,
+      status: 'used',
     };
     dispatch(finishPaymentAction(reservationDataUpdate, router));
   };
@@ -85,9 +93,9 @@ const PaymentReservation = ({ session, reservationItem }) => {
             <div className="right order-detail">
               <p className="text-nunito-bold dark">Identity :</p>
               <p className="text-nunito-regular">
-                {userState.name} {userState.phone}
+                {reservationItem.username} {reservationItem.phone}
               </p>
-              <p className="text-nunito-regular">{userState.email}</p>
+              <p className="text-nunito-regular">{reservationItem.email}</p>
             </div>
           </div>
         </div>
@@ -103,9 +111,14 @@ const PaymentReservation = ({ session, reservationItem }) => {
             <Select
               bg=" rgba(255, 255, 255, 0.5)"
               variant="filled"
-              placeholder="Transfer Method"
+              placeholder={
+                reservationItem.payment_method
+                  ? reservationItem.payment_method
+                  : 'Transfer Method'
+              }
               className="select-method"
               onChange={(e) => setPaymentMethod(e.target.value)}
+              disabled={reservationItem.payment_method && true}
             >
               <option value="Cash">Cash</option>
               <option value="Transfer">Transfer</option>
@@ -123,7 +136,11 @@ const PaymentReservation = ({ session, reservationItem }) => {
           </Button>
         )}
         {session === 'admin' && (
-          <Button className="btn-finish" theme="light">
+          <Button
+            className="btn-finish"
+            theme="light"
+            onClick={actionApprovePayment}
+          >
             Approve Payments
           </Button>
         )}

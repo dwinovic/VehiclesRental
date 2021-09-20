@@ -1,7 +1,7 @@
 import { Select } from '@chakra-ui/react';
 import { DateTimePicker } from '@material-ui/pickers';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { IMGJogja } from '../../../../src/assets';
@@ -54,12 +54,13 @@ const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
       ...vehicleSelected,
       idCustomer: userState.idUser,
       reservationQty: totalCount,
-      priceTotal: totalCount * vehicleSelected.price,
+      priceTotal: totalCount * vehicleSelected.price * duration,
       reservationStartDate: moment(selectedDate._d),
       reservationEndDate: moment(selectedDate._d).add(duration, 'days')._d,
     };
     dispatch(payNowAction(selected, router));
   };
+
   // END = COUNTER STOCK
   return (
     <MainLayout
@@ -139,7 +140,9 @@ const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
                 bg=" rgba(57, 57, 57, 0.8)"
                 variant="filled"
                 size="lg"
-                onChange={(e) => setDuration(e.target.value)}
+                onChange={(e) => {
+                  setDuration(e.target.value);
+                }}
               >
                 <option value="1">1 day</option>
                 <option value="2">2 day</option>

@@ -7,8 +7,7 @@ export const reservationAction = (vehicles, router) => (dispatch, getState) => {
 };
 
 export const payNowAction = (data, router) => (dispatch, getState) => {
-  console.log('data:', data);
-  data.status = 0;
+  data.status = 'pending';
   Axios.post('/reservations', data, { withCredentials: true })
     .then((result) => {
       const responseData = result.data.data;
@@ -35,3 +34,16 @@ export const finishPaymentAction = (data, router) => (dispatch, getState) => {
       console.log('Error:', err.response);
     });
 };
+
+export const deleteReservation =
+  (idReservation, router) => (dispatch, getState) => {
+    Axios.delete(`/reservations/${idReservation}`, {
+      withCredentials: true,
+    })
+      .then((result) => {
+        toastify('Delete success', 'success');
+      })
+      .catch((err) => {
+        console.log('Error:', err.response);
+      });
+  };

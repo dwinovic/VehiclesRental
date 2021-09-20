@@ -1,5 +1,4 @@
 import { parseCookies } from '.';
-import { getCookies } from './getCookies';
 
 export function requireAuthentication(gssp) {
   return async (context) => {
