@@ -41,11 +41,11 @@ const RegisterCustomerPage = () => {
               >
                 Login
               </Button>
-              <Link href="/admin/register">
+              {/* <Link href="/admin/register">
                 <a>
                   <p className="admin-register">Admin register</p>
                 </a>
-              </Link>
+              </Link> */}
             </div>
             <div className="center">
               <svg

@@ -32,7 +32,7 @@ const LoginPage = ({ data }) => {
               <h1 className="heading">Le’ts Explore The World</h1>
               <p className="sign-up">Don’t have account?</p>
               <Button
-                type="light"
+                theme="dark"
                 className="btn"
                 onClick={() => {
                   return router.push('/register');

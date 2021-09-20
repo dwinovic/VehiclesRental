@@ -1,14 +1,14 @@
 import { Select } from '@chakra-ui/react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { ILCircle, ILPlus, IMGBGhome, IMGDMUser } from '../src/assets';
 import { SectionCard } from '../src/components';
 import { Button } from '../src/components/atoms';
 import { BgImageLayout, MainLayout } from '../src/components/layout';
 import Axios from '../src/config/Axios';
-import { breakpoints, getCookies, requireAuthentication } from '../src/utils';
+import { breakpoints, parseCookies } from '../src/utils';
 
 function Home({
   vehiclePopular,
@@ -16,7 +16,6 @@ function Home({
   listCategories,
   errorResponse,
   roleUser,
-  avatarUser,
 }) {
   const [filterForm, setFilterForm] = useState({
     location: '',
@@ -24,13 +23,6 @@ function Home({
   });
   // const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
-
-  // useEffect(() => {
-  // const roleLocal = localStorage.getItem('role');
-  // if (roleLocal === 'admin') {
-  // setIsAdmin(true);
-  // }
-  // }, []);
 
   // START = HANDLE FILTER VEHICLES FINDER
   const actionFilterForm = (event) => {
@@ -55,7 +47,6 @@ function Home({
       bgFooter="gray"
       title="Home"
       session={roleUser ? 'login' : false}
-      avatar={avatarUser}
     >
       <StyledHomepage>
         <header>
@@ -331,68 +322,19 @@ function Home({
     </MainLayout>
   );
 }
-
-// export const getServerSideProps = requireAuthentication(async (context) => {
-//   try {
-//     const { req, res } = context;
-//     //
-//     const avatarUser = res.avatar;
-//     const roleUser = res.role;
-
-//     // GET VEHICLE POPULAR BY CATEGORY
-//     const { data } = await Axios.get(`/vehicles?category=Popular In Town`);
-//     const vehiclePopular = data;
-//     // GET LIST OF LOCATION
-//     const getAllData = await Axios.get(`/vehicles`);
-//     const listLocation = [
-//       ...new Set(getAllData.data.data.map((item) => item.location)),
-//     ];
-//     // GET LIST OF CATEGORIES
-//     const { data: categories } = await Axios.get(`/category`);
-//     const listCategories = categories.data;
-
-//     return {
-//       props: {
-//         vehiclePopular,
-//         listLocation,
-//         listCategories,
-//         roleUser,
-//         avatarUser,
-//       },
-//     };
-//   } catch (error) {
-//     const errorResponse = error.response.data;
-//     return {
-//       props: {
-//         errorResponse,
-//       },
-//     };
-//   }
-// });
-
 export async function getServerSideProps(ctx) {
   try {
     const { req, res } = ctx;
-    let roleUser = '';
-    let avatarUser = '';
-    let token = '';
-
-    if (req.headers.cookie) {
-      token = getCookies(req, 'token');
-      const getAvatar = getCookies(req, 'avatar');
-      if (getAvatar) {
-        avatarUser = getAvatar.split('%').pop();
-      }
-      // console.log('getAvatar', getAvatar);
-      // console.log('avatarUser', avatarUser);
-      roleUser = getCookies(req, 'role');
-    }
+    const parseCookie = parseCookies(req);
+    const { role: roleUser, token } = parseCookie;
+    console.log('parseCookie', parseCookie);
 
     // GET VEHICLE POPULAR BY CATEGORY
     const { data } = await Axios.get(
       `/vehicles?category=Popular In Town&limit=5`
     );
     const vehiclePopular = data;
+    // console.log('vehiclePopular', data);
     // GET LIST OF LOCATION
     const getAllData = await Axios.get(`/vehicles`);
     const listLocation = [
@@ -408,7 +350,6 @@ export async function getServerSideProps(ctx) {
         listLocation,
         listCategories,
         roleUser: roleUser ? roleUser : null,
-        avatarUser: avatarUser ? avatarUser : null,
         token: token ? token : null,
       },
     };

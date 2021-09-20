@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Axios from '../../config/Axios';
 import { dispatchTypes, toastify } from '../../utils';
+import { showLoading } from './loadingAction';
 
 export const registerUser = (data, router, role) => (dispatch, getState) => {
   const dataSend = {
@@ -24,23 +25,24 @@ export const registerUser = (data, router, role) => (dispatch, getState) => {
 };
 
 export const loginUser = (data, router) => (dispatch, getState) => {
+  dispatch(showLoading(true));
   const defaultImageValue =
     'https://prairietherapy.ca/wp-content/uploads/2017/03/Blank-Profile-pic.png';
 
-  axios
-    .post(`https://vehicles-rental.vercel.app/api/login`, data, {
-      withCredentials: true,
-    })
+  Axios.post(`/users/login`, data, {
+    withCredentials: true,
+  })
     .then((result) => {
-      // console.log('result in user action:', result);
+      dispatch(showLoading(false));
       const dataUser = result.data.data;
       dataUser.avatar = dataUser.avatar ? dataUser.avatar : defaultImageValue;
       dispatch({ type: dispatchTypes.setUserLogin, payload: result.data.data });
       router.replace('/');
     })
     .catch((err) => {
+      dispatch(showLoading(false));
       console.log('Error:', err.response);
-      const message = err.response.data.data.error;
+      const message = err?.response?.data?.data?.error;
       // console.log('message:', message);
       toastify(message, 'warning');
     });
@@ -83,5 +85,17 @@ export const updateUser = (data, router, cookie) => (dispatch, getState) => {
         const message = err.response.data.error;
         toastify(message, 'warning');
       }
+    });
+};
+
+export const logoutUser = (router) => (dispatch) => {
+  Axios.get('/users/logout', { withCredentials: true })
+    .then((res) => {
+      console.log(res);
+      dispatch({ type: dispatchTypes.setUserLogout });
+      router.replace('/login');
+    })
+    .catch((err) => {
+      console.log(err.response);
     });
 };
