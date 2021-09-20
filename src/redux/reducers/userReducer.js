@@ -16,11 +16,9 @@ const userReducer = (state = initialState, action) => {
         ...state,
         user: { ...state.user, ...action.payload },
       };
-    case 'LOGOUT':
+    case dispatchTypes.setUserLogout:
       return {
-        ...state,
-        user: action.payload,
-        auth: false,
+        state: initialState,
       };
     default:
       return state;

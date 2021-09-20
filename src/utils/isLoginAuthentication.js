@@ -12,7 +12,7 @@ export function isLoginAuthentication(gssp) {
     const token = await getCookies(req, 'token');
     const avatar = await getCookies(req, 'avatar');
     const role = await getCookies(req, 'role');
-
+    // console.log('token', token);
     if (res?.avatar) {
       res.avatar = avatar;
     }

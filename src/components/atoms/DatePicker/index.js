@@ -29,9 +29,10 @@ export default function DateAndTimePickers({ onChange }) {
   return (
     <DatePickerStyled noValidate>
       <TextField
+        InputProps={{ inputProps: { min: '2020-05-01', max: '2020-05-04' } }}
         id="date"
         type="date"
-        defaultValue={fullDate ? fullDate : '00'}
+        defaultValue={fullDate ? fullDate : '00-00-00'}
         className="textField"
         InputLabelProps={{
           shrink: true,

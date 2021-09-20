@@ -1,18 +1,42 @@
 /* eslint-disable @next/next/no-img-element */
 import { Select } from '@chakra-ui/react';
-import Image from 'next/image';
-import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { IMGMalang } from '../../../src/assets';
 import { Button, GoBackPage, MainLayout } from '../../../src/components';
-import { breakpoints, requireAuthentication } from '../../../src/utils';
-const PaymentReservation = ({ session }) => {
-  const role = 'seller';
-  const vehicleState = useSelector((state) => state.reservation.vehicles);
-  const userState = useSelector((state) => state.user.user);
+import Axios from '../../../src/config/Axios';
+import {
+  breakpoints,
+  moneyFormatter,
+  requireAuthentication,
+} from '../../../src/utils';
+import * as moment from 'moment';
+import { finishPaymentAction } from '../../../src/redux/actions/reservationAction';
+import { useRouter } from 'next/router';
 
-  // console.log('vehicleState', vehicleState);
-  // console.log('userState', userState);
+const PaymentReservation = ({ session, reservationItem }) => {
+  const userState = useSelector((state) => state.user.user);
+  const [paymentMethod, setPaymentMethod] = useState(false);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const actionFinishPayment = () => {
+    const reservationDataUpdate = {
+      idReservation: reservationItem.idReservation,
+      status: 'paid off',
+      payment_method: paymentMethod,
+    };
+    dispatch(finishPaymentAction(reservationDataUpdate, router));
+  };
+
+  const actionApprovePayment = () => {
+    const reservationDataUpdate = {
+      idReservation: reservationItem.idReservation,
+      status: 'used',
+    };
+    dispatch(finishPaymentAction(reservationDataUpdate, router));
+  };
+
   return (
     <MainLayout
       bgFooter="gray"
@@ -23,26 +47,36 @@ const PaymentReservation = ({ session }) => {
         <GoBackPage titleBack="Payment" />
         <div className="detail-vehicle">
           <div className="image-wrapper">
-            <img src={vehicleState.images[0]} alt={vehicleState.name} />
+            <img src={reservationItem.images} alt={reservationItem.name} />
           </div>
           <div className="desc">
-            <h1 className="title-vehicle">{vehicleState.name}</h1>
-            <p className="location">{vehicleState.location}</p>
+            <h1 className="title-vehicle">{reservationItem.name}</h1>
+            <p className="location">{reservationItem.location}</p>
             <p className="status default">No Prepayment</p>
-            <p className="price">Rp. {vehicleState.price}</p>
-            <Button theme="light" className="btn-copy">
+            <p className="price">
+              Rp. {moneyFormatter.format(reservationItem.priceTotal)}
+            </p>
+            {/* <Button theme="light" className="btn-copy">
               Copy booking code
-            </Button>
+            </Button> */}
           </div>
         </div>
         <div className="detail-reservation">
           <div className="detail-row">
             <div className="left">
-              <p className="text-nunito-bold dark">Quantity : 2 bikes</p>
+              <p className="text-nunito-bold dark">
+                Quantity : {reservationItem.reservationQty}
+              </p>
             </div>
             <div className="right date-wrapper">
               <p className="text-nunito-bold dark">Reservation Date :</p>
-              <p className="text-nunito-regular"> Jan 18 - 20 2021</p>
+              <p className="text-nunito-regular">
+                {moment(reservationItem.reservationStartDate).format('D, MMM')}{' '}
+                -{' '}
+                {moment(reservationItem.reservationEndDate).format(
+                  'D, MMM, YYYY'
+                )}
+              </p>
             </div>
           </div>
           <div className="detail-row">
@@ -50,48 +84,63 @@ const PaymentReservation = ({ session }) => {
               <p className="text-nunito-bold dark">Order details :</p>
               {/* <p className="text-nunito-regular">1 bike : Rp. 78.000</p> */}
               <p className="text-nunito-regular">
-                1 bike : Rp. {vehicleState.price}
+                1 unit : Rp. {moneyFormatter.format(reservationItem.price)}
               </p>
               <p className="text-nunito-bold dark">
-                Total : {vehicleState.price}
+                Total : {moneyFormatter.format(reservationItem.priceTotal)}
               </p>
             </div>
             <div className="right order-detail">
               <p className="text-nunito-bold dark">Identity :</p>
               <p className="text-nunito-regular">
-                {userState.name} {userState.phone}
+                {reservationItem.username} {reservationItem.phone}
               </p>
-              <p className="text-nunito-regular">{userState.email}</p>
+              <p className="text-nunito-regular">{reservationItem.email}</p>
             </div>
           </div>
         </div>
         <div className="payment-method-wrapper">
           <h5 className="text-nunito-bold dark">Payment Code :</h5>
           <div className="code-copy-btn">
-            <p className="invoice-code">#FG1209878YZS</p>
-            <Button className="btn-copy" theme="dark">
+            <p className="invoice-code">#{reservationItem.idReservation}</p>
+            {/* <Button className="btn-copy" theme="dark">
               Copy
-            </Button>
+            </Button> */}
           </div>
           <div className="input-group">
             <Select
               bg=" rgba(255, 255, 255, 0.5)"
               variant="filled"
-              placeholder="Transfer Method"
+              placeholder={
+                reservationItem.payment_method
+                  ? reservationItem.payment_method
+                  : 'Transfer Method'
+              }
               className="select-method"
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              disabled={reservationItem.payment_method && true}
             >
-              <option value="cash">Cash</option>
-              <option value="transfer">Transfer</option>
+              <option value="Cash">Cash</option>
+              <option value="Transfer">Transfer</option>
             </Select>
           </div>
         </div>
-        {role === 'customer' && (
-          <Button className="btn-finish" theme="light">
-            Finish payment : <span className="timer">59:30</span>
+        {session === 'customer' && (
+          <Button
+            className="btn-finish"
+            theme="light"
+            disabled={!paymentMethod && true}
+            onClick={actionFinishPayment}
+          >
+            Finish payment {/* : <span className="timer">59:30</span> */}
           </Button>
         )}
-        {role === 'seller' && (
-          <Button className="btn-finish" theme="light">
+        {session === 'admin' && (
+          <Button
+            className="btn-finish"
+            theme="light"
+            onClick={actionApprovePayment}
+          >
             Approve Payments
           </Button>
         )}
@@ -103,17 +152,27 @@ const PaymentReservation = ({ session }) => {
 export const getServerSideProps = requireAuthentication(async (context) => {
   let session;
   try {
-    const { res } = context;
+    const { res, params } = context;
     const roleUser = res.role;
-
+    const resReservation = await Axios.get(
+      `/reservations/${params.idReservation}`,
+      {
+        withCredentials: true,
+        headers: context.req
+          ? { cookie: context.req.headers.cookie }
+          : undefined,
+      }
+    );
+    const reservationItem = resReservation.data.data[0];
     return {
       props: {
-        session: roleUser,
+        session: roleUser ? roleUser : null,
+        reservationItem: reservationItem ? reservationItem : null,
       },
     };
   } catch (error) {
     session = error.response;
-    return { props: { session } };
+    return { props: { session: session ? session : null } };
   }
 });
 // // END = SERVER SIDE PROPS

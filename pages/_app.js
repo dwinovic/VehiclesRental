@@ -6,8 +6,17 @@ import { Provider } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PersistGate } from 'redux-persist/integration/react';
+import { LoadingScreen } from '../src/components';
 import { persistor, store } from '../src/redux/store';
 import '../src/styles/globals.css';
+import { CookiesProvider } from 'react-cookie';
+import MomentUtils from '@date-io/moment';
+import {
+  DatePicker,
+  TimePicker,
+  DateTimePicker,
+  MuiPickersUtilsProvider,
+} from '@material-ui/pickers';
 
 const progress = new ProgressBar({
   size: 5,
@@ -45,19 +54,23 @@ function MyApp({ Component, pageProps }) {
       <ChakraProvider>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
-            <Component {...pageProps} />
-            <ToastContainer
-              position="top-center"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
-            {/* <LoadingScreen /> */}
+            <CookiesProvider>
+              <MuiPickersUtilsProvider utils={MomentUtils}>
+                <Component {...pageProps} />
+                <ToastContainer
+                  position="top-center"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                />
+                <LoadingScreen />
+              </MuiPickersUtilsProvider>
+            </CookiesProvider>
           </PersistGate>
         </Provider>
       </ChakraProvider>

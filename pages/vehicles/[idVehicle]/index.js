@@ -1,16 +1,23 @@
 import Image from 'next/image';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
-import NumberFormat from 'react-number-format';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { ILCamera } from '../../../src/assets';
 import { Button, GoBackPage, MainLayout } from '../../../src/components';
 import Axios from '../../../src/config/Axios';
 import { reservationAction } from '../../../src/redux/actions/reservationAction';
-import { breakpoints, requireAuthentication } from '../../../src/utils';
+import {
+  breakpoints,
+  moneyFormatter,
+  requireAuthentication,
+  toastify,
+} from '../../../src/utils';
+
 const DetailVehicle = ({ dataVehicle, roleUser }) => {
   const { data: vehicle, statusCode } = dataVehicle;
   const dispatch = useDispatch();
+  const [total, setTotal] = useState(1);
   const router = useRouter();
 
   if (statusCode !== 200) {
@@ -28,8 +35,26 @@ const DetailVehicle = ({ dataVehicle, roleUser }) => {
   };
 
   const actionReservation = () => {
-    dispatch(reservationAction(dataVehicle.data, router));
-    // return router.push(`/payments/${vehicle.idVehicles}`);
+    const selected = {
+      ...vehicle,
+      itemTotal: total,
+      priceTotal: total * vehicle.price,
+    };
+    dispatch(reservationAction(selected, router));
+  };
+
+  const incrementTotal = () => {
+    if (vehicle.stock === total) {
+      return null;
+    }
+    setTotal((oldValue) => (oldValue += 1));
+  };
+
+  const decrementTotal = () => {
+    if (total === 1) {
+      return null;
+    }
+    setTotal((oldValue) => (oldValue -= 1));
   };
 
   return (
@@ -147,18 +172,14 @@ const DetailVehicle = ({ dataVehicle, roleUser }) => {
             </p>
             <p className="detail">{vehicle.description}</p>
             <div className="price-wrapper">
-              <NumberFormat
-                className="price"
-                value={vehicle.price}
-                displayType={'text'}
-                thousandSeparator={true}
-                prefix={'Rp. '}
-              />
+              <p className="price">
+                Rp. {moneyFormatter.format(vehicle.price)} / day
+              </p>
               <p className="price kouta">Kouta: {vehicle.stock}</p>
             </div>
             <div></div>
             <div className="amount-wrapper">
-              <button className="btn primary">
+              <button className="btn primary" onClick={incrementTotal}>
                 <svg
                   width="25"
                   height="24"
@@ -172,8 +193,8 @@ const DetailVehicle = ({ dataVehicle, roleUser }) => {
                   />
                 </svg>
               </button>
-              <p className="btn count">2s</p>
-              <button className="btn secondary">
+              <p className="btn count">{total}</p>
+              <button className="btn secondary" onClick={decrementTotal}>
                 <svg
                   width="18"
                   height="8"
@@ -192,13 +213,25 @@ const DetailVehicle = ({ dataVehicle, roleUser }) => {
         </section>
         {roleUser === 'customer' && (
           <section className=" button-action-wrapper">
-            <Button theme="dark" className="btn">
+            <Button
+              theme="dark"
+              className="btn"
+              onClick={() => {
+                toastify('Sorry this feature is under development.', 'warning');
+              }}
+            >
               Chat Admin
             </Button>
             <Button theme="light" className="btn" onClick={actionReservation}>
               Reservation
             </Button>
-            <Button theme="dark" className="btn small">
+            <Button
+              theme="dark"
+              className="btn small"
+              onClick={() => {
+                toastify('Sorry this feature is under development.', 'warning');
+              }}
+            >
               Like
             </Button>
           </section>
@@ -260,40 +293,6 @@ export const getServerSideProps = requireAuthentication(async (context) => {
   }
 });
 // // END = SERVER SIDE PROPS
-
-// START = STATIC GENERATION
-// export async function getStaticPaths() {
-//   const res = await Axios.get('/vehicles');
-
-//   const paths = res.data.data.map((item) => ({
-//     params: { idVehicle: item.idVehicles },
-//   }));
-//   // console.log(paths);
-
-//   return { paths, fallback: true };
-// }
-
-// export async function getStaticProps(context) {
-//   const { req, res, params } = context;
-//   // eslint-disable-next-line react-hooks/rules-of-hooks
-//   // const cookie = useCookie(context);
-//   // const token = cookie.get('token');
-//   // console.log('token', token);
-//   let dataVehicle;
-//   // console.log(params.idVehicle);
-//   try {
-//     const res = await Axios(`/vehicles/static/${params.idVehicle}`);
-//     dataVehicle = res.data;
-//     console.log('dataVehicle in server', dataVehicle);
-//     // Pass post data to the page via props
-//     return { props: { dataVehicle } };
-//   } catch (error) {
-//     dataVehicle = error.response;
-//     // console.log(dataVehicle);
-//     return { props: { dataVehicle } };
-//   }
-// }
-// END = STATIC GENERATION
 
 // STYLING CURRENT PAGE
 const StyledDetailVehicle = styled.div`
@@ -455,15 +454,13 @@ const StyledDetailVehicle = styled.div`
       .amount-wrapper {
         display: flex;
         justify-content: space-around;
-        position: absolute;
+        margin-top: 32px;
         ${breakpoints.lessThan('md')`
           position: relative;
           margin-top: 2rem;
         `}
-        bottom: 0;
         width: 100%;
         .btn {
-          display: none;
           border: 0;
           box-sizing: content-box;
           padding: 27px;

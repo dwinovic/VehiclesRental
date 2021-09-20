@@ -5,14 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { AVADefault } from '../../../assets';
 import { ICEmail } from '../../../assets/icons';
-import Axios from '../../../config/Axios';
+import { logoutUser } from '../../../redux/actions/userAction';
 import { breakpoints } from '../../../utils/Breakpoints';
 import { LogoBrand } from '../../atoms';
-const { publicRuntimeConfig } = getConfig();
 
 const Navbar = ({ session }) => {
   const userState = useSelector((state) => state.user.user);
@@ -20,22 +18,14 @@ const Navbar = ({ session }) => {
   const [avatarPop, setAvatarPop] = useState(false);
   const router = useRouter();
   const pathActive = router.pathname.split('/')[1];
+  const dispatch = useDispatch();
+  const AVADefault =
+    'https://prairietherapy.ca/wp-content/uploads/2017/03/Blank-Profile-pic.png';
 
   const handleLogout = () => {
-    Axios.get('/users/logout', { withCredentials: true })
-      .then((res) => {
-        // console.log(res);
-        router.replace('/login');
-      })
-      .catch((err) => {
-        console.log(err.response);
-      });
+    dispatch(logoutUser(router));
   };
-  // if (avatar) {
-  //   // console.log('avatar in navbar', avatar);
-  // } else {
-  //   // console.log('false');
-  // }
+
   return (
     <>
       <StyledNavbar>
@@ -86,7 +76,7 @@ const Navbar = ({ session }) => {
               <div className="profile-wrapper">
                 <div className="item email">
                   <Image src={ICEmail} alt="email" layout="fill" />
-                  <div className="circle">2</div>
+                  {false && <div className="circle">2</div>}
                 </div>
                 <div
                   className="item avatar"
@@ -97,7 +87,7 @@ const Navbar = ({ session }) => {
                 >
                   <img
                     className="avatar"
-                    src={userState.avatar ? userState.avatar : AVADefault}
+                    src={userState?.avatar ? userState?.avatar : AVADefault}
                     alt="user profile"
                   />
                 </div>
@@ -195,7 +185,7 @@ const Navbar = ({ session }) => {
                   <div className="circle">2</div>
                 </div>
                 <div className="item">
-                  <Image src={AVADefault} alt="user profile" layout="fill" />
+                  <img src={AVADefault} alt="user profile" />
                 </div>
               </div>
             </div>

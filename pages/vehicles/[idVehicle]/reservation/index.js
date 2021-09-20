@@ -1,75 +1,96 @@
-import { IMGJogja } from '../../../../src/assets';
-import {
-  Button,
-  DatePicker,
-  GoBackPage,
-  MainLayout,
-} from '../../../../src/components';
-import Image from 'next/image';
 import { Select } from '@chakra-ui/react';
-import { Input } from '@chakra-ui/react';
-import styled from 'styled-components';
-import { breakpoints, requireAuthentication } from '../../../../src/utils';
-import Axios from '../../../../src/config/Axios';
+import { DateTimePicker } from '@material-ui/pickers';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { IMGJogja } from '../../../../src/assets';
+import { Button, GoBackPage, MainLayout } from '../../../../src/components';
+import Axios from '../../../../src/config/Axios';
+import {
+  breakpoints,
+  moneyFormatter,
+  requireAuthentication,
+} from '../../../../src/utils';
+import * as moment from 'moment';
+import {
+  payNowAction,
+  reservationAction,
+} from '../../../../src/redux/actions/reservationAction';
+import { useRouter } from 'next/router';
 
 const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
-  const { data: vehicle, statusCode } = dataVehicle;
+  const vehicleSelected = useSelector((state) => state.reservation.item);
+  const userState = useSelector((state) => state.user.user);
 
-  const [totalCount, setTotalCount] = useState(1);
-  const [totalPrice, setTotalPrice] = useState(vehicle.price || 0);
+  const [totalCount, setTotalCount] = useState(vehicleSelected.itemTotal);
+  const [totalPrice, setTotalPrice] = useState(vehicleSelected.priceTotal || 0);
+  const [selectedDate, handleDateChange] = useState(new Date());
+  const [duration, setDuration] = useState();
+  const dispatch = useDispatch();
+  const router = useRouter();
+
   const myLoader = ({ src }) => {
-    return `${vehicle?.images[0]}`;
+    return `${vehicleSelected.images[0]}`;
   };
-
-  // console.log('avatar', avatar);
-  // START = COUNTER STOCK
 
   const handleIncrement = () => {
-    let currentValue = totalCount;
-    currentValue += 1;
-    setTotalCount(currentValue);
+    if (vehicleSelected.stock === totalCount) {
+      return null;
+    }
+    setTotalCount((oldValue) => (oldValue += 1));
+    setTotalPrice((oldValue) => oldValue + vehicleSelected.price);
   };
+
   const handleDecrement = () => {
     if (totalCount === 1) {
       return null;
-    } else {
-      let currentValue = totalCount;
-      currentValue -= 1;
-
-      setTotalCount(currentValue);
     }
+    setTotalCount((oldValue) => (oldValue -= 1));
+    setTotalPrice((oldValue) => oldValue - vehicleSelected.price);
   };
+  const actionPayNow = () => {
+    const selected = {
+      ...vehicleSelected,
+      idCustomer: userState.idUser,
+      reservationQty: totalCount,
+      priceTotal: totalCount * vehicleSelected.price * duration,
+      reservationStartDate: moment(selectedDate._d),
+      reservationEndDate: moment(selectedDate._d).add(duration, 'days')._d,
+    };
+    dispatch(payNowAction(selected, router));
+  };
+
   // END = COUNTER STOCK
   return (
     <MainLayout
       bgFooter="gray"
-      title={`Reservation | ${vehicle.name}`}
+      title={`Reservation | ${vehicleSelected.name}`}
       avatar={avatar}
       session={roleUser ? 'login' : false}
     >
       <StyledReservationVehicle className="container">
         <GoBackPage titleBack="Reservation" />
         <div className="main">
-          {vehicle?.images[0] && (
+          {vehicleSelected?.images[0] && (
             <div className="image-wrapper">
               <Image
-                src={vehicle?.images[0]}
+                src={vehicleSelected?.images[0]}
                 loader={myLoader}
-                alt={vehicle.name}
+                alt={vehicleSelected.name}
                 layout="fill"
               />
             </div>
           )}
-          {!vehicle?.images[0] && (
+          {!vehicleSelected?.images[0] && (
             <div className="image-wrapper">
               <Image src={IMGJogja} layout="fill" alt="image" />
             </div>
           )}
           <div className="detail-wrapper">
-            <h1 className="title-vehicle">{vehicle.name}</h1>
-            <p className="location">{vehicle.locaton}</p>
-            <p className="status green">{vehicle.status}</p>
+            <h1 className="title-vehicle">{vehicleSelected.name}</h1>
+            <p className="location">{vehicleSelected.location}</p>
+            <p className="status green">{vehicleSelected.status}</p>
             <div className="amount-wrapper">
               <button className="btn primary" onClick={handleIncrement}>
                 <svg
@@ -103,36 +124,40 @@ const ReservationVehicle = ({ dataVehicle, roleUser, avatar }) => {
             </div>
             <h3 className="date-title">Reservation Date :</h3>
             <div className="input-group">
-              {/* <Input
-                placeholder="Select date"
-                size="lg"
-                variant="filled"
-                bg=" rgba(57, 57, 57, 0.8)"
-              /> */}
               <div className="col">
-                <p>Start</p>
-                <DatePicker />
-              </div>
-              <div className="col">
-                <p>End</p>
-                <DatePicker />
+                <DateTimePicker
+                  className="date-picker"
+                  label="Start Date Reservation"
+                  inputVariant="outlined"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  showTodayButton
+                />
               </div>
             </div>
             <div className="input-group">
-              {/* <Select
+              <Select
                 bg=" rgba(57, 57, 57, 0.8)"
                 variant="filled"
                 size="lg"
-                placeholder="1 Day"
+                onChange={(e) => {
+                  setDuration(e.target.value);
+                }}
               >
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-                <option value="option3">Option 3</option>
-              </Select> */}
+                <option value="1">1 day</option>
+                <option value="2">2 day</option>
+                <option value="3">3 day</option>
+                <option value="4">4 day</option>
+                <option value="5">5 day</option>
+                <option value="6">6 day</option>
+                <option value="7">7 day</option>
+              </Select>
             </div>
           </div>
         </div>
-        <Button theme="light">Pay now : Rp. {totalPrice}</Button>
+        <Button theme="light" onClick={actionPayNow}>
+          Pay now : Rp. {moneyFormatter.format(totalPrice)}
+        </Button>
       </StyledReservationVehicle>
     </MainLayout>
   );
@@ -274,6 +299,13 @@ const StyledReservationVehicle = styled.div`
       margin-bottom: 2rem;
       select {
         background: rgba(203, 203, 212, 0.2);
+        height: 56px;
+      }
+      .col {
+        width: 100%;
+        .date-picker {
+          width: 100%;
+        }
       }
     }
   }
