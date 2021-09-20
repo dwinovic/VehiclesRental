@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -6,7 +7,7 @@ import { StyledSectionCard } from './styled';
 
 const SectionCard = ({ heading, data, anchor }) => {
   const router = useRouter();
-  // console.log(data);
+  console.log('SectionCard:', data);
   return (
     <StyledSectionCard className="container">
       {heading && (
@@ -21,9 +22,9 @@ const SectionCard = ({ heading, data, anchor }) => {
       <div className="content">
         {data &&
           data.map((item) => {
-            const myLoader = ({ src }) => {
-              return `${item.images}`;
-            };
+            // const myLoader = ({ src }) => {
+            //   return `${item.images}`;
+            // };
             return (
               <div
                 className="card"
@@ -34,12 +35,12 @@ const SectionCard = ({ heading, data, anchor }) => {
                   });
                 }}
               >
-                <Image
-                  loader={myLoader}
+                <img
+                  // loader={myLoader}
                   src={item.images}
                   alt={item.name}
-                  layout="fill"
-                  unoptimized
+                  // layout="fill"
+                  // unoptimized
                 />
                 <div className="description">
                   <h5>{item.name}</h5>

@@ -11,8 +11,8 @@ const PaymentReservation = ({ session }) => {
   const vehicleState = useSelector((state) => state.reservation.vehicles);
   const userState = useSelector((state) => state.user.user);
 
-  console.log('vehicleState', vehicleState);
-  console.log('userState', userState);
+  // console.log('vehicleState', vehicleState);
+  // console.log('userState', userState);
   return (
     <MainLayout
       bgFooter="gray"

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Axios from '../../config/Axios';
 import { dispatchTypes, toastify } from '../../utils';
 
@@ -26,9 +27,12 @@ export const loginUser = (data, router) => (dispatch, getState) => {
   const defaultImageValue =
     'https://prairietherapy.ca/wp-content/uploads/2017/03/Blank-Profile-pic.png';
 
-  Axios.post('/users/login', data, { withCredentials: true })
+  axios
+    .post(`https://vehicles-rental.vercel.app/api/login`, data, {
+      withCredentials: true,
+    })
     .then((result) => {
-      // console.log(result);
+      // console.log('result in user action:', result);
       const dataUser = result.data.data;
       dataUser.avatar = dataUser.avatar ? dataUser.avatar : defaultImageValue;
       dispatch({ type: dispatchTypes.setUserLogin, payload: result.data.data });
@@ -36,10 +40,9 @@ export const loginUser = (data, router) => (dispatch, getState) => {
     })
     .catch((err) => {
       console.log('Error:', err.response);
-      // if (err.response.status === 501) {
-      const message = err.response.data.error;
+      const message = err.response.data.data.error;
+      // console.log('message:', message);
       toastify(message, 'warning');
-      // }
     });
 };
 
@@ -49,7 +52,7 @@ export const updateUser = (data, router, cookie) => (dispatch, getState) => {
   // console.log('dataForm', data);
   const formData = new FormData();
   if (data.avatar.length !== 0) {
-    console.log('data.avatar.length !== 0', data.avatar.length !== 0);
+    // console.log('data.avatar.length !== 0', data.avatar.length !== 0);
     formData.append('avatar', data.avatar);
   }
   formData.append('name', data.name);
