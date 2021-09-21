@@ -104,8 +104,23 @@ npm run dev
 ## Screenshots
 
 <div align="center">
-    <img width="350" src="https://www.bastiaanmulder.nl/wp-content/uploads/2013/11/dummy-image-portrait.jpg">   
-    <img width="350" src="https://www.bastiaanmulder.nl/wp-content/uploads/2013/11/dummy-image-portrait.jpg">
+    <img width="700" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198396/VehicleRental/Preview_-_01_-_Zwallet_1_zsnxg4.png">   
+</div>
+<div align="center">
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198399/VehicleRental/Preview_-_02_-_Zwallet_clairg.png">   
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198401/VehicleRental/Preview_-_03_-_Zwallet_hakitt.png">
+</div>
+<div align="center">
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198404/VehicleRental/Preview_-_04_-_Zwallet_2_co6kth.png">   
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198408/VehicleRental/Preview_-_05_-_Zwallet_cf7fvh.png">
+</div>
+<div align="center">
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198409/VehicleRental/Preview_-_06_-_Zwallet_k2onox.png">   
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198406/VehicleRental/Preview_-_07_-_Zwallet_aclkb7.png">
+</div>
+<div align="center">
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198412/VehicleRental/Preview_-_08_-_Zwallet_t19fom.png">
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198412/VehicleRental/Preview_-_08_-_Zwallet_t19fom.png">   
 </div>
 
 
