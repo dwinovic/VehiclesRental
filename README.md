@@ -116,7 +116,7 @@ npm run dev
 </div>
 <div align="center">
     <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198409/VehicleRental/Preview_-_06_-_Zwallet_k2onox.png">   
-    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198406/VehicleRental/Preview_-_07_-_Zwallet_aclkb7.png">
+    <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632580660/VehicleRental/07_exxdqs.png">
 </div>
 <div align="center">
     <img width="350" src="https://res.cloudinary.com/dnv-images/image/upload/v1632198412/VehicleRental/Preview_-_08_-_Zwallet_t19fom.png">
