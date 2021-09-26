@@ -22,6 +22,7 @@ import { ICPlusLight, ILCamera } from '../../../../src/assets';
 import { Button, GoBackPage, MainLayout } from '../../../../src/components';
 import Axios from '../../../../src/config/Axios';
 import { showLoading } from '../../../../src/redux/actions/loadingAction';
+import { updateVehicle } from '../../../../src/redux/actions/vehicleAction';
 import {
   breakpoints,
   requireAuthenticationAdmin,
@@ -120,84 +121,6 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
     }
   };
   // END = HANDLE UPLOAD IMAGES
-  const actionSubmitData = (data) => {
-    const idVehicles = router.query.idVehicles;
-    // console.log('token', token);
-    // const checkDataSend = {
-    //   idVehicles,
-    //   name: data.name,
-    //   location: data.location,
-    //   description: data.description,
-    //   price: data.price,
-    //   category: data.category,
-    //   stock: totalStock,
-    //   capacity: 2,
-    //   paymentOption: 'per day',
-    //   status: data.status,
-    //   images: uploadImage,
-    // };
-
-    // console.log('checkDataSend', checkDataSend);
-
-    const formData = new FormData();
-    formData.append('name', data.name);
-    formData.append('location', data.location);
-    formData.append('description', data.description);
-    formData.append('price', data.price);
-    formData.append('category', data.category);
-    formData.append('stock', totalStock);
-    formData.append('capacity', 2);
-    formData.append('paymentOption', 'per day');
-    formData.append('status', data.status);
-    // formData.append('images', uploadImage);
-
-    // console.log('data.image1', data.image1);
-    // console.log('uploadImage 1', uploadImage);
-
-    // if (uploadImage.length === 0) {
-    //   images.push(vehicle.images);
-    //   console.log('vehicle.images', vehicle.images);
-    // } else {
-    //   images.push(uploadImage);
-    // }
-    const imagesExist = [];
-    if (uploadImage.length > 0) {
-      uploadImage.forEach((image) => {
-        // console.log('image before', typeof image);
-        if (image !== false && image !== undefined) {
-          formData.append('images', image);
-          imagesExist.push(image);
-          // console.log('image true', image);
-        }
-      });
-    } else {
-      formData.append('images', vehicle.images);
-      // console.log('vehicle.images', vehicle.images);
-    }
-
-    // console.log('uploadImage', uploadImage);
-    // console.log('imagesExist', imagesExist);
-    // if (imagesExist.length === 0) {
-    //   return toastify('Upps, Images required!', 'warning');
-    // }
-    // console.log('imagesExist.length', imagesExist.length);
-    // return;
-    return Axios.patch(`/vehicles/${idVehicles}`, formData, {
-      withCredentials: true,
-      cookie: cookie,
-    })
-      .then((result) => {
-        // console.log(result);
-        toastify('Success update vehicles', 'success');
-        router.replace(`/vehicles/${idVehicles}`);
-      })
-      .catch((err) => {
-        // console.log('Error:', err);
-        const message = err.response.data.error;
-        toastify(message, 'warning');
-      });
-  };
-
   const deleteItem = () => {
     Axios.delete(`/vehicles/${idVehicles}`, {
       withCredentials: true,
@@ -291,7 +214,13 @@ const AddVehicles = ({ dataVehicle, roleUser, avatar, categories, cookie }) => {
           }}
           validationSchema={validate}
           onSubmit={(values, { resetForm }) => {
-            actionSubmitData(values);
+            values.idVehicles = router.query.idVehicles;
+            values.stock = totalStock;
+            values.images =
+              uploadImage.length > 0 ? uploadImage : vehicle.images;
+            values.cookie = cookie;
+            dispatch(updateVehicle(values, router));
+            // actionSubmitData(values);
           }}
         >
           {({
@@ -613,7 +542,6 @@ export const getServerSideProps = requireAuthenticationAdmin(
     let dataVehicle;
     try {
       const { req, res, params } = context;
-      const avatar = res.avatar;
       const roleUser = res.role;
       const cookie = context.req.headers.cookie;
 
@@ -633,7 +561,6 @@ export const getServerSideProps = requireAuthenticationAdmin(
       return {
         props: {
           dataVehicle,
-          avatar,
           roleUser,
           categories,
           cookie,

@@ -157,16 +157,16 @@ export const getServerSideProps = requireAuthentication(async (context) => {
         .all([
           // Remember to replace the api\_key with a valid one.
           axios.get(
-            `${process.env.HOST_SERVER}/vehicles?category=popular in town&limit=5`
+            `${process.env.NEXT_PUBLIC_SERVER}/vehicles?category=popular in town&limit=5`
           ),
           axios.get(
-            `${process.env.HOST_SERVER}/vehicles?category=motor&limit=5`
+            `${process.env.NEXT_PUBLIC_SERVER}/vehicles?category=motor&limit=5`
           ),
           axios.get(
-            `${process.env.HOST_SERVER}/vehicles?category=cars&limit=5`
+            `${process.env.NEXT_PUBLIC_SERVER}/vehicles?category=cars&limit=5`
           ),
           axios.get(
-            `${process.env.HOST_SERVER}/vehicles?category=bike&limit=5`
+            `${process.env.NEXT_PUBLIC_SERVER}/vehicles?category=bike&limit=5`
           ),
         ])
         .then(

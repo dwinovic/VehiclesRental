@@ -12,6 +12,7 @@ export const HistoryStyled = styled.div`
 
   .main {
     width: 90%;
+    padding-top: 0;
     ${breakpoints.lessThan('lg')`
       width: 100%; 
     `}
@@ -52,6 +53,9 @@ export const HistoryStyled = styled.div`
         margin-bottom: 26px;
       }
       .history-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
         .history-item {
           display: flex;
           gap: 1rem;
@@ -61,6 +65,8 @@ export const HistoryStyled = styled.div`
             height: 165px;
             img {
               object-fit: cover;
+              width: 100%;
+              height: 100%;
               border-radius: 15px;
             }
           }
@@ -68,11 +74,9 @@ export const HistoryStyled = styled.div`
             display: flex;
             justify-content: center;
             flex-direction: column;
-            p {
-            }
+            flex: 1;
           }
           .btn-delete-wrapper {
-            flex: 1;
             display: flex;
             align-items: center;
             gap: 10px;

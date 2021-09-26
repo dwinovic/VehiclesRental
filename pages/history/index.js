@@ -49,7 +49,7 @@ const History = ({ roleUser, dataHistory, cookie, newArrival }) => {
     >
       <HistoryStyled className="container">
         <div className="main">
-          <div className="search-section">
+          {/* <div className="search-section">
             <SearchInput
               className="search-input"
               placeholder="Search history"
@@ -71,13 +71,13 @@ const History = ({ roleUser, dataHistory, cookie, newArrival }) => {
                 <option value="option3">Name</option>
               </Select>
             </div>
-          </div>
+          </div> */}
           <div className="days-section">
             <h4 className="heading-section text-nunito-regular">Today</h4>
             <h4 className="text-nunito-bold dark">
               {dataHistory.data.length === 0
                 ? 'You have no history. Please an order of our service'
-                : 'Please finish your payment for vespa for Vespa Rental Jogja'}
+                : null}
             </h4>
             <div className="divider" />
             {/* <h4 className="text-nunito-bold dark">
@@ -190,7 +190,10 @@ const History = ({ roleUser, dataHistory, cookie, newArrival }) => {
                 );
               })}
           </div>
-          <div className="view-more">
+          <div
+            className="view-more"
+            onClick={() => router.push('/vehicles-type')}
+          >
             <p>View more</p>
             <svg
               width="43"

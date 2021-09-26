@@ -41,10 +41,12 @@ export const loginUser = (data, router) => (dispatch, getState) => {
     })
     .catch((err) => {
       dispatch(showLoading(false));
-      console.log('Error:', err.response);
-      const message = err?.response?.data?.data?.error;
-      // console.log('message:', message);
-      toastify(message, 'warning');
+      const response = err?.response;
+      console.log('response:', response);
+      console.log('response?.data?.data?.error:', response?.data?.data?.error);
+      if (response?.status === 404) {
+        return toastify(response?.data?.error, 'warning');
+      }
     });
 };
 
@@ -52,17 +54,21 @@ export const updateUser = (data, router, cookie) => (dispatch, getState) => {
   const idUser = getState().user.user.idUser;
   // console.log('cookie', cookie);
   // console.log('dataForm', data);
+  dispatch(showLoading(true));
+
   const formData = new FormData();
   if (data.avatar.length !== 0) {
     // console.log('data.avatar.length !== 0', data.avatar.length !== 0);
     formData.append('avatar', data.avatar);
   }
   formData.append('name', data.name);
+
   if (data.birth) {
     formData.append('born', data.birth);
   }
   formData.append('phone', data.phone);
   formData.append('address', data.address);
+
   if (data.gender) {
     formData.append('gender', data.gender);
   }
@@ -76,11 +82,15 @@ export const updateUser = (data, router, cookie) => (dispatch, getState) => {
         type: dispatchTypes.setUpdateUser,
         payload: result.data.data,
       });
+      dispatch(showLoading(false));
+
       toastify('Success update profile');
       router.replace('/profile');
     })
     .catch((err) => {
       console.log('Error:', err.response);
+      dispatch(showLoading(false));
+
       if (err.response.status === 501) {
         const message = err.response.data.error;
         toastify(message, 'warning');

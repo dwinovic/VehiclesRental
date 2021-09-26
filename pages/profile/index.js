@@ -159,7 +159,6 @@ const ProfileUserPage = ({ userData, avatar, roleUser, cookie, idUser }) => {
               ...values,
             };
             dispatch(updateUser(dataForm, router, cookie));
-            resetForm();
           }}
         >
           {(formik) => (
