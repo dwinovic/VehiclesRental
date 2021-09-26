@@ -4,11 +4,13 @@ import { Form, Formik } from 'formik';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { ICPlusLight, ILCamera } from '../../../src/assets';
 import { Button, GoBackPage, Input, MainLayout } from '../../../src/components';
 import Axios from '../../../src/config/Axios';
+import { addVehicle } from '../../../src/redux/actions/vehicleAction';
 import {
   breakpoints,
   requireAuthenticationAdmin,
@@ -24,6 +26,7 @@ const AddVehicles = ({
   errorResponse,
 }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const validate = Yup.object({
     name: Yup.string()
       .required('Name is required')
@@ -33,6 +36,7 @@ const AddVehicles = ({
     price: Yup.number('Price must be a number')
       .required('Price is required')
       .nullable(),
+    category: Yup.string('Category is required'),
   });
 
   const [totalStock, setTotalStock] = useState(1);
@@ -41,72 +45,10 @@ const AddVehicles = ({
   const [previewImage1, setpreviewImage1] = useState();
   const [previewImage2, setpreviewImage2] = useState();
   const [previewImage3, setpreviewImage3] = useState();
+
   if (errorResponse) {
     return <h1>Error in server</h1>;
   }
-  // START = UPLOAD IMAGE
-
-  const actionSubmitData = (data) => {
-    const formData = new FormData();
-
-    // console.log({
-    //   idOwner: idUser,
-    //   name: data.name,
-    //   location: data.location,
-    //   description: data.description,
-    //   price: data.price,
-    //   category: data.category,
-    //   stock: totalStock,
-    //   status: 'available',
-    // });
-    formData.append('idOwner', idUser);
-    formData.append('name', data.name);
-    formData.append('location', data.location);
-    formData.append('description', data.description);
-    formData.append('price', data.price);
-    formData.append('category', data.category);
-    formData.append('stock', totalStock);
-    formData.append('capacity', 2);
-    formData.append('paymentOption', 'per day');
-    formData.append('status', 'available');
-    // formData.append('images', uploadImage);
-
-    // console.log('data.image1', data.image1);
-
-    const imagesExist = [];
-
-    uploadImage.forEach((image) => {
-      // console.log('image before', typeof image);
-      if (image !== false && image !== undefined) {
-        formData.append('images', image);
-        imagesExist.push(image);
-        // console.log('image true', image);
-      }
-    });
-
-    // console.log('uploadImage', uploadImage);
-    // console.log('imagesExist', imagesExist);
-    if (imagesExist.length === 0) {
-      return toastify('Upps, Images required!', 'warning');
-    }
-    // console.log('imagesExist.length', imagesExist.length);
-    // return;
-
-    Axios.post('/vehicles', formData, {
-      withCredentials: true,
-      cookie: cookie,
-    })
-      .then((result) => {
-        // console.log(result);
-        toastify('Success ad vehicles', 'success');
-        router.replace(`/vehicles/${result.data.data.idVehicles}`);
-      })
-      .catch((err) => {
-        console.log('Error:', err.response);
-        const message = err.response.data.error;
-        toastify(message, 'warning');
-      });
-  };
 
   const handleImage1 = (e) => {
     if (
@@ -207,7 +149,17 @@ const AddVehicles = ({
           }}
           validationSchema={validate}
           onSubmit={(values, { resetForm }) => {
-            actionSubmitData(values);
+            if (uploadImage.length === 0) {
+              return toastify('Required Image. At least 1 image!', 'warning');
+            }
+            if (!values.category) {
+              return toastify('Please select category!', 'warning');
+            }
+            values.images = uploadImage;
+            values.stock = totalStock;
+            values.idUser = idUser;
+            values.cookie = cookie;
+            dispatch(addVehicle(values, router));
           }}
         >
           {({
@@ -424,6 +376,7 @@ const AddVehicles = ({
               >
                 Add item to
               </option> */}
+                  {/* <option>Select Category</option> */}
                   {categories &&
                     categories.map((category) => {
                       return (
@@ -462,7 +415,6 @@ export const getServerSideProps = requireAuthenticationAdmin(
   async (context) => {
     try {
       const { req, res } = context;
-      const avatar = res.avatar;
       const roleUser = res.role;
       const idUser = res.idUser;
       const cookie = context.req.headers.cookie;
@@ -472,7 +424,6 @@ export const getServerSideProps = requireAuthenticationAdmin(
 
       return {
         props: {
-          avatar,
           roleUser,
           cookie,
           categories,

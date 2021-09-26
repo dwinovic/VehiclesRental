@@ -21,7 +21,7 @@ export default LoadingScreen;
 
 const StyledLoadingScreen = styled.div`
   background-color: #00000036;
-  position: absolute;
+  position: fixed;
   width: 100vw;
   height: 100vh;
   top: 0;

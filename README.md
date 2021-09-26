@@ -57,48 +57,60 @@
 <b>Vehicle Rental</b> is a Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala Blalala
 
 ### Build With
-* [JavaScript](https://www.javascript.com/)
-* [React Js](https://reactjs.org/)
-* [Redux](https://redux.js.org/)
-* [Styled Components](https://styled-components.com/)
-* [Formik](https://formik.org/)
-* [React Bootstrap](https://react-bootstrap.github.io/)
-* [Material UI](https://material-ui.com/)
+
+- [JavaScript](https://www.javascript.com/)
+- [React Js](https://reactjs.org/)
+- [Redux](https://redux.js.org/)
+- [Styled Components](https://styled-components.com/)
+- [Formik](https://formik.org/)
+- [React Bootstrap](https://react-bootstrap.github.io/)
+- [Material UI](https://material-ui.com/)
 
 ## Getting Started
 
 ### Prerequisites
 
 This is an example of how to list things you need to use the software and how to install them.
-* [Node Js](https://nodejs.org/en/download/)
+
+- [Node Js](https://nodejs.org/en/download/)
 
 ### Installation
 
 1. Clone These 2 Repos (Backend and Frontend)
+
 ```sh
 git clone https://github.com/dwinovic/VehiclesRental
 ```
+
 2. Go To Folder Repo
+
 ```sh
 cd VehiclesRental
 ```
+
 3. Install Module
+
 ```sh
 npm install
 ```
+
 4. Add .env file at root folder project, and add following
+
 ```sh
-HOST_SERVER=[BACKEND_API]
-HOST_URL_FRONTEND = [URL_FRONTEND]
+NEXT_PUBLIC_SERVER=[BACKEND_API]
+NEXT_PUBLIC_URL_FRONTEND = [URL_FRONTEND]
 ```
+
 5. Start website
+
 ```sh
 npm run dev
 ```
 
 ### Related Project
-* [`Frontend Vehicle Rental`](https://github.com/dwinovic/VehiclesRental)
-* [`Backend Vehicle Rental`](https://github.com/dwinovic/backend-vehicleRental)
+
+- [`Frontend Vehicle Rental`](https://github.com/dwinovic/VehiclesRental)
+- [`Backend Vehicle Rental`](https://github.com/dwinovic/backend-vehicleRental)
 
 ## Screenshots
 
@@ -107,9 +119,8 @@ npm run dev
     <img width="350" src="https://www.bastiaanmulder.nl/wp-content/uploads/2013/11/dummy-image-portrait.jpg">
 </div>
 
-
 ## Contact
+
 My Email : novidwicahya19@gmail.com
 
 Project Link: [https://github.com/dwinovic/zwallet](https://github.com/dwinovic/zwallet)
-
