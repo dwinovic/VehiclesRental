@@ -54,8 +54,7 @@
 
 ## About The Project
 
-<b>Vehicle Rental</b>  is a platform for providing vehicle rental services
-from various major cities in Indonesia. The service provider is managed by a trusted vendor.
+<b>Vehicle Rental</b>  is a website that provides vehicle rental services in various major cities in Indonesia. It has features such as users can rent the desired vehicle, search for vehicles based on certain categories, order history, admin can add vehicles, change vehicles, and users can update personal data.
 
 ### Build With
 
